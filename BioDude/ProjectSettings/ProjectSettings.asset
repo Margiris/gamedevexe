@@ -7,11 +7,11 @@ PlayerSettings:
   productGUID: 76cc4d38e53d14a4e84d926ae04c2d92
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
-  defaultScreenOrientation: 4
+  defaultScreenOrientation: 0
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: DefaultCompany
+  companyName: gamedevexe
   productName: BioDude
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
@@ -126,7 +126,7 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 0.1
+  bundleVersion: 0.2
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
