@@ -1,43 +1,45 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using GUI_scripts.Achievement;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class LoadSceneFromMenu : MonoBehaviour
+namespace GUI_scripts
 {
-
-    public GameObject[] ObjectToMove;
-    
-    public AchievementManager achievementManager;
-    public GameObject achievementPanel;
-
-    private void Awake()
+    public class LoadSceneFromMenu : MonoBehaviour
     {
-        foreach (var item in ObjectToMove)
+        public GameObject[] ObjectToMove;
+
+        public AchievementManager achievementManager;
+
+        private void Awake()
         {
-            DontDestroyOnLoad(item);
+            foreach (var item in ObjectToMove)
+            {
+                DontDestroyOnLoad(item);
+            }
+
+            Time.timeScale = 1;
         }
-        Time.timeScale = 1;
-    }
-    public void NewGame()
-    {
-        achievementManager.DestroyAllAchievements();
-        Destroy(GameObject.Find("MainMenuCanvas"));
 
-        GamePrefs.DeletePlayerProgress();
-        LoadByIndex(2);
-    }
-    public void ContinueGame()
-    {
-        int indexToLoad = PlayerPrefs.GetInt("LastLevelCheckpoint");
-        Destroy(GameObject.Find("MainMenuCanvas"));
-        LoadByIndex(indexToLoad);
-    }
+        public void NewGame()
+        {
+            achievementManager.DestroyAllAchievements();
+            Destroy(GameObject.Find("MainMenuCanvas"));
 
-    void LoadByIndex(int sceneIndex)
-    {
-        SceneManager.LoadScene(sceneIndex);
-        Time.timeScale = 1f;
+            GamePrefs.DeletePlayerProgress();
+            LoadByIndex(2);
+        }
+
+        public void ContinueGame()
+        {
+            var indexToLoad = PlayerPrefs.GetInt("LastLevelCheckpoint");
+            Destroy(GameObject.Find("MainMenuCanvas"));
+            LoadByIndex(indexToLoad);
+        }
+
+        private void LoadByIndex(int sceneIndex)
+        {
+            SceneManager.LoadScene(sceneIndex);
+            Time.timeScale = 1f;
+        }
     }
 }

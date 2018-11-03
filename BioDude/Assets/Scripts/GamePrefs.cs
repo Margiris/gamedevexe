@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public static class GamePrefs {
-    static GameObject[] weaponArray;
+    private static GameObject[] weaponArray;
 
     public static void DeletePlayerProgress()
     {

@@ -1,72 +1,74 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Bullet : MonoBehaviour
+namespace Items_scripts
 {
-    private float damage = 0;
-    public ParticleSystem impactConcrete;
-    public ParticleSystem impactMetal;
-    public ParticleSystem impactFlesh;
-
-    //bool bulletFired = false;  //////////////////////////////
-
-    /// <summary>
-    /// give bullet speed and time after which it should destroy itself
-    /// </summary>
-    /// <param name="destroyAfter">time in second after how long destroy this bullet</param>
-    /// <param name="speed">speed to give to bullet</param>
-    public void Instantiate(float destroyAfter, float speed, float damage)
+    public class Bullet : MonoBehaviour
     {
-        Destroy(gameObject, destroyAfter);
-        GetComponent<Rigidbody2D>().AddRelativeForce(new Vector2(0, speed));
-        this.damage = damage;
-    }
+        private float damage;
+        public ParticleSystem impactConcrete;
+        public ParticleSystem impactMetal;
+        public ParticleSystem impactFlesh;
 
-	private void OnCollisionEnter2D(Collision2D collision)
-    {
-        //checking if collided with a character
-        Character charObj = collision.gameObject.GetComponent<Character>();
-        
-        //getting contact points and setting rotation to the contact normal
-        ContactPoint2D[] contacts = new ContactPoint2D[2];
-        int contactCount = collision.GetContacts(contacts);
+        //bool bulletFired = false;  //////////////////////////////
 
-        if(contactCount>0)
+        /// <summary>
+        /// give bullet speed and time after which it should destroy itself
+        /// </summary>
+        /// <param name="destroyAfter">time in second after how long destroy this bullet</param>
+        /// <param name="speed">speed to give to bullet</param>
+        /// <param name="damage"></param>
+        // ReSharper disable once ParameterHidesMember
+        public void Instantiate(float destroyAfter, float speed, float damage)
         {
-            Vector3 contactPos = contacts[0].point;
-            Quaternion rot = Quaternion.FromToRotation(transform.forward, contacts[0].normal);
-
-            if (charObj != null)
-            {
-                charObj.Damage(damage);
-                if (charObj.tag == "Player")
-                {
-                    ParticleSystem emitter = Instantiate(impactFlesh, contactPos, rot);
-                    // This splits the particle off so it doesn't get deleted with the parent
-                    emitter.transform.parent = null;
-                    //Debug.Log("player blood");
-
-                }
-                else if (charObj.tag == "Enemy")
-                {
-                    ParticleSystem emitter = Instantiate(impactMetal, contactPos, rot);
-                    // This splits the particle off so it doesn't get deleted with the parent
-                    emitter.transform.parent = null;
-                    //Debug.Log("enemy metal");
-                }
-
-            }
-            else if (collision.transform.tag != "Bouncy")
-            {
-                ParticleSystem emitter = Instantiate(impactConcrete, contactPos, rot);
-                // This splits the particle off so it doesn't get deleted with the parent
-                emitter.transform.parent = null;
-            }
+            Destroy(gameObject, destroyAfter);
+            GetComponent<Rigidbody2D>().AddRelativeForce(new Vector2(0, speed));
+            this.damage = damage;
         }
-        if (collision.transform.tag != "Bouncy")
-            Destroy(gameObject);
-    }
+
+        private void OnCollisionEnter2D(Collision2D collision)
+        {
+            //checking if collided with a character
+            var charObj = collision.gameObject.GetComponent<Character>();
+
+            //getting contact points and setting rotation to the contact normal
+            var contacts = new ContactPoint2D[2];
+            var contactCount = collision.GetContacts(contacts);
+
+            if (contactCount > 0)
+            {
+                Vector3 contactPos = contacts[0].point;
+                var rot = Quaternion.FromToRotation(transform.forward, contacts[0].normal);
+
+                if (charObj != null)
+                {
+                    charObj.Damage(damage);
+                    if (charObj.CompareTag("Player"))
+                    {
+                        var emitter = Instantiate(impactFlesh, contactPos, rot);
+                        // This splits the particle off so it doesn't get deleted with the parent
+                        emitter.transform.parent = null;
+                        //Debug.Log("player blood");
+                    }
+                    else if (charObj.CompareTag("Enemy"))
+                    {
+                        var emitter = Instantiate(impactMetal, contactPos, rot);
+                        // This splits the particle off so it doesn't get deleted with the parent
+                        emitter.transform.parent = null;
+                        //Debug.Log("enemy metal");
+                    }
+                }
+                else if (!collision.transform.CompareTag("Bouncy"))
+                {
+                    var emitter = Instantiate(impactConcrete, contactPos, rot);
+                    // This splits the particle off so it doesn't get deleted with the parent
+                    emitter.transform.parent = null;
+                }
+            }
+
+            if (!collision.transform.CompareTag("Bouncy"))
+                Destroy(gameObject);
+        }
+
 /*
     IEnumerator Fire()
     {
@@ -74,4 +76,5 @@ public class Bullet : MonoBehaviour
 
         GetComponent<Rigidbody2D>().AddRelativeForce(new Vector2(0, weapon.projectileSpeed));
     }*/
+    }
 }

@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class Pistol : Weapon
+﻿namespace Items_scripts.Weapon_Scripts
 {
-
+    public class Pistol : Weapon
+    {
+    }
 }

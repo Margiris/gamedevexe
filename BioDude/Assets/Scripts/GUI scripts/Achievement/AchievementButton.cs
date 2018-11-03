@@ -1,42 +1,33 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class AchievementButton : MonoBehaviour {
-
-    public GameObject achievementList;
-
-    public Sprite neutral, highlight;
-
-    private Image sprite;
-
-    private void Awake()
+namespace GUI_scripts.Achievement
+{
+    public class AchievementButton : MonoBehaviour
     {
-        sprite = GetComponent<Image>();
-    }
+        public GameObject achievementList;
 
-    // Use this for initialization
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+        public Sprite neutral, highlight;
 
-    public void Click()
-    {
-        if (sprite.sprite == neutral)
+        private Image sprite;
+
+        private void Awake()
         {
-            sprite.sprite = highlight;
-            achievementList.SetActive(true);
+            sprite = GetComponent<Image>();
         }
-        else
+
+        public void Click()
         {
-            sprite.sprite = neutral;
-            achievementList.SetActive(false);
+            if (sprite.sprite == neutral)
+            {
+                sprite.sprite = highlight;
+                achievementList.SetActive(true);
+            }
+            else
+            {
+                sprite.sprite = neutral;
+                achievementList.SetActive(false);
+            }
         }
     }
 }

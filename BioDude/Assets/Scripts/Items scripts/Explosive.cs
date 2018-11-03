@@ -1,39 +1,42 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Explosive : MonoBehaviour {
-    public bool started = false;
-    public float throwForce = 100f;
-    public int AmmoType;
-    public virtual void Explode()
+namespace Items_scripts
+{
+    public class Explosive : MonoBehaviour
     {
-    }
+        public bool started;
+        public float throwForce = 100f;
+        public int AmmoType;
 
-    public static void AddExplosionForce(Rigidbody2D body, float expForce, Vector3 expPosition, float expRadius, float damage)
-    {
-        var dir = (body.transform.position - expPosition);
-        float calc = 1 - (dir.magnitude / expRadius);
-        if (calc <= 0)
+        public virtual void Explode()
         {
-            calc = 0;
         }
 
-        body.AddForce(dir.normalized * expForce * calc);
-        Character charObj = body.gameObject.GetComponent<Character>();
-        if (charObj != null)
+        protected static void AddExplosionForce(Rigidbody2D body, float expForce, Vector3 expPosition, float expRadius,
+            float damage)
         {
-            body.gameObject.GetComponent<Character>().Damage(damage * calc);
+            var dir = (body.transform.position - expPosition);
+            var calc = 1 - (dir.magnitude / expRadius);
+            if (calc <= 0)
+            {
+                calc = 0;
+            }
+
+            body.AddForce(dir.normalized * expForce * calc);
+            var charObj = body.gameObject.GetComponent<Character>();
+            if (charObj != null)
+            {
+                body.gameObject.GetComponent<Character>().Damage(damage * calc);
+            }
         }
-    }
-    public virtual void Throw(float force)
-    {
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        if (rb != null)
+
+        public virtual void Throw(float force)
         {
+            var rb = GetComponent<Rigidbody2D>();
+            if (rb == null) return;
             Debug.Log("base grenade");
-            Vector3 mousePos = Input.mousePosition;
-            float dirForce = Vector3.Distance(transform.position, mousePos);
+            var mousePos = Input.mousePosition;
+            var dirForce = Vector3.Distance(transform.position, mousePos);
             dirForce *= 0.07f;
             dirForce *= dirForce;
 

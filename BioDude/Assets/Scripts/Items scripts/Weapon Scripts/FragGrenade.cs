@@ -1,61 +1,59 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class FragGrenade : Explosive
+namespace Items_scripts.Weapon_Scripts
 {
-
-    public float delay = 2f;
-    float countdown;
-
-    public GameObject explosionEffect;
-
-    bool exploded = false;
-    public float radius = 3f;
-    public float force = 500f;
-    public float damage = 1f;
-    private Rigidbody2D rb;
-
-    // Use this for initialization
-    void Start()
+    public class FragGrenade : Explosive
     {
-        countdown = delay;
-        rb = GetComponent<Rigidbody2D>();
-        //started = true;
-    }
+        public float delay = 2f;
+        private float countdown;
 
+        public GameObject explosionEffect;
 
-    // Update is called once per frame
-    void FixedUpdate()
-    {
-        if(!started)
+        private bool exploded;
+        public float radius = 3f;
+        public float force = 500f;
+        public float damage = 1f;
+
+        // Use this for initialization
+        private void Start()
         {
-            Throw(throwForce);
-            started = true;
+            countdown = delay;
+            GetComponent<Rigidbody2D>();
+            //started = true;
         }
-        countdown -= Time.deltaTime;
-        if (countdown <= 0f && !exploded)
+
+
+        // Update is called once per frame
+        private void FixedUpdate()
         {
+            if (!started)
+            {
+                Throw(throwForce);
+                started = true;
+            }
+
+            countdown -= Time.deltaTime;
+            if (!(countdown <= 0f) || exploded) return;
             Explode();
             exploded = true;
         }
-    }
 
-    public override void Explode()
-    {
-        Instantiate(explosionEffect, transform.position, transform.rotation);
-
-        Collider2D[] nearbyObjects = Physics2D.OverlapCircleAll(transform.position, radius);
-
-        foreach (Collider2D obj in nearbyObjects)
+        public override void Explode()
         {
-            Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
-            if (rb != null)
-            {
-                AddExplosionForce(rb, force, transform.position, radius, damage);
-            }
-        }
+            Instantiate(explosionEffect, transform.position, transform.rotation);
 
-        Destroy(gameObject);
+            var nearbyObjects = Physics2D.OverlapCircleAll(transform.position, radius);
+
+            foreach (var obj in nearbyObjects)
+            {
+                var rb = obj.GetComponent<Rigidbody2D>();
+                if (rb != null)
+                {
+                    AddExplosionForce(rb, force, transform.position, radius, damage);
+                }
+            }
+
+            Destroy(gameObject);
+        }
     }
 }

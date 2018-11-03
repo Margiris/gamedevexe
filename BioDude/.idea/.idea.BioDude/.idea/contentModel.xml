@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\zippe\.Rider2018.1\System\resharper-host\local\Transient\ReSharperHost\v12\SolutionCaches\_BioDude.-1481986647.00" t="ExcludeRecursive" />
-    <e p="C:\Users\zippe\Desktop\2 k. 2 s\Semestro projektas\gamedevexe\BioDude" t="IncludeRecursive">
+    <e p="C:\gamedevexe\BioDude" t="IncludeRecursive">
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets\AstarPathfindingProject" t="Include">
+        <e p="AstarPathfindingProject.asmdef" t="Include" />
         <e p="Behaviors" t="Include">
           <e p="AIDestinationSetter.cs" t="Include" />
           <e p="Patrol.cs" t="Include" />
@@ -38,6 +38,7 @@
             <e p="GraphModifier.cs" t="Include" />
             <e p="GraphUpdateProcessor.cs" t="Include" />
             <e p="GraphUtilities.cs" t="Include" />
+            <e p="HierarchicalGraph.cs" t="Include" />
             <e p="Int3.cs" t="Include" />
             <e p="ListPool.cs" t="Include" />
             <e p="MovementUtilities.cs" t="Include" />
@@ -79,6 +80,7 @@
           <e p="AILerpEditor.cs" t="Include" />
           <e p="AnimationLinkEditor.cs" t="Include" />
           <e p="AstarPathEditor.cs" t="Include" />
+          <e p="AstarPathfindingProjectEditor.asmdef" t="Include" />
           <e p="AstarUpdateChecker.cs" t="Include" />
           <e p="AstarUpdateWindow.cs" t="Include" />
           <e p="CustomGraphEditorAttribute.cs" t="Include" />
@@ -96,6 +98,10 @@
             <e p="PointGeneratorEditor.cs" t="Include" />
           </e>
           <e p="GraphUpdateSceneEditor.cs" t="Include" />
+          <e p="Legacy" t="Include">
+            <e p="LegacyAIPathEditor2.cs" t="Include" />
+            <e p="LegacyEditorHelper2.cs" t="Include" />
+          </e>
           <e p="ModifierEditors" t="Include">
             <e p="RaycastModifierEditor.cs" t="Include" />
             <e p="SmoothModifierEditor.cs" t="Include" />
@@ -150,6 +156,8 @@
           <e p="Editor" t="Include">
             <e p="LegacyAIPathEditor.cs" t="Include" />
             <e p="LegacyEditorHelper.cs" t="Include" />
+            <e p="LegacyRichAIEditor.cs" t="Include" />
+            <e p="LegacyRVOControllerEditor.cs" t="Include" />
           </e>
           <e p="LegacyAIPath.cs" t="Include" />
           <e p="MiscLegacy.cs" t="Include" />
@@ -164,6 +172,7 @@
           <e p="StartEndModifier.cs" t="Include" />
         </e>
         <e p="Navmesh" t="Include">
+          <e p="NavmeshUpdates.cs" t="Include" />
           <e p="RelevantGraphSurface.cs" t="Include" />
         </e>
         <e p="PackageTools" t="Include">
@@ -171,6 +180,7 @@
             <e p="EditorBase.cs" t="Include" />
             <e p="EditorGUIx.cs" t="Include" />
             <e p="EnumFlagDrawer.cs" t="Include" />
+            <e p="PackageToolsEditor.asmdef" t="Include" />
           </e>
           <e p="EnumFlagAttribute.cs" t="Include" />
           <e p="UniqueComponentAttribute.cs" t="Include" />
@@ -212,7 +222,6 @@
           <e p="Firearm.cs" t="Include" />
           <e p="Head.cs" t="Include" />
           <e p="MeleeTank.cs" t="Include" />
-          <e p="Range.cs" t="Include" />
           <e p="RangedTank.cs" t="Include" />
           <e p="Tank.cs" t="Include" />
         </e>
@@ -244,9 +253,9 @@
         <e p="Items scripts" t="Include">
           <e p="Bullet.cs" t="Include" />
           <e p="Explosive.cs" t="Include" />
-          <e p="GuidedMisile.cs" t="Include" />
+          <e p="GuidedMissile.cs" t="Include" />
           <e p="Item.cs" t="Include" />
-          <e p="Richochet.cs" t="Include" />
+          <e p="Ricochet.cs" t="Include" />
           <e p="SelfDestruct.cs" t="Include" />
           <e p="Weapon Scripts" t="Include">
             <e p="AmmoPickup.cs" t="Include" />
@@ -264,13 +273,8 @@
           </e>
         </e>
         <e p="MovingObject.cs" t="Include" />
-        <e p="Path finding (deprecated)" t="Include">
-          <e p="AStar.cs" t="Include" />
-          <e p="InitiateMap.cs" t="Include" />
-          <e p="Node.cs" t="Include" />
-        </e>
         <e p="Player scripts" t="Include">
-          <e p="Allerting.cs" t="Include" />
+          <e p="Alerting.cs" t="Include" />
           <e p="CameraScript.cs" t="Include" />
           <e p="player.cs" t="Include" />
           <e p="PlayerShooting.cs" t="Include" />
@@ -354,13 +358,19 @@
           </e>
         </e>
       </e>
+      <e p="AstarPathfindingProject.csproj" t="IncludeRecursive" />
+      <e p="AstarPathfindingProjectEditor.csproj" t="IncludeRecursive" />
       <e p="BioDude.sln" t="IncludeFlat" />
       <e p="Library" t="ExcludeRecursive" />
       <e p="obj" t="ExcludeRecursive" />
       <e p="packages" t="ExcludeRecursive" />
+      <e p="PackageToolsEditor.csproj" t="IncludeRecursive" />
       <e p="Temp" t="ExcludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
       </e>
     </e>
+    <e p="C:\Users\zippe\.Rider2018.2\config\extensions" t="IncludeRecursive" />
+    <e p="C:\Users\zippe\.Rider2018.2\System\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\zippe\.Rider2018.2\System\resharper-host\local\Transient\ReSharperHost\v182\SolutionCaches\_BioDude.-1065540700.00" t="ExcludeRecursive" />
   </component>
 </project>

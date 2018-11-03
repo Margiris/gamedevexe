@@ -1,25 +1,26 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Player_scripts;
 using UnityEngine;
 
-public class AmmoPickup : MonoBehaviour {
+namespace Items_scripts.Weapon_Scripts
+{
+    public class AmmoPickup : MonoBehaviour
+    {
+        public string ammoName;
+        public int ammoAmount;
+        private WeaponManager weaponManager;
 
-	public string ammoName;
-	public int ammoAmount;
-	private WeaponManager weaponManager;
+        // Use this for initialization
+        private void Start()
+        {
+            weaponManager = GameObject.FindGameObjectWithTag("Player").GetComponent<WeaponManager>();
+        }
 
-	// Use this for initialization
-	void Start () {
-		weaponManager = GameObject.FindGameObjectWithTag("Player").GetComponent<WeaponManager>();     
-	}
-	
-	private void OnTriggerEnter2D(Collider2D other)
-	{
-		if(other.tag == "Player")
-		{
-			weaponManager.AddAmmoByName(ammoName, ammoAmount);
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            if (!other.CompareTag("Player")) return;
+            weaponManager.AddAmmoByName(ammoName, ammoAmount);
 
             Destroy(gameObject);
-		}
-	}
+        }
+    }
 }

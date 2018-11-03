@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class AssaultRifle : Weapon {
-
-
+﻿namespace Items_scripts.Weapon_Scripts
+{
+    public class AssaultRifle : Weapon
+    {
+    }
 }

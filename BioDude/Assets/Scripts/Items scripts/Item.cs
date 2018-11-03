@@ -1,17 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public abstract class Item : MonoBehaviour
+namespace Items_scripts
 {
-    public string ItemName;
-	public Sprite sprite;
-    public int orderInLayer;
-	
-	public virtual void Equip (GameObject placeHolder)
+	public abstract class Item : MonoBehaviour
 	{
-		SpriteRenderer spriteRend = placeHolder.GetComponent<SpriteRenderer>();
-		spriteRend.sortingOrder = orderInLayer;
-		spriteRend.sprite = sprite;
+		public string ItemName;
+		public Sprite sprite;
+		public int orderInLayer;
+	
+		public void Equip (GameObject placeHolder)
+		{
+			var spriteRend = placeHolder.GetComponent<SpriteRenderer>();
+			spriteRend.sortingOrder = orderInLayer;
+			spriteRend.sprite = sprite;
+		}
 	}
 }

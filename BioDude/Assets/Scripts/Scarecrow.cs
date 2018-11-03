@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using GUI_scripts;
 
-public class Scarecrow : Character {
-
-    protected EnemyHPBar HpBar;
+public class Scarecrow : Character
+{
+    private EnemyHPBar HpBar;
 
     protected override void Die()
     {
@@ -12,21 +10,16 @@ public class Scarecrow : Character {
     }
 
     // Use this for initialization
-    void Start () {
-
+    private void Start()
+    {
         HpBar = transform.Find("EnemyCanvas").GetComponent<EnemyHPBar>();
         HpBar.Initiate();
         healthCurrent = healthMax;
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
     public override void Damage(float amount)
     {
         base.Damage(amount);
         HpBar.SetHealth(GetHealth());
     }
-
 }
