@@ -7,7 +7,7 @@ PlayerSettings:
   productGUID: 76cc4d38e53d14a4e84d926ae04c2d92
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
-  defaultScreenOrientation: 0
+  defaultScreenOrientation: 3
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
@@ -158,7 +158,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: cpm.gamedevexe.BioDude
+    Android: com.gamedevexe.BioDude
   buildNumber: {}
   AndroidBundleVersionCode: 1
   AndroidMinSdkVersion: 21

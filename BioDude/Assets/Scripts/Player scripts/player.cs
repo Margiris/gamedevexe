@@ -59,15 +59,13 @@ namespace Player_scripts
 
         private void FixedUpdate()
         {
-            if (ableToMove)
-            {
-                var h = Input.GetAxisRaw("Horizontal");
-                var v = Input.GetAxisRaw("Vertical");
+            if (!ableToMove) return;
+            var h = Input.GetAxisRaw("Horizontal");
+            var v = Input.GetAxisRaw("Vertical");
 
-                Move(h, v);
-                Animating(h,
-                    v); // Animate the player. //BULLSHIT kam nurodyti h ir v jei jau bus issaugota i movement vectoriu tik atsargiai kad nepakelti auksciau nes tada nebus
-            }
+            Move(h, v);
+            Animating(h,
+                v); // Animate the player. //BULLSHIT kam nurodyti h ir v jei jau bus issaugota i movement vectoriu tik atsargiai kad nepakelti auksciau nes tada nebus
         }
 
         private void
