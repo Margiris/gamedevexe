@@ -1,11 +1,9 @@
 using UnityEngine;
 
 namespace Pathfinding {
-	/// <summary>
-	/// Base for all path modifiers.
-	/// See: MonoModifier
-	/// Modifier
-	/// </summary>
+	/** Base for all path modifiers.
+	 * \see MonoModifier
+	 * Modifier */
 	public interface IPathModifier {
 		int Order { get; }
 
@@ -13,19 +11,16 @@ namespace Pathfinding {
 		void PreProcess (Path path);
 	}
 
-	/// <summary>
-	/// Base class for path modifiers which are not attached to GameObjects.
-	/// See: MonoModifier
-	/// </summary>
+	/** Base class for path modifiers which are not attached to GameObjects.
+	 * \see MonoModifier */
 	[System.Serializable]
 	public abstract class PathModifier : IPathModifier {
 		[System.NonSerialized]
 		public Seeker seeker;
 
-		/// <summary>
-		/// Modifiers will be executed from lower order to higher order.
-		/// This value is assumed to stay constant.
-		/// </summary>
+		/** Modifiers will be executed from lower order to higher order.
+		 * This value is assumed to stay constant.
+		 */
 		public abstract int Order { get; }
 
 		public void Awake (Seeker seeker) {
@@ -45,20 +40,19 @@ namespace Pathfinding {
 			// Required by IPathModifier
 		}
 
-		/// <summary>Main Post-Processing function</summary>
+		/** Main Post-Processing function */
 		public abstract void Apply (Path path);
 	}
 
-	/// <summary>
-	/// Base class for path modifiers which can be attached to GameObjects.
-	/// See: Menubar -> Component -> Pathfinding -> Modifiers
-	/// </summary>
+	/** Base class for path modifiers which can be attached to GameObjects.
+	 * \see Menubar -> Component -> Pathfinding -> Modifiers
+	 */
 	[System.Serializable]
 	public abstract class MonoModifier : VersionedMonoBehaviour, IPathModifier {
 		[System.NonSerialized]
 		public Seeker seeker;
 
-		/// <summary>Alerts the Seeker that this modifier exists</summary>
+		/** Alerts the Seeker that this modifier exists */
 		protected virtual void OnEnable () {
 			seeker = GetComponent<Seeker>();
 
@@ -73,17 +67,16 @@ namespace Pathfinding {
 			}
 		}
 
-		/// <summary>
-		/// Modifiers will be executed from lower order to higher order.
-		/// This value is assumed to stay constant.
-		/// </summary>
+		/** Modifiers will be executed from lower order to higher order.
+		 * This value is assumed to stay constant.
+		 */
 		public abstract int Order { get; }
 
 		public virtual void PreProcess (Path path) {
 			// Required by IPathModifier
 		}
 
-		/// <summary>Called for each path that the Seeker calculates after the calculation has finished</summary>
+		/** Called for each path that the Seeker calculates after the calculation has finished */
 		public abstract void Apply (Path path);
 	}
 }

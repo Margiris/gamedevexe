@@ -1,13 +1,14 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-namespace GUI_scripts
-{
-    public class DialogueTrigger : MonoBehaviour
+public class DialogueTrigger : MonoBehaviour {
+
+    public Dialogue[] dialogue;
+
+    public void TriggerDialogue()
     {
-        public void TriggerDialogue()
-        {
-            //FindObjectOfType<DialogueManager>().StartDialogue();
-            Destroy(gameObject);
-        }
+        //FindObjectOfType<DialogueManager>().StartDialogue();
+        Destroy(gameObject);
     }
 }

@@ -2,25 +2,26 @@ using UnityEngine;
 using Pathfinding.RVO.Sampled;
 
 namespace Pathfinding.RVO {
-	/// <summary>
-	/// Quadtree for quick nearest neighbour search of rvo agents.
-	/// See: Pathfinding.RVO.Simulator
-	/// </summary>
+	/** Quadtree for quick nearest neighbour search of rvo agents.
+	 * \see Pathfinding.RVO.Simulator
+	 */
 	public class RVOQuadtree {
 		const int LeafSize = 15;
 
 		float maxRadius = 0;
 
-		/// <summary>
-		/// Node in a quadtree for storing RVO agents.
-		/// See: Pathfinding.GraphNode for the node class that is used for pathfinding data.
-		/// </summary>
+		/** Node in a quadtree for storing RVO agents.
+		 * \see Pathfinding.GraphNode for the node class that is used for pathfinding data.
+		 */
 		struct Node {
 			public int child00;
+			public int child01;
+			public int child10;
+			public int child11;
 			public Agent linkedList;
 			public byte count;
 
-			/// <summary>Maximum speed of all agents inside this node</summary>
+			/** Maximum speed of all agents inside this node */
 			public float maxSpeed;
 
 			public void Add (Agent agent) {
@@ -28,17 +29,27 @@ namespace Pathfinding.RVO {
 				linkedList = agent;
 			}
 
-			/// <summary>
-			/// Distribute the agents in this node among the children.
-			/// Used after subdividing the node.
-			/// </summary>
+			/** Distribute the agents in this node among the children.
+			 * Used after subdividing the node.
+			 */
 			public void Distribute (Node[] nodes, Rect r) {
 				Vector2 c = r.center;
 
 				while (linkedList != null) {
 					Agent nx = linkedList.next;
-					var index = child00 + (linkedList.position.x > c.x ? 2 : 0) + (linkedList.position.y > c.y ? 1 : 0);
-					nodes[index].Add(linkedList);
+					if (linkedList.position.x > c.x) {
+						if (linkedList.position.y > c.y) {
+							nodes[child11].Add(linkedList);
+						} else {
+							nodes[child10].Add(linkedList);
+						}
+					} else {
+						if (linkedList.position.y > c.y) {
+							nodes[child01].Add(linkedList);
+						} else {
+							nodes[child00].Add(linkedList);
+						}
+					}
 					linkedList = nx;
 				}
 				count = 0;
@@ -51,20 +62,20 @@ namespace Pathfinding.RVO {
 						maxSpeed = System.Math.Max(maxSpeed, agent.CalculatedSpeed);
 					}
 				} else {
-					maxSpeed = System.Math.Max(nodes[child00].CalculateMaxSpeed(nodes, child00), nodes[child00+1].CalculateMaxSpeed(nodes, child00+1));
-					maxSpeed = System.Math.Max(maxSpeed, nodes[child00+2].CalculateMaxSpeed(nodes, child00+2));
-					maxSpeed = System.Math.Max(maxSpeed, nodes[child00+3].CalculateMaxSpeed(nodes, child00+3));
+					maxSpeed = System.Math.Max(nodes[child00].CalculateMaxSpeed(nodes, child00), nodes[child01].CalculateMaxSpeed(nodes, child01));
+					maxSpeed = System.Math.Max(maxSpeed, nodes[child10].CalculateMaxSpeed(nodes, child10));
+					maxSpeed = System.Math.Max(maxSpeed, nodes[child11].CalculateMaxSpeed(nodes, child11));
 				}
 				return maxSpeed;
 			}
 		}
 
-		Node[] nodes = new Node[16];
+		Node[] nodes = new Node[42];
 		int filledNodes = 1;
 
 		Rect bounds;
 
-		/// <summary>Removes all agents from the tree</summary>
+		/** Removes all agents from the tree */
 		public void Clear () {
 			nodes[0] = new Node();
 			filledNodes = 1;
@@ -76,7 +87,7 @@ namespace Pathfinding.RVO {
 		}
 
 		int GetNodeIndex () {
-			if (filledNodes + 4 >= nodes.Length) {
+			if (filledNodes == nodes.Length) {
 				var nds = new Node[nodes.Length*2];
 				for (int i = 0; i < nodes.Length; i++) nds[i] = nodes[i];
 				nodes = nds;
@@ -84,22 +95,12 @@ namespace Pathfinding.RVO {
 			nodes[filledNodes] = new Node();
 			nodes[filledNodes].child00 = filledNodes;
 			filledNodes++;
-			nodes[filledNodes] = new Node();
-			nodes[filledNodes].child00 = filledNodes;
-			filledNodes++;
-			nodes[filledNodes] = new Node();
-			nodes[filledNodes].child00 = filledNodes;
-			filledNodes++;
-			nodes[filledNodes] = new Node();
-			nodes[filledNodes].child00 = filledNodes;
-			filledNodes++;
-			return filledNodes-4;
+			return filledNodes-1;
 		}
 
-		/// <summary>
-		/// Add a new agent to the tree.
-		/// Warning: Agents must not be added multiple times to the same tree
-		/// </summary>
+		/** Add a new agent to the tree.
+		 * \warning Agents must not be added multiple times to the same tree
+		 */
 		public void Insert (Agent agent) {
 			int i = 0;
 			Rect r = bounds;
@@ -122,7 +123,13 @@ namespace Pathfinding.RVO {
 						break;
 					} else {
 						// Split
-						nodes[i].child00 = GetNodeIndex();
+						Node node = nodes[i];
+						node.child00 = GetNodeIndex();
+						node.child01 = GetNodeIndex();
+						node.child10 = GetNodeIndex();
+						node.child11 = GetNodeIndex();
+						nodes[i] = node;
+
 						nodes[i].Distribute(nodes, r);
 					}
 				}
@@ -132,15 +139,15 @@ namespace Pathfinding.RVO {
 					Vector2 c = r.center;
 					if (p.x > c.x) {
 						if (p.y > c.y) {
-							i = nodes[i].child00+3;
+							i = nodes[i].child11;
 							r = Rect.MinMaxRect(c.x, c.y, r.xMax, r.yMax);
 						} else {
-							i = nodes[i].child00+2;
+							i = nodes[i].child10;
 							r = Rect.MinMaxRect(c.x, r.yMin, r.xMax, c.y);
 						}
 					} else {
 						if (p.y > c.y) {
-							i = nodes[i].child00+1;
+							i = nodes[i].child01;
 							r = Rect.MinMaxRect(r.xMin, c.y, c.x, r.yMax);
 						} else {
 							i = nodes[i].child00;
@@ -194,18 +201,18 @@ namespace Pathfinding.RVO {
 							radius = System.Math.Min(radius, maxRadius);
 						}
 						if (p.y+radius > c.y) {
-							QueryRec(nodes[i].child00+1, Rect.MinMaxRect(r.xMin, c.y, c.x, r.yMax));
+							QueryRec(nodes[i].child01, Rect.MinMaxRect(r.xMin, c.y, c.x, r.yMax));
 							radius = System.Math.Min(radius, maxRadius);
 						}
 					}
 
 					if (p.x+radius > c.x) {
 						if (p.y-radius < c.y) {
-							QueryRec(nodes[i].child00+2, Rect.MinMaxRect(c.x, r.yMin, r.xMax, c.y));
+							QueryRec(nodes[i].child10, Rect.MinMaxRect(c.x, r.yMin, r.xMax, c.y));
 							radius = System.Math.Min(radius, maxRadius);
 						}
 						if (p.y+radius > c.y) {
-							QueryRec(nodes[i].child00+3, Rect.MinMaxRect(c.x, c.y, r.xMax, r.yMax));
+							QueryRec(nodes[i].child11, Rect.MinMaxRect(c.x, c.y, r.xMax, r.yMax));
 						}
 					}
 				}
@@ -225,10 +232,10 @@ namespace Pathfinding.RVO {
 			if (nodes[i].child00 != i) {
 				// Not a leaf node
 				Vector2 c = r.center;
-				DebugDrawRec(nodes[i].child00+3, Rect.MinMaxRect(c.x, c.y, r.xMax, r.yMax));
-				DebugDrawRec(nodes[i].child00+2, Rect.MinMaxRect(c.x, r.yMin, r.xMax, c.y));
-				DebugDrawRec(nodes[i].child00+1, Rect.MinMaxRect(r.xMin, c.y, c.x, r.yMax));
-				DebugDrawRec(nodes[i].child00+0, Rect.MinMaxRect(r.xMin, r.yMin, c.x, c.y));
+				DebugDrawRec(nodes[i].child11, Rect.MinMaxRect(c.x, c.y, r.xMax, r.yMax));
+				DebugDrawRec(nodes[i].child10, Rect.MinMaxRect(c.x, r.yMin, r.xMax, c.y));
+				DebugDrawRec(nodes[i].child01, Rect.MinMaxRect(r.xMin, c.y, c.x, r.yMax));
+				DebugDrawRec(nodes[i].child00, Rect.MinMaxRect(r.xMin, r.yMin, c.x, c.y));
 			}
 
 			for (Agent a = nodes[i].linkedList; a != null; a = a.next) {

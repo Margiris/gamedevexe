@@ -13,7 +13,8 @@ namespace Pathfinding {
 				PropertyField("use2DPhysics");
 				if (PropertyField("thickRaycast")) {
 					EditorGUI.indentLevel++;
-					FloatField("thickRaycastRadius", min: 0f);
+					PropertyField("thickRaycastRadius");
+					Clamp("thickRaycastRadius", 0f);
 					EditorGUI.indentLevel--;
 				}
 

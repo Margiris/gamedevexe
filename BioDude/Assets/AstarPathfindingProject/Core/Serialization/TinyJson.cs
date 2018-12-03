@@ -13,11 +13,10 @@ namespace Pathfinding.Serialization {
 	public class JsonOptInAttribute : System.Attribute {
 	}
 
-	/// <summary>
-	/// A very tiny json serializer.
-	/// It is not supposed to have lots of features, it is only intended to be able to serialize graph settings
-	/// well enough.
-	/// </summary>
+	/** A very tiny json serializer.
+	 * It is not supposed to have lots of features, it is only intended to be able to serialize graph settings
+	 * well enough.
+	 */
 	public class TinyJsonSerializer {
 		System.Text.StringBuilder output = new System.Text.StringBuilder();
 
@@ -161,30 +160,27 @@ namespace Pathfinding.Serialization {
 		}
 	}
 
-	/// <summary>
-	/// A very tiny json deserializer.
-	/// It is not supposed to have lots of features, it is only intended to be able to deserialize graph settings
-	/// well enough. Not much validation of the input is done.
-	/// </summary>
+	/** A very tiny json deserializer.
+	 * It is not supposed to have lots of features, it is only intended to be able to deserialize graph settings
+	 * well enough. Not much validation of the input is done.
+	 */
 	public class TinyJsonDeserializer {
 		System.IO.TextReader reader;
 
 		static readonly System.Globalization.NumberFormatInfo numberFormat = System.Globalization.NumberFormatInfo.InvariantInfo;
 
-		/// <summary>
-		/// Deserializes an object of the specified type.
-		/// Will load all fields into the populate object if it is set (only works for classes).
-		/// </summary>
+		/** Deserializes an object of the specified type.
+		 * Will load all fields into the \a populate object if it is set (only works for classes).
+		 */
 		public static System.Object Deserialize (string text, Type type, System.Object populate = null) {
 			return new TinyJsonDeserializer() {
 					   reader = new System.IO.StringReader(text)
 			}.Deserialize(type, populate);
 		}
 
-		/// <summary>
-		/// Deserializes an object of type tp.
-		/// Will load all fields into the populate object if it is set (only works for classes).
-		/// </summary>
+		/** Deserializes an object of type tp.
+		 * Will load all fields into the \a populate object if it is set (only works for classes).
+		 */
 		System.Object Deserialize (Type tp, System.Object populate = null) {
 			var tpInfo = WindowsStoreCompatibility.GetTypeInfo(tp);
 

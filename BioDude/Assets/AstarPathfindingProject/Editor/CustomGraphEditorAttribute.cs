@@ -1,14 +1,14 @@
 namespace Pathfinding {
-	/// <summary>Added to editors of custom graph types</summary>
+	/** Added to editors of custom graph types */
 	[System.AttributeUsage(System.AttributeTargets.All, Inherited = false, AllowMultiple = true)]
 	public class CustomGraphEditorAttribute : System.Attribute {
-		/// <summary>Graph type which this is an editor for</summary>
+		/** Graph type which this is an editor for */
 		public System.Type graphType;
 
-		/// <summary>Name displayed in the inpector</summary>
+		/** Name displayed in the inpector */
 		public string displayName;
 
-		/// <summary>Type of the editor for the graph</summary>
+		/** Type of the editor for the graph */
 		public System.Type editorType;
 
 		public CustomGraphEditorAttribute (System.Type t, string displayName) {

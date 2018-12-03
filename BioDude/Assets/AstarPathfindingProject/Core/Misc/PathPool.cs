@@ -3,17 +3,15 @@ using System;
 using System.Collections.Generic;
 
 namespace Pathfinding {
-	/// <summary>Pools path objects to reduce load on the garbage collector</summary>
+	/** Pools path objects to reduce load on the garbage collector */
 	public static class PathPool {
 		static readonly Dictionary<Type, Stack<Path> > pool = new Dictionary<Type, Stack<Path> >();
 		static readonly Dictionary<Type, int> totalCreated = new Dictionary<Type, int>();
 
-		/// <summary>
-		/// Adds a path to the pool.
-		/// This function should not be used directly. Instead use the Path.Claim and Path.Release functions.
-		/// </summary>
+		/** Adds a path to the pool.
+		 * This function should not be used directly. Instead use the Path.Claim and Path.Release functions.
+		 */
 		public static void Pool (Path path) {
-			#if !ASTAR_NO_POOLING
 			lock (pool) {
 				if (((IPathInternals)path).Pooled) {
 					throw new System.ArgumentException("The path is already pooled.");
@@ -29,10 +27,9 @@ namespace Pathfinding {
 				((IPathInternals)path).OnEnterPool();
 				poolStack.Push(path);
 			}
-			#endif
 		}
 
-		/// <summary>Total created instances of paths of the specified type</summary>
+		/** Total created instances of paths of the specified type */
 		public static int GetTotalCreated (Type type) {
 			int created;
 
@@ -43,7 +40,7 @@ namespace Pathfinding {
 			}
 		}
 
-		/// <summary>Number of pooled instances of a path of the specified type</summary>
+		/** Number of pooled instances of a path of the specified type */
 		public static int GetSize (Type type) {
 			Stack<Path> poolStack;
 			if (pool.TryGetValue(type, out poolStack)) {
@@ -53,13 +50,8 @@ namespace Pathfinding {
 			}
 		}
 
-		/// <summary>Get a path from the pool or create a new one if the pool is empty</summary>
+		/** Get a path from the pool or create a new one if the pool is empty */
 		public static T GetPath<T>() where T : Path, new() {
-			#if ASTAR_NO_POOLING
-			T result = new T();
-			((IPathInternals)result).Reset();
-			return result;
-			#else
 			lock (pool) {
 				T result;
 				Stack<Path> poolStack;
@@ -81,7 +73,45 @@ namespace Pathfinding {
 				((IPathInternals)result).Reset();
 				return result;
 			}
-			#endif
+		}
+	}
+
+	/** Pools path objects to reduce load on the garbage collector.
+	 * \deprecated Generic version is now obsolete to trade an extremely tiny performance decrease for a large decrease in boilerplate for Path classes
+	 */
+	[System.Obsolete("Generic version is now obsolete to trade an extremely tiny performance decrease for a large decrease in boilerplate for Path classes")]
+	public static class PathPool<T> where T : Path, new() {
+		/** Recycles a path and puts in the pool.
+		 * This function should not be used directly. Instead use the Path.Claim and Path.Release functions.
+		 */
+		public static void Recycle (T path) {
+			PathPool.Pool(path);
+		}
+
+		/** Warms up path, node list and vector list pools.
+		 * Makes sure there is at least \a count paths, each with a minimum capacity for paths with length \a length in the pool.
+		 * The capacity means that paths shorter or equal to the capacity can be calculated without any large allocations taking place.
+		 */
+		public static void Warmup (int count, int length) {
+			Pathfinding.Util.ListPool<GraphNode>.Warmup(count, length);
+			Pathfinding.Util.ListPool<UnityEngine.Vector3>.Warmup(count, length);
+
+			var tmp = new Path[count];
+			for (int i = 0; i < count; i++) { tmp[i] = GetPath(); tmp[i].Claim(tmp); }
+			for (int i = 0; i < count; i++) tmp[i].Release(tmp);
+		}
+
+		public static int GetTotalCreated () {
+			return PathPool.GetTotalCreated(typeof(T));
+		}
+
+		public static int GetSize () {
+			return PathPool.GetSize(typeof(T));
+		}
+
+		[System.Obsolete("Use PathPool.GetPath<T> instead of PathPool<T>.GetPath")]
+		public static T GetPath () {
+			return PathPool.GetPath<T>();
 		}
 	}
 }

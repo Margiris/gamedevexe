@@ -1,14 +1,14 @@
 using UnityEngine;
 
 namespace Pathfinding {
-	/// <summary>Exposes internal methods from <see cref="Pathfinding.VersionedMonoBehaviour"/></summary>
+	/** Exposes internal methods from #Pathfinding.VersionedMonoBehaviour */
 	public interface IVersionedMonoBehaviourInternal {
-		void UpgradeFromUnityThread ();
+		int OnUpgradeSerializedData (int version, bool unityThread);
 	}
 
-	/// <summary>Base class for all components in the package</summary>
+	/** Base class for all components in the package */
 	public abstract class VersionedMonoBehaviour : MonoBehaviour, ISerializationCallbackReceiver, IVersionedMonoBehaviourInternal {
-		/// <summary>Version of the serialized data. Used for script upgrades.</summary>
+		/** Version of the serialized data. Used for script upgrades. */
 		[SerializeField]
 		[HideInInspector]
 		int version = 0;
@@ -20,34 +20,28 @@ namespace Pathfinding {
 			if (Application.isPlaying) version = OnUpgradeSerializedData(int.MaxValue, true);
 		}
 
-		/// <summary>Handle serialization backwards compatibility</summary>
-		protected virtual void Reset () {
+		/** Handle serialization backwards compatibility */
+		void Reset () {
 			// Set initial version when adding the component for the first time
 			version = OnUpgradeSerializedData(int.MaxValue, true);
 		}
 
-		/// <summary>Handle serialization backwards compatibility</summary>
+		/** Handle serialization backwards compatibility */
 		void ISerializationCallbackReceiver.OnBeforeSerialize () {
 		}
 
-		/// <summary>Handle serialization backwards compatibility</summary>
+		/** Handle serialization backwards compatibility */
 		void ISerializationCallbackReceiver.OnAfterDeserialize () {
-			var r = OnUpgradeSerializedData(version, false);
-
-			// Negative values (-1) indicate that the version number should not be updated
-			if (r >= 0) version = r;
+			version = OnUpgradeSerializedData(version, false);
 		}
 
-		/// <summary>Handle serialization backwards compatibility</summary>
+		/** Handle serialization backwards compatibility */
 		protected virtual int OnUpgradeSerializedData (int version, bool unityThread) {
 			return 1;
 		}
 
-		void IVersionedMonoBehaviourInternal.UpgradeFromUnityThread () {
-			var r = OnUpgradeSerializedData(version, true);
-
-			if (r < 0) throw new System.Exception();
-			version = r;
+		int IVersionedMonoBehaviourInternal.OnUpgradeSerializedData (int version, bool unityThread) {
+			return OnUpgradeSerializedData(version, unityThread);
 		}
 	}
 }

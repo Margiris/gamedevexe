@@ -2,9 +2,9 @@ using Pathfinding.Serialization;
 
 namespace Pathfinding {
 	[JsonOptIn]
-	/// <summary>Defined here only so non-editor classes can use the <see cref="target"/> field</summary>
+	/** Defined here only so non-editor classes can use the #target field */
 	public class GraphEditorBase {
-		/// <summary>NavGraph this editor is exposing</summary>
+		/** NavGraph this editor is exposing */
 		public NavGraph target;
 	}
 }

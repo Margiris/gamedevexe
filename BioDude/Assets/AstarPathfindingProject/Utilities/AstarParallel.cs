@@ -1,32 +1,27 @@
-#if UNITY_WEBGL && !UNITY_EDITOR
-#define SINGLE_THREAD
-#endif
 using System.Collections.Generic;
 using System.Threading;
 
 namespace Pathfinding.Util {
-	/// <summary>
-	/// Helper for parallelizing tasks.
-	/// More specifically this class is useful if the tasks need some large and slow to initialize 'scratch pad'.
-	/// Using this class you can initialize a scratch pad per thread and then use the appropriate one in the task
-	/// callback (which includes a thread index).
-	///
-	/// Any exception that is thrown in the worker threads will be propagated out to the caller of the <see cref="Run"/> method.
-	/// </summary>
+	/** Helper for parallelizing tasks.
+	 * More specifically this class is useful if the tasks need some large and slow to initialize 'scratch pad'.
+	 * Using this class you can initialize a scratch pad per thread and then use the appropriate one in the task
+	 * callback (which includes a thread index).
+	 *
+	 * Any exception that is thrown in the worker threads will be propagated out to the caller of the #Run method.
+	 */
 	public class ParallelWorkQueue<T> {
-		/// <summary>
-		/// Callback to run for each item in the queue.
-		/// The callback takes the item as the first parameter and the thread index as the second parameter.
-		/// </summary>
+		/** Callback to run for each item in the queue.
+		 * The callback takes the item as the first parameter and the thread index as the second parameter.
+		 */
 		public System.Action<T, int> action;
 
-		/// <summary>Number of threads to use</summary>
+		/** Number of threads to use */
 		public readonly int threadCount;
 
-		/// <summary>Queue of items</summary>
+		/** Queue of items */
 		readonly Queue<T> queue;
 		readonly int initialCount;
-#if !SINGLE_THREAD
+#if !(UNITY_WEBGL && !UNITY_EDITOR)
 		ManualResetEvent[] waitEvents;
 		System.Exception innerException;
 #endif
@@ -34,16 +29,17 @@ namespace Pathfinding.Util {
 		public ParallelWorkQueue (Queue<T> queue) {
 			this.queue = queue;
 			initialCount = queue.Count;
-			#if SINGLE_THREAD
+			#if (UNITY_WEBGL && !UNITY_EDITOR)
 			threadCount = 1;
 			#else
 			threadCount = System.Math.Min(initialCount, System.Math.Max(1, AstarPath.CalculateThreadCount(ThreadCount.AutomaticHighLoad)));
 			#endif
 		}
 
-		/// <summary>Execute the tasks.</summary>
-		/// <param name="progressTimeoutMillis">This iterator will yield approximately every progressTimeoutMillis milliseconds.
-		///  This can be used to e.g show a progress bar.</param>
+		/** Execute the tasks.
+		 * \param progressTimeoutMillis This iterator will yield approximately every \a progressTimeoutMillis milliseconds.
+		 *  This can be used to e.g show a progress bar.
+		 */
 		public IEnumerable<int> Run (int progressTimeoutMillis) {
 			if (initialCount != queue.Count) throw new System.InvalidOperationException("Queue has been modified since the constructor");
 
@@ -53,7 +49,7 @@ namespace Pathfinding.Util {
 			// and the documentation says it should throw an exception).
 			if (initialCount == 0) yield break;
 
-#if SINGLE_THREAD
+#if (UNITY_WEBGL && !UNITY_EDITOR)
 			// WebGL does not support multithreading so we will do everything on the main thread instead
 			for (int i = 0; i < initialCount; i++) {
 				action(queue.Dequeue(), 0);
@@ -83,7 +79,7 @@ namespace Pathfinding.Util {
 #endif
 		}
 
-#if !SINGLE_THREAD
+#if !(UNITY_WEBGL && !UNITY_EDITOR)
 		void RunTask (int threadIndex) {
 			try {
 				while (true) {

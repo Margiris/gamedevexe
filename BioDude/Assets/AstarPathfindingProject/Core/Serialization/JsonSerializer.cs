@@ -16,29 +16,26 @@ using Pathfinding.Ionic.Zip;
 #endif
 
 namespace Pathfinding.Serialization {
-	/// <summary>Holds information passed to custom graph serializers</summary>
+	/** Holds information passed to custom graph serializers */
 	public class GraphSerializationContext {
 		private readonly GraphNode[] id2NodeMapping;
 
-		/// <summary>
-		/// Deserialization stream.
-		/// Will only be set when deserializing
-		/// </summary>
+		/** Deserialization stream.
+		 * Will only be set when deserializing
+		 */
 		public readonly BinaryReader reader;
 
-		/// <summary>
-		/// Serialization stream.
-		/// Will only be set when serializing
-		/// </summary>
+		/** Serialization stream.
+		 * Will only be set when serializing
+		 */
 		public readonly BinaryWriter writer;
 
-		/// <summary>
-		/// Index of the graph which is currently being processed.
-		/// Version: uint instead of int after 3.7.5
-		/// </summary>
+		/** Index of the graph which is currently being processed.
+		 * \version uint instead of int after 3.7.5
+		 */
 		public readonly uint graphIndex;
 
-		/// <summary>Metadata about graphs being deserialized</summary>
+		/** Metadata about graphs being deserialized */
 		public readonly GraphMeta meta;
 
 		public GraphSerializationContext (BinaryReader reader, GraphNode[] id2NodeMapping, uint graphIndex, GraphMeta meta) {
@@ -67,26 +64,26 @@ namespace Pathfinding.Serialization {
 			return node;
 		}
 
-		/// <summary>Write a Vector3</summary>
+		/** Write a Vector3 */
 		public void SerializeVector3 (Vector3 v) {
 			writer.Write(v.x);
 			writer.Write(v.y);
 			writer.Write(v.z);
 		}
 
-		/// <summary>Read a Vector3</summary>
+		/** Read a Vector3 */
 		public Vector3 DeserializeVector3 () {
 			return new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 		}
 
-		/// <summary>Write an Int3</summary>
+		/** Write an Int3 */
 		public void SerializeInt3 (Int3 v) {
 			writer.Write(v.x);
 			writer.Write(v.y);
 			writer.Write(v.z);
 		}
 
-		/// <summary>Read an Int3</summary>
+		/** Read an Int3 */
 		public Int3 DeserializeInt3 () {
 			return new Int3(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
 		}
@@ -107,7 +104,7 @@ namespace Pathfinding.Serialization {
 			}
 		}
 
-		/// <summary>Read a UnityEngine.Object</summary>
+		/** Read a UnityEngine.Object */
 		public UnityEngine.Object DeserializeUnityObject ( ) {
 			int inst = reader.ReadInt32();
 
@@ -153,71 +150,67 @@ namespace Pathfinding.Serialization {
 		}
 	}
 
-	/// <summary>
-	/// Handles low level serialization and deserialization of graph settings and data.
-	/// Mostly for internal use. You can use the methods in the AstarData class for
-	/// higher level serialization and deserialization.
-	///
-	/// See: AstarData
-	/// </summary>
+	/** Handles low level serialization and deserialization of graph settings and data.
+	 * Mostly for internal use. You can use the methods in the AstarData class for
+	 * higher level serialization and deserialization.
+	 *
+	 * \see AstarData
+	 */
 	public class AstarSerializer {
 		private AstarData data;
 
-		/// <summary>Zip which the data is loaded from</summary>
+		/** Zip which the data is loaded from */
 		private ZipFile zip;
 
-		/// <summary>Memory stream with the zip data</summary>
+		/** Memory stream with the zip data */
 		private MemoryStream zipStream;
 
-		/// <summary>Graph metadata</summary>
+		/** Graph metadata */
 		private GraphMeta meta;
 
-		/// <summary>Settings for serialization</summary>
+		/** Settings for serialization */
 		private SerializeSettings settings;
 
-		/// <summary>Graphs that are being serialized or deserialized</summary>
+		/** Graphs that are being serialized or deserialized */
 		private NavGraph[] graphs;
 
-		/// <summary>
-		/// Index used for the graph in the file.
-		/// If some graphs were null in the file then graphIndexInZip[graphs[i]] may not equal i.
-		/// Used for deserialization.
-		/// </summary>
+		/** Index used for the graph in the file.
+		 * If some graphs were null in the file then graphIndexInZip[graphs[i]] may not equal i.
+		 * Used for deserialization.
+		 */
 		private Dictionary<NavGraph, int> graphIndexInZip;
 
 		private int graphIndexOffset;
 
-		/// <summary>Extension to use for binary files</summary>
+		/** Extension to use for binary files */
 		const string binaryExt = ".binary";
 
-		/// <summary>Extension to use for json files</summary>
+		/** Extension to use for json files */
 		const string jsonExt = ".json";
 
-		/// <summary>
-		/// Checksum for the serialized data.
-		/// Used to provide a quick equality check in editor code
-		/// </summary>
+		/** Checksum for the serialized data.
+		 * Used to provide a quick equality check in editor code
+		 */
 		private uint checksum = 0xffffffff;
 
 		System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
 
-		/// <summary>Cached StringBuilder to avoid excessive allocations</summary>
+		/** Cached StringBuilder to avoid excessive allocations */
 		static System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
 
-		/// <summary>
-		/// Returns a cached StringBuilder.
-		/// This function only has one string builder cached and should
-		/// thus only be called from a single thread and should not be called while using an earlier got string builder.
-		/// </summary>
+		/** Returns a cached StringBuilder.
+		 * This function only has one string builder cached and should
+		 * thus only be called from a single thread and should not be called while using an earlier got string builder.
+		 */
 		static System.Text.StringBuilder GetStringBuilder () { _stringBuilder.Length = 0; return _stringBuilder; }
 
-		/// <summary>Cached version object for 3.8.3</summary>
+		/** Cached version object for 3.8.3 */
 		public static readonly System.Version V3_8_3 = new System.Version(3, 8, 3);
 
-		/// <summary>Cached version object for 3.9.0</summary>
+		/** Cached version object for 3.9.0 */
 		public static readonly System.Version V3_9_0 = new System.Version(3, 9, 0);
 
-		/// <summary>Cached version object for 4.1.0</summary>
+		/** Cached version object for 4.1.0 */
 		public static readonly System.Version V4_1_0 = new System.Version(4, 1, 0);
 
 		public AstarSerializer (AstarData data) {
@@ -319,7 +312,7 @@ namespace Pathfinding.Serialization {
 			}
 		}
 
-		/// <summary>Serialize metadata about all graphs</summary>
+		/** Serialize metadata about all graphs */
 		byte[] SerializeMeta () {
 			if (graphs == null) throw new System.Exception("No call to SerializeGraphs has been done");
 
@@ -346,7 +339,7 @@ namespace Pathfinding.Serialization {
 			return encoding.GetBytes(output.ToString());
 		}
 
-		/// <summary>Serializes the graph settings to JSON and returns the data</summary>
+		/** Serializes the graph settings to JSON and returns the data */
 		public byte[] Serialize (NavGraph graph) {
 			// Grab a cached string builder to avoid allocations
 			var output = GetStringBuilder();
@@ -355,10 +348,9 @@ namespace Pathfinding.Serialization {
 			return encoding.GetBytes(output.ToString());
 		}
 
-		/// <summary>
-		/// Deprecated method to serialize node data.
-		/// Deprecated: Not used anymore
-		/// </summary>
+		/** Deprecated method to serialize node data.
+		 * \deprecated Not used anymore
+		 */
 		[System.Obsolete("Not used anymore. You can safely remove the call to this function.")]
 		public void SerializeNodes () {
 		}
@@ -406,7 +398,7 @@ namespace Pathfinding.Serialization {
 			return bytes;
 		}
 
-		/// <summary>Serializes info returned by NavGraph.SerializeExtraInfo</summary>
+		/** Serializes info returned by NavGraph.SerializeExtraInfo */
 		static byte[] SerializeGraphExtraInfo (NavGraph graph) {
 			var stream = new MemoryStream();
 			var writer = new BinaryWriter(stream);
@@ -419,12 +411,11 @@ namespace Pathfinding.Serialization {
 			return bytes;
 		}
 
-		/// <summary>
-		/// Used to serialize references to other nodes e.g connections.
-		/// Nodes use the GraphSerializationContext.GetNodeIdentifier and
-		/// GraphSerializationContext.GetNodeFromIdentifier methods
-		/// for serialization and deserialization respectively.
-		/// </summary>
+		/** Used to serialize references to other nodes e.g connections.
+		 * Nodes use the GraphSerializationContext.GetNodeIdentifier and
+		 * GraphSerializationContext.GetNodeFromIdentifier methods
+		 * for serialization and deserialization respectively.
+		 */
 		static byte[] SerializeGraphNodeReferences (NavGraph graph) {
 			var stream = new MemoryStream();
 			var writer = new BinaryWriter(stream);
@@ -464,12 +455,10 @@ namespace Pathfinding.Serialization {
 
 		byte[] SerializeNodeLinks () {
 			var stream = new MemoryStream();
-
-#if !ASTAR_NO_LINKS
 			var writer = new BinaryWriter(stream);
 			var ctx = new GraphSerializationContext(writer);
+
 			NodeLink2.SerializeReferences(ctx);
-#endif
 			return stream.ToArray();
 		}
 
@@ -530,11 +519,10 @@ namespace Pathfinding.Serialization {
 			return true;
 		}
 
-		/// <summary>
-		/// Returns a version with all fields fully defined.
-		/// This is used because by default new Version(3,0,0) > new Version(3,0).
-		/// This is not the desired behaviour so we make sure that all fields are defined here
-		/// </summary>
+		/** Returns a version with all fields fully defined.
+		 * This is used because by default new Version(3,0,0) > new Version(3,0).
+		 * This is not the desired behaviour so we make sure that all fields are defined here
+		 */
 		static System.Version FullyDefinedVersion (System.Version v) {
 			return new System.Version(Mathf.Max(v.Major, 0), Mathf.Max(v.Minor, 0), Mathf.Max(v.Build, 0), Mathf.Max(v.Revision, 0));
 		}
@@ -577,10 +565,9 @@ namespace Pathfinding.Serialization {
 			return graph;
 		}
 
-		/// <summary>
-		/// Deserializes graph settings.
-		/// Note: Stored in files named "graph<see cref=".json"/>" where # is the graph number.
-		/// </summary>
+		/** Deserializes graph settings.
+		 * \note Stored in files named "graph#.json" where # is the graph number.
+		 */
 		public NavGraph[] DeserializeGraphs () {
 			// Allocate a list of graphs to be deserialized
 			var graphList = new List<NavGraph>();
@@ -676,12 +663,11 @@ namespace Pathfinding.Serialization {
 			graph.GetNodes(node => node.DeserializeReferences(ctx));
 		}
 
-		/// <summary>
-		/// Deserializes extra graph info.
-		/// Extra graph info is specified by the graph types.
-		/// See: Pathfinding.NavGraph.DeserializeExtraInfo
-		/// Note: Stored in files named "graph<see cref="_extra.binary"/>" where # is the graph number.
-		/// </summary>
+		/** Deserializes extra graph info.
+		 * Extra graph info is specified by the graph types.
+		 * \see Pathfinding.NavGraph.DeserializeExtraInfo
+		 * \note Stored in files named "graph#_extra.binary" where # is the graph number.
+		 */
 		public void DeserializeExtraInfo () {
 			bool anyDeserialized = false;
 
@@ -713,7 +699,6 @@ namespace Pathfinding.Serialization {
 		}
 
 		void DeserializeNodeLinks (GraphNode[] int2Node) {
-#if !ASTAR_NO_LINKS
 			var entry = GetEntry("node_link2"+binaryExt);
 
 			if (entry == null)
@@ -722,10 +707,9 @@ namespace Pathfinding.Serialization {
 			var reader = GetBinaryReader(entry);
 			var ctx = new GraphSerializationContext(reader, int2Node, 0, meta);
 			NodeLink2.DeserializeReferences(ctx);
-#endif
 		}
 
-		/// <summary>Calls PostDeserialization on all loaded graphs</summary>
+		/** Calls PostDeserialization on all loaded graphs */
 		public void PostDeserialization () {
 			for (int i = 0; i < graphs.Length; i++) {
 				var ctx = new GraphSerializationContext(null, null, 0, meta);
@@ -733,15 +717,14 @@ namespace Pathfinding.Serialization {
 			}
 		}
 
-		/// <summary>
-		/// Deserializes graph editor settings.
-		/// For future compatibility this method does not assume that the graphEditors array matches the <see cref="graphs"/> array in order and/or count.
-		/// It searches for a matching graph (matching if graphEditor.target == graph) for every graph editor.
-		/// Multiple graph editors should not refer to the same graph.\n
-		/// Note: Stored in files named "graph<see cref="_editor.json"/>" where # is the graph number.
-		///
-		/// Note: This method is only used for compatibility, newer versions store everything in the graph.serializedEditorSettings field which is already serialized.
-		/// </summary>
+		/** Deserializes graph editor settings.
+		 * For future compatibility this method does not assume that the \a graphEditors array matches the #graphs array in order and/or count.
+		 * It searches for a matching graph (matching if graphEditor.target == graph) for every graph editor.
+		 * Multiple graph editors should not refer to the same graph.\n
+		 * \note Stored in files named "graph#_editor.json" where # is the graph number.
+		 *
+		 * \note This method is only used for compatibility, newer versions store everything in the graph.serializedEditorSettings field which is already serialized.
+		 */
 		public void DeserializeEditorSettingsCompatibility () {
 			for (int i = 0; i < graphs.Length; i++) {
 				var zipIndex = graphIndexInZip[graphs[i]];
@@ -752,7 +735,7 @@ namespace Pathfinding.Serialization {
 			}
 		}
 
-		/// <summary>Returns a binary reader for the data in the zip entry</summary>
+		/** Returns a binary reader for the data in the zip entry */
 		private static BinaryReader GetBinaryReader (ZipEntry entry) {
 #if NETFX_CORE
 			return new BinaryReader(entry.Open());
@@ -765,7 +748,7 @@ namespace Pathfinding.Serialization {
 #endif
 		}
 
-		/// <summary>Returns the data in the zip entry as a string</summary>
+		/** Returns the data in the zip entry as a string */
 		private static string GetString (ZipEntry entry) {
 #if NETFX_CORE
 			var reader = new StreamReader(entry.Open());
@@ -822,7 +805,7 @@ namespace Pathfinding.Serialization {
 
 		#region Utils
 
-		/// <summary>Save the specified data at the specified path</summary>
+		/** Save the specified data at the specified path */
 		public static void SaveToFile (string path, byte[] data) {
 #if NETFX_CORE
 			throw new System.NotSupportedException("Cannot save to file on this platform");
@@ -833,7 +816,7 @@ namespace Pathfinding.Serialization {
 #endif
 		}
 
-		/// <summary>Load the specified data from the specified path</summary>
+		/** Load the specified data from the specified path */
 		public static byte[] LoadFromFile (string path) {
 #if NETFX_CORE
 			throw new System.NotSupportedException("Cannot load from file on this platform");
@@ -849,21 +832,21 @@ namespace Pathfinding.Serialization {
 		#endregion
 	}
 
-	/// <summary>Metadata for all graphs included in serialization</summary>
+	/** Metadata for all graphs included in serialization */
 	public class GraphMeta {
-		/// <summary>Project version it was saved with</summary>
+		/** Project version it was saved with */
 		public Version version;
 
-		/// <summary>Number of graphs serialized</summary>
+		/** Number of graphs serialized */
 		public int graphs;
 
-		/// <summary>Guids for all graphs</summary>
+		/** Guids for all graphs */
 		public List<string> guids;
 
-		/// <summary>Type names for all graphs</summary>
+		/** Type names for all graphs */
 		public List<string> typeNames;
 
-		/// <summary>Returns the Type of graph number index</summary>
+		/** Returns the Type of graph number \a index */
 		public Type GetGraphType (int index) {
 			// The graph was null when saving. Ignore it
 			if (String.IsNullOrEmpty(typeNames[index])) return null;
@@ -886,28 +869,25 @@ namespace Pathfinding.Serialization {
 		}
 	}
 
-	/// <summary>Holds settings for how graphs should be serialized</summary>
+	/** Holds settings for how graphs should be serialized */
 	public class SerializeSettings {
-		/// <summary>
-		/// Enable to include node data.
-		/// If false, only settings will be saved
-		/// </summary>
+		/** Enable to include node data.
+		 * If false, only settings will be saved
+		 */
 		public bool nodes = true;
 
-		/// <summary>
-		/// Use pretty printing for the json data.
-		/// Good if you want to open up the saved data and edit it manually
-		/// </summary>
+		/** Use pretty printing for the json data.
+		 * Good if you want to open up the saved data and edit it manually
+		 */
 		[System.Obsolete("There is no support for pretty printing the json anymore")]
 		public bool prettyPrint;
 
-		/// <summary>
-		/// Save editor settings.
-		/// Warning: Only applicable when saving from the editor using the AstarPathEditor methods
-		/// </summary>
+		/** Save editor settings.
+		 * \warning Only applicable when saving from the editor using the AstarPathEditor methods
+		 */
 		public bool editorSettings;
 
-		/// <summary>Serialization settings for only saving graph settings</summary>
+		/** Serialization settings for only saving graph settings */
 		public static SerializeSettings Settings {
 			get {
 				return new SerializeSettings {

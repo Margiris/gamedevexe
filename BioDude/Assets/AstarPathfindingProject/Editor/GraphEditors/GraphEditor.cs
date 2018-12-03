@@ -5,16 +5,14 @@ namespace Pathfinding {
 	public class GraphEditor : GraphEditorBase {
 		public AstarPathEditor editor;
 
-		/// <summary>Stores if the graph is visible or not in the inspector</summary>
+		/** Stores if the graph is visible or not in the inspector */
 		public FadeArea fadeArea;
 
-		/// <summary>Stores if the graph info box is visible or not in the inspector</summary>
+		/** Stores if the graph info box is visible or not in the inspector */
 		public FadeArea infoFadeArea;
 
-		/// <summary>
-		/// Called by editor scripts to rescan the graphs e.g when the user moved a graph.
-		/// Will only scan graphs if not playing and time to scan last graph was less than some constant (to avoid lag with large graphs)
-		/// </summary>
+		/** Called by editor scripts to rescan the graphs e.g when the user moved a graph.
+		 * Will only scan graphs if not playing and time to scan last graph was less than some constant (to avoid lag with large graphs) */
 		public bool AutoScan () {
 			if (!Application.isPlaying && AstarPath.active != null && AstarPath.active.lastScanTime < 0.11F) {
 				AstarPath.active.Scan();
@@ -82,7 +80,7 @@ namespace Pathfinding {
 			return obj;
 		}
 
-		/// <summary>Draws common graph settings</summary>
+		/** Draws common graph settings */
 		public void OnBaseInspectorGUI (NavGraph target) {
 			int penalty = EditorGUILayout.IntField(new GUIContent("Initial Penalty", "Initial Penalty for nodes in this graph. Set during Scan."), (int)target.initialPenalty);
 
@@ -90,15 +88,15 @@ namespace Pathfinding {
 			target.initialPenalty = (uint)penalty;
 		}
 
-		/// <summary>Override to implement graph inspectors</summary>
+		/** Override to implement graph inspectors */
 		public virtual void OnInspectorGUI (NavGraph target) {
 		}
 
-		/// <summary>Override to implement scene GUI drawing for the graph</summary>
+		/** Override to implement scene GUI drawing for the graph */
 		public virtual void OnSceneGUI (NavGraph target) {
 		}
 
-		/// <summary>Draws a thin separator line</summary>
+		/** Draws a thin separator line */
 		public static void Separator () {
 			GUIStyle separator = AstarPathEditor.astarSkin.FindStyle("PixelBox3Separator") ?? new GUIStyle();
 
@@ -109,7 +107,7 @@ namespace Pathfinding {
 			}
 		}
 
-		/// <summary>Draws a small help box with a 'Fix' button to the right. Returns: Boolean - Returns true if the button was clicked</summary>
+		/** Draws a small help box with a 'Fix' button to the right. \returns Boolean - Returns true if the button was clicked */
 		public static bool FixLabel (string label, string buttonLabel = "Fix", int buttonWidth = 40) {
 			GUILayout.BeginHorizontal();
 			GUILayout.Space(14*EditorGUI.indentLevel);
@@ -121,12 +119,12 @@ namespace Pathfinding {
 			return returnValue;
 		}
 
-		/// <summary>Draws a toggle with a bold label to the right. Does not enable or disable GUI</summary>
+		/** Draws a toggle with a bold label to the right. Does not enable or disable GUI */
 		public bool ToggleGroup (string label, bool value) {
 			return ToggleGroup(new GUIContent(label), value);
 		}
 
-		/// <summary>Draws a toggle with a bold label to the right. Does not enable or disable GUI</summary>
+		/** Draws a toggle with a bold label to the right. Does not enable or disable GUI */
 		public static bool ToggleGroup (GUIContent label, bool value) {
 			GUILayout.BeginHorizontal();
 			GUILayout.Space(13*EditorGUI.indentLevel);

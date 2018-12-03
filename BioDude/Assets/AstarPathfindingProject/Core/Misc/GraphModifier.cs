@@ -2,28 +2,27 @@ using UnityEngine;
 using System.Collections.Generic;
 
 namespace Pathfinding {
-	/// <summary>
-	/// GraphModifier is used for modifying graphs or processing graph data based on events.
-	/// This class is a simple container for a number of events.
-	///
-	/// Warning: Some events will be called both in play mode <b>and in editor mode</b> (at least the scan events).
-	/// So make sure your code handles both cases well. You may choose to ignore editor events.
-	/// See: Application.IsPlaying
-	/// </summary>
+	/** GraphModifier is used for modifying graphs or processing graph data based on events.
+	 * This class is a simple container for a number of events.
+	 *
+	 * \warning Some events will be called both in play mode <b>and in editor mode</b> (at least the scan events).
+	 * So make sure your code handles both cases well. You may choose to ignore editor events.
+	 * \see Application.IsPlaying
+	 */
 	[ExecuteInEditMode]
 	public abstract class GraphModifier : VersionedMonoBehaviour {
-		/// <summary>All active graph modifiers</summary>
+		/** All active graph modifiers */
 		private static GraphModifier root;
 
 		private GraphModifier prev;
 		private GraphModifier next;
 
-		/// <summary>Unique persistent ID for this component, used for serialization</summary>
+		/** Unique persistent ID for this component, used for serialization */
 		[SerializeField]
 		[HideInInspector]
 		protected ulong uniqueID;
 
-		/// <summary>Maps persistent IDs to the component that uses it</summary>
+		/** Maps persistent IDs to the component that uses it */
 		protected static Dictionary<ulong, GraphModifier> usedIDs = new Dictionary<ulong, GraphModifier>();
 
 		protected static List<T> GetModifiersOfType<T>() where T : GraphModifier {
@@ -46,7 +45,7 @@ namespace Pathfinding {
 			}
 		}
 
-		/// <summary>GraphModifier event type</summary>
+		/** GraphModifier event type */
 		public enum EventType {
 			PostScan = 1 << 0,
 			PreScan = 1 << 1,
@@ -56,7 +55,7 @@ namespace Pathfinding {
 			PostCacheLoad = 1 << 5
 		}
 
-		/// <summary>Triggers an event for all active graph modifiers</summary>
+		/** Triggers an event for all active graph modifiers */
 		public static void TriggerEvent (GraphModifier.EventType type) {
 			if (!Application.isPlaying) {
 				FindAllModifiers();
@@ -85,14 +84,14 @@ namespace Pathfinding {
 			}
 		}
 
-		/// <summary>Adds this modifier to list of active modifiers</summary>
+		/** Adds this modifier to list of active modifiers */
 		protected virtual void OnEnable () {
 			RemoveFromLinkedList();
 			AddToLinkedList();
 			ConfigureUniqueID();
 		}
 
-		/// <summary>Removes this modifier from list of active modifiers</summary>
+		/** Removes this modifier from list of active modifiers */
 		protected virtual void OnDisable () {
 			RemoveFromLinkedList();
 		}
@@ -140,59 +139,53 @@ namespace Pathfinding {
 			usedIDs.Remove(uniqueID);
 		}
 
-		/// <summary>
-		/// Called right after all graphs have been scanned.
-		/// FloodFill and other post processing has not been done.
-		///
-		/// Warning: Since OnEnable and Awake are called roughly in the same time, the only way
-		/// to ensure that these scripts get this call when scanning in Awake is to
-		/// set the Script Execution Order for AstarPath to some time later than default time
-		/// (see Edit -> Project Settings -> Script Execution Order).
-		/// TODO: Is this still relevant? A call to FindAllModifiers should have before this method is called
-		/// so the above warning is probably not relevant anymore.
-		///
-		/// See: OnLatePostScan
-		/// </summary>
+		/** Called right after all graphs have been scanned.
+		 * FloodFill and other post processing has not been done.
+		 *
+		 * \warning Since OnEnable and Awake are called roughly in the same time, the only way
+		 * to ensure that these scripts get this call when scanning in Awake is to
+		 * set the Script Execution Order for AstarPath to some time later than default time
+		 * (see Edit -> Project Settings -> Script Execution Order).
+		 * \todo Is this still relevant? A call to FindAllModifiers should have before this method is called
+		 * so the above warning is probably not relevant anymore.
+		 *
+		 * \see OnLatePostScan
+		 */
 		public virtual void OnPostScan () {}
 
-		/// <summary>
-		/// Called right before graphs are going to be scanned.
-		///
-		/// Warning: Since OnEnable and Awake are called roughly in the same time, the only way
-		/// to ensure that these scripts get this call when scanning in Awake is to
-		/// set the Script Execution Order for AstarPath to some time later than default time
-		/// (see Edit -> Project Settings -> Script Execution Order).
-		/// TODO: Is this still relevant? A call to FindAllModifiers should have before this method is called
-		/// so the above warning is probably not relevant anymore.
-		///
-		/// See: OnLatePostScan
-		/// </summary>
+		/** Called right before graphs are going to be scanned.
+		 *
+		 * \warning Since OnEnable and Awake are called roughly in the same time, the only way
+		 * to ensure that these scripts get this call when scanning in Awake is to
+		 * set the Script Execution Order for AstarPath to some time later than default time
+		 * (see Edit -> Project Settings -> Script Execution Order).
+		 * \todo Is this still relevant? A call to FindAllModifiers should have before this method is called
+		 * so the above warning is probably not relevant anymore.
+		 *
+		 * \see OnLatePostScan
+		 * */
 		public virtual void OnPreScan () {}
 
-		/// <summary>
-		/// Called at the end of the scanning procedure.
-		/// This is the absolute last thing done by Scan.
-		/// </summary>
+		/** Called at the end of the scanning procedure.
+		 * This is the absolute last thing done by Scan.
+		 *
+		 */
 		public virtual void OnLatePostScan () {}
 
-		/// <summary>
-		/// Called after cached graphs have been loaded.
-		/// When using cached startup, this event is analogous to OnLatePostScan and implementing scripts
-		/// should do roughly the same thing for both events.
-		/// </summary>
+		/** Called after cached graphs have been loaded.
+		 * When using cached startup, this event is analogous to OnLatePostScan and implementing scripts
+		 * should do roughly the same thing for both events.
+		 */
 		public virtual void OnPostCacheLoad () {}
 
-		/// <summary>Called before graphs are updated using GraphUpdateObjects</summary>
+		/** Called before graphs are updated using GraphUpdateObjects */
 		public virtual void OnGraphsPreUpdate () {}
 
-		/// <summary>
-		/// Called after graphs have been updated using GraphUpdateObjects.
-		/// Eventual flood filling has been done
-		/// </summary>
+		/** Called after graphs have been updated using GraphUpdateObjects.
+		 * Eventual flood filling has been done */
 		public virtual void OnGraphsPostUpdate () {}
 
-		protected override void Reset () {
-			base.Reset();
+		void Reset () {
 			// Create a new random 64 bit value (62 bit actually because we skip negative numbers, but that's still enough by a huge margin)
 			var rnd1 = (ulong)Random.Range(0, int.MaxValue);
 			var rnd2 = ((ulong)Random.Range(0, int.MaxValue) << 32);

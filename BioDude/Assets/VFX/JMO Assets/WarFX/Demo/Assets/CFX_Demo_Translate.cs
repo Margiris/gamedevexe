@@ -1,27 +1,25 @@
 using UnityEngine;
+using System.Collections;
 
 // Cartoon FX  - (c) 2015, Jean Moreno
 
-namespace VFX.JMO_Assets.WarFX.Demo.Assets
+public class CFX_Demo_Translate : MonoBehaviour
 {
-	public class CFX_Demo_Translate : MonoBehaviour
+	public float speed = 30.0f;
+	public Vector3 rotation = Vector3.forward;
+	public Vector3 axis = Vector3.forward;
+	public bool gravity;
+	private Vector3 dir;
+	
+	void Start ()
 	{
-		public float speed = 30.0f;
-		public Vector3 rotation = Vector3.forward;
-		public Vector3 axis = Vector3.forward;
-		public bool gravity;
-		private Vector3 dir;
-
-		private void Start ()
-		{
-			dir = new Vector3(Random.Range(0.0f,360.0f),Random.Range(0.0f,360.0f),Random.Range(0.0f,360.0f));
-			dir.Scale(rotation);
-			transform.localEulerAngles = dir;
-		}
-
-		private void Update ()
-		{
-			transform.Translate(axis * speed * Time.deltaTime, Space.Self);
-		}
+		dir = new Vector3(Random.Range(0.0f,360.0f),Random.Range(0.0f,360.0f),Random.Range(0.0f,360.0f));
+		dir.Scale(rotation);
+		this.transform.localEulerAngles = dir;
+	}
+	
+	void Update ()
+	{
+		this.transform.Translate(axis * speed * Time.deltaTime, Space.Self);
 	}
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 
 namespace Pathfinding {
-	/// <summary>Simple GUI utility functions</summary>
+	/** Simple GUI utility functions */
 	public static class GUIUtilityx {
 		static Stack<Color> colors = new Stack<Color>();
 
@@ -17,15 +17,14 @@ namespace Pathfinding {
 		}
 	}
 
-	/// <summary>
-	/// Editor helper for hiding and showing a group of GUI elements.
-	/// Call order in OnInspectorGUI should be:
-	/// - Begin
-	/// - Header/HeaderLabel (optional)
-	/// - BeginFade
-	/// - [your gui elements] (if BeginFade returns true)
-	/// - End
-	/// </summary>
+	/** Editor helper for hiding and showing a group of GUI elements.
+	 * Call order in OnInspectorGUI should be:
+	 * - Begin
+	 * - Header/HeaderLabel (optional)
+	 * - BeginFade
+	 * - [your gui elements] (if BeginFade returns true)
+	 * - End
+	 */
 	public class FadeArea {
 		Rect lastRect;
 		float value;
@@ -35,13 +34,11 @@ namespace Pathfinding {
 		bool visible;
 		Editor editor;
 
-		/// <summary>
-		/// Is this area open.
-		/// This is not the same as if any contents are visible, use <see cref="BeginFade"/> for that.
-		/// </summary>
+		/** Is this area open.
+		 * This is not the same as if any contents are visible, use #BeginFade for that.
+		 */
 		public bool open;
 
-		/// <summary>Animate dropdowns when they open and close</summary>
 		public static bool fancyEffects;
 		const float animationSpeed = 100f;
 
@@ -108,7 +105,7 @@ namespace Pathfinding {
 			this.open = open;
 		}
 
-		/// <summary>Hermite spline interpolation</summary>
+		/** Hermite spline interpolation */
 		static float Hermite (float start, float end, float value) {
 			return Mathf.Lerp(start, end, value * value * (3.0f - 2.0f * value));
 		}
@@ -134,31 +131,30 @@ namespace Pathfinding {
 			if (visible) {
 				// Some space that cannot be placed in the GUIStyle unfortunately
 				GUILayout.Space(4);
+
+				EditorGUILayout.EndFadeGroup();
 			}
 
-			EditorGUILayout.EndFadeGroup();
 			EditorGUILayout.EndVertical();
 			GUIUtilityx.PopTint();
 		}
 	}
-	/// <summary>Handles fading effects and also some custom GUI functions such as LayerMaskField</summary>
+	/** Handles fading effects and also some custom GUI functions such as LayerMaskField */
 	public static class EditorGUILayoutx {
 		static Dictionary<int, string[]> layerNames = new Dictionary<int, string[]>();
 		static long lastUpdateTick;
 
-		/// <summary>
-		/// Tag names and an additional 'Edit Tags...' entry.
-		/// Used for SingleTagField
-		/// </summary>
+		/** Tag names and an additional 'Edit Tags...' entry.
+		 * Used for SingleTagField
+		 */
 		static string[] tagNamesAndEditTagsButton;
 
-		/// <summary>
-		/// Last time tagNamesAndEditTagsButton was updated.
-		/// Uses EditorApplication.timeSinceStartup
-		/// </summary>
+		/** Last time tagNamesAndEditTagsButton was updated.
+		 * Uses EditorApplication.timeSinceStartup
+		 */
 		static double timeLastUpdatedTagNames;
 
-		public static int TagField (string label, int value, System.Action editCallback) {
+		public static int TagField (string label, int value) {
 			// Make sure the tagNamesAndEditTagsButton is relatively up to date
 			if (tagNamesAndEditTagsButton == null || EditorApplication.timeSinceStartup - timeLastUpdatedTagNames > 1) {
 				timeLastUpdatedTagNames = EditorApplication.timeSinceStartup;
@@ -175,7 +171,7 @@ namespace Pathfinding {
 
 			// Last element corresponds to the 'Edit Tags...' entry. Open the tag editor
 			if (newValue == -1) {
-				editCallback();
+				AstarPathEditor.EditTags();
 			} else {
 				value = newValue;
 			}
@@ -206,9 +202,10 @@ namespace Pathfinding {
 			return false;
 		}
 
-		/// <summary>Displays a LayerMask field.</summary>
-		/// <param name="label">Label to display</param>
-		/// <param name="selected">Current LayerMask</param>
+		/** Displays a LayerMask field.
+		 * \param label Label to display
+		 * \param selected Current LayerMask
+		 */
 		public static LayerMask LayerMaskField (string label, LayerMask selected) {
 			if (Event.current.type == EventType.Layout && System.DateTime.UtcNow.Ticks - lastUpdateTick > 10000000L) {
 				layerNames.Clear();

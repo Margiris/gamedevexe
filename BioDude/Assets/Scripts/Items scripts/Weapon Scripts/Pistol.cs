@@ -1,6 +1,8 @@
-﻿namespace Items_scripts.Weapon_Scripts
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Pistol : Weapon
 {
-    public class Pistol : Weapon
-    {
-    }
+
 }

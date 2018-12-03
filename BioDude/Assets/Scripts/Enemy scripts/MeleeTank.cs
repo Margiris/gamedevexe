@@ -1,43 +1,63 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Pathfinding;
+using UnityEngine.UI;
 
 
 // NOTE: Children order is important fro this script to work
 
-namespace Enemy_scripts
+public class MeleeTank : Tank
 {
-    public class MeleeTank : Tank
+    public int Meleedamage = 1;
+
+    //private:
+    // Use this for initialization
+    void Start()
     {
-        // Use this for initialization
-        private void Start()
-        {
-            Instantiate();
-        }
+        Instantiate();
+    }
 
-        // Update is called once per frame
-        private void Update()
-        {
-            CheckVision();
-            SetAlertionIndicator();
-            BehaviourIfCantSeePlayer();
-        }
+    // Update is called once per frame
+    void Update()
+    {
+        CheckVision();
+        SetAlertionIndicator();
+        BechaviourIfCantSeePlayer();
+    }
 
-        private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Player")
         {
-            if (!collision.CompareTag("Player")) return;
+            targetInAttackRange = true;
             animator.SetBool("TargetInRange", true);
         }
+    }
 
-        private void OnTriggerExit2D(Collider2D collision)
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.tag == "Player")
         {
-            if (!collision.CompareTag("Player")) return;
+            targetInAttackRange = false;
             animator.SetBool("TargetInRange", false);
         }
+    }
 
-        protected override void Die()
+    private void PerformAttack() // a smarter way of inflicting damage is required - this is nether secure nor efficient 
+    {
+        if (targetInAttackRange)
         {
-            base.Die();
-            // enemy death: smokes and stopped movement
-            Destroy(gameObject); //changed to game object because "this" destroys only MeleeTank script and the tank still chases player
+            player.GetComponent<player>().Damage(Meleedamage);
         }
     }
+
+    protected override void Die()
+    {
+        base.Die();
+        // enemy death: smokes and stoped movement
+        Destroy(gameObject);    //changed to gameobject because "this" destroys only MeleeTank script and the tank still chases player
+    }
+    
+    
 }

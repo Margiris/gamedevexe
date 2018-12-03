@@ -1,124 +1,216 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GUI_scripts.Achievement
+public class Achievement : MonoBehaviour
 {
-    public class Achievement : MonoBehaviour
+
+    private string achText;
+    private string description;
+    private bool unlocked;
+    private int points;
+    private int spriteIndex;
+    private GameObject achievementRef;
+    private List<Achievement> dependencies = new List<Achievement>();
+    private string child;
+
+    private int currentProgression;
+    private int maxProgression;
+
+    public Achievement(string name, string description, int points, int spriteIndex, GameObject achievementRef, int maxProgression)
     {
-        private readonly List<Achievement> dependencies = new List<Achievement>();
+        this.achText = name;
+        this.description = description;
+        this.Unlocked = false;
+        this.points = points;
+        this.spriteIndex = spriteIndex;
+        this.achievementRef = achievementRef;
+        this.maxProgression = maxProgression;
 
-        private int currentProgression;
-        private readonly int maxProgression;
 
-        public Achievement(string name, string description, int points, int spriteIndex, GameObject achievementRef,
-            int maxProgression)
+        LoadAchievement();
+    }
+
+    public void AddDependency(Achievement dependency)
+    {
+        dependencies.Add(dependency);
+    }
+
+    public string Name
+    {
+        get
         {
-            Name = name;
-            Description = description;
-            Unlocked = false;
-            Points = points;
-            SpriteIndex = spriteIndex;
-            AchievementRef = achievementRef;
-            this.maxProgression = maxProgression;
-
-
-            LoadAchievement();
+            return achText;
         }
 
-        public void AddDependency(Achievement dependency)
+        set
         {
-            dependencies.Add(dependency);
+            achText = value;
+        }
+    }
+
+    public string Description
+    {
+        get
+        {
+            return description;
         }
 
-        public string Name { private get; set; }
-
-        public string Description { get; set; }
-
-        public bool Unlocked { private get; set; }
-
-        public int Points { get; set; }
-
-        public GameObject AchievementRef { private get; set; }
-
-        public int SpriteIndex { get; set; }
-
-        public string Child { private get; set; }
-
-        public bool EarnAchievement()
+        set
         {
-            if (Unlocked || dependencies.Exists(x => x.Unlocked == false) || !CheckProgress()) return false;
-            AchievementRef.GetComponent<Image>().sprite = AchievementManager.Instance.unlockedSprite;
+            description = value;
+        }
+    }
+
+    public bool Unlocked
+    {
+        get
+        {
+            return unlocked;
+        }
+
+        set
+        {
+            unlocked = value;
+        }
+    }
+
+    public int Points
+    {
+        get
+        {
+            return points;
+        }
+
+        set
+        {
+            points = value;
+        }
+    }
+
+    public GameObject AchievementRef
+    {
+        get
+        {
+            return achievementRef;
+        }
+
+        set
+        {
+            achievementRef = value;
+        }
+    }
+
+    public int SpriteIndex
+    {
+        get
+        {
+            return spriteIndex;
+        }
+
+        set
+        {
+            spriteIndex = value;
+        }
+    }
+
+    public string Child
+    {
+        get
+        {
+            return child;
+        }
+
+        set
+        {
+            child = value;
+        }
+    }
+
+    public bool EarnAchievement()
+    {
+        if (!Unlocked && !dependencies.Exists(x => x.unlocked == false) && CheckProgress())
+        {
+            achievementRef.GetComponent<Image>().sprite = AchievementManager.Instance.unlockedSprite;
             SaveAchievement(true);
 
-            if (Child != null)
+            if (child != null)
             {
-                AchievementManager.Instance.EarnAchievement(Child);
+                AchievementManager.Instance.EarnAchievement(child);
             }
+            return true;
+        }
+        return false;
+    }
 
+    public void DestroyAchievement()
+    {
+        int tmpPoints = PlayerPrefs.GetInt("Points");
+        tmpPoints -= points;
+        PlayerPrefs.SetInt("Points", tmpPoints);
+        PlayerPrefs.SetInt(achText, 0);
+        PlayerPrefs.SetInt("Progression" + Name, 0);
+        PlayerPrefs.Save();
+    }
+
+    public void SaveAchievement(bool value)
+    {
+        unlocked = value;
+
+
+        if (value == true)
+        {
+            int tmpPoints = PlayerPrefs.GetInt("Points");
+
+            PlayerPrefs.SetInt("Points", tmpPoints += points);
+            PlayerPrefs.SetInt(achText, 1);
+        }
+        else
+        {
+            PlayerPrefs.SetInt(achText, 0);
+        }
+
+        PlayerPrefs.SetInt("Progression" + Name, currentProgression);
+
+
+
+        PlayerPrefs.Save();
+        //stores achievement's status
+        PlayerPrefs.SetInt(achText, value ? 1 : 0);
+
+    }
+
+    public void LoadAchievement()
+    {
+        unlocked = PlayerPrefs.GetInt(achText) == 1 ? true : false;
+
+        if (unlocked)
+        {
+            AchievementManager.Instance.textPoints.text = "Points: " + PlayerPrefs.GetInt("Points");
+            currentProgression = PlayerPrefs.GetInt("Progression" + Name);
+            achievementRef.GetComponent<Image>().sprite = AchievementManager.Instance.unlockedSprite;
+        }
+    }
+
+    public bool CheckProgress()
+    {
+        currentProgression++;
+        if (maxProgression != 0)
+        achievementRef.transform.GetChild(0).GetComponent<Text>().text = Name + " " + currentProgression + "/" + maxProgression;
+
+        SaveAchievement(false);
+
+        if (maxProgression == 0)
+        {
+            return true;
+        }
+        if (currentProgression >= maxProgression)
+        {
             return true;
         }
 
-        public void DestroyAchievement()
-        {
-            var tmpPoints = PlayerPrefs.GetInt("Points");
-
-            PlayerPrefs.SetInt("Points", tmpPoints - Points);
-            PlayerPrefs.SetInt(Name, 0);
-            PlayerPrefs.SetInt("Progression" + Name, 0);
-            PlayerPrefs.Save();
-        }
-
-        public void SaveAchievement(bool value)
-        {
-            Unlocked = value;
-
-
-            if (value)
-            {
-                var tmpPoints = PlayerPrefs.GetInt("Points");
-
-                PlayerPrefs.SetInt("Points", tmpPoints + Points);
-                PlayerPrefs.SetInt(Name, 1);
-            }
-            else
-            {
-                PlayerPrefs.SetInt(Name, 0);
-            }
-
-            PlayerPrefs.SetInt("Progression" + Name, currentProgression);
-
-
-            PlayerPrefs.Save();
-            //stores achievement's status
-            PlayerPrefs.SetInt(Name, value ? 1 : 0);
-        }
-
-        public void LoadAchievement()
-        {
-            Unlocked = PlayerPrefs.GetInt(Name) == 1;
-
-            if (!Unlocked) return;
-            AchievementManager.Instance.textPoints.text = "Points: " + PlayerPrefs.GetInt("Points");
-            currentProgression = PlayerPrefs.GetInt("Progression" + Name);
-            AchievementRef.GetComponent<Image>().sprite = AchievementManager.Instance.unlockedSprite;
-        }
-
-        private bool CheckProgress()
-        {
-            currentProgression++;
-            if (maxProgression != 0)
-                AchievementRef.transform.GetChild(0).GetComponent<Text>().text =
-                    Name + " " + currentProgression + "/" + maxProgression;
-
-            SaveAchievement(false);
-
-            if (maxProgression == 0)
-            {
-                return true;
-            }
-
-            return currentProgression >= maxProgression;
-        }
+        return false;
     }
+    
 }

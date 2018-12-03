@@ -1,4 +1,7 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 /**
  *	Demo Scene Script for WAR FX
@@ -6,21 +9,18 @@ using UnityEngine;
  *	(c) 2015, Jean Moreno
 **/
 
-namespace VFX.JMO_Assets.WarFX.Demo.Assets
+public class WFX_Demo_Wall : MonoBehaviour
 {
-	public class WFX_Demo_Wall : MonoBehaviour
+	public WFX_Demo_New demo;
+	
+	void OnMouseDown()
 	{
-		public WFX_Demo_New demo;
-
-		private void OnMouseDown()
+		RaycastHit hit = new RaycastHit();
+		if(this.GetComponent<Collider>().Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 9999f))
 		{
-			var hit = new RaycastHit();
-			if(GetComponent<Collider>().Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 9999f))
-			{
-				var particle = demo.spawnParticle();
-				particle.transform.position = hit.point;
-				particle.transform.rotation = Quaternion.FromToRotation(Vector3.forward, hit.normal);
-			}
+			GameObject particle = demo.spawnParticle();
+			particle.transform.position = hit.point;
+			particle.transform.rotation = Quaternion.FromToRotation(Vector3.forward, hit.normal);
 		}
 	}
 }

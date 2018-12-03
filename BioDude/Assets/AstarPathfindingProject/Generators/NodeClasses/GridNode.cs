@@ -3,12 +3,11 @@ using Pathfinding.Serialization;
 using UnityEngine;
 
 namespace Pathfinding {
-	/// <summary>Node used for the GridGraph</summary>
+	/** Node used for the GridGraph */
 	public class GridNode : GridNodeBase {
 		public GridNode (AstarPath astar) : base(astar) {
 		}
 
-#if !ASTAR_NO_GRID_GRAPH
 		private static GridGraph[] _gridGraphs = new GridGraph[0];
 		public static GridGraph GetGridGraph (uint graphIndex) { return _gridGraphs[(int)graphIndex]; }
 
@@ -22,7 +21,7 @@ namespace Pathfinding {
 			_gridGraphs[graphIndex] = graph;
 		}
 
-		/// <summary>Internal use only</summary>
+		/** Internal use only */
 		internal ushort InternalGridFlags {
 			get { return gridFlags; }
 			set { gridFlags = value; }
@@ -41,76 +40,67 @@ namespace Pathfinding {
 			}
 		}
 
-		/// <summary>
-		/// True if the node has a connection in the specified direction.
-		/// The dir parameter corresponds to directions in the grid as:
-		/// <code>
-		///         Z
-		///         |
-		///         |
-		///
-		///      6  2  5
-		///       \ | /
-		/// --  3 - X - 1  ----- X
-		///       / | \
-		///      7  0  4
-		///
-		///         |
-		///         |
-		/// </code>
-		///
-		/// See: SetConnectionInternal
-		/// </summary>
+		/** True if the node has a connection in the specified direction.
+		 * The dir parameter corresponds to directions in the grid as:
+		 * \code
+		 *         Z
+		 *         |
+		 *         |
+		 *
+		 *      6  2  5
+		 *       \ | /
+		 * --  3 - X - 1  ----- X
+		 *       / | \
+		 *      7  0  4
+		 *
+		 *         |
+		 *         |
+		 * \endcode
+		 *
+		 * \see SetConnectionInternal
+		 */
 		public bool HasConnectionInDirection (int dir) {
 			return (gridFlags >> dir & GridFlagsConnectionBit0) != 0;
 		}
 
-		/// <summary>
-		/// True if the node has a connection in the specified direction.
-		/// Deprecated: Use HasConnectionInDirection
-		/// </summary>
+		/** True if the node has a connection in the specified direction.
+		 * \deprecated Use HasConnectionInDirection
+		 */
 		[System.Obsolete("Use HasConnectionInDirection")]
 		public bool GetConnectionInternal (int dir) {
 			return HasConnectionInDirection(dir);
 		}
 
-		/// <summary>
-		/// Enables or disables a connection in a specified direction on the graph.
-		/// See: HasConnectionInDirection
-		/// </summary>
+		/** Enables or disables a connection in a specified direction on the graph.
+		 *	\see HasConnectionInDirection
+		 */
 		public void SetConnectionInternal (int dir, bool value) {
 			// Set bit number #dir to 1 or 0 depending on #value
 			unchecked { gridFlags = (ushort)(gridFlags & ~((ushort)1 << GridFlagsConnectionOffset << dir) | (value ? (ushort)1 : (ushort)0) << GridFlagsConnectionOffset << dir); }
-			AstarPath.active.hierarchicalGraph.AddDirtyNode(this);
 		}
 
-		/// <summary>
-		/// Sets the state of all grid connections.
-		///
-		/// See: SetConnectionInternal
-		/// </summary>
-		/// <param name="connections">a bitmask of the connections (bit 0 is the first connection, bit 1 the second connection, etc.).</param>
+		/** Sets the state of all grid connections.
+		 * \param connections a bitmask of the connections (bit 0 is the first connection, bit 1 the second connection, etc.).
+		 *
+		 * \see SetConnectionInternal
+		 */
 		public void SetAllConnectionInternal (int connections) {
 			unchecked { gridFlags = (ushort)((gridFlags & ~GridFlagsConnectionMask) | (connections << GridFlagsConnectionOffset)); }
-			AstarPath.active.hierarchicalGraph.AddDirtyNode(this);
 		}
 
-		/// <summary>
-		/// Disables all grid connections from this node.
-		/// Note: Other nodes might still be able to get to this node.
-		/// Therefore it is recommended to also disable the relevant connections on adjacent nodes.
-		/// </summary>
+		/** Disables all grid connections from this node.
+		 * \note Other nodes might still be able to get to this node.
+		 * Therefore it is recommended to also disable the relevant connections on adjacent nodes.
+		 */
 		public void ResetConnectionsInternal () {
 			unchecked {
 				gridFlags = (ushort)(gridFlags & ~GridFlagsConnectionMask);
 			}
-			AstarPath.active.hierarchicalGraph.AddDirtyNode(this);
 		}
 
-		/// <summary>
-		/// Work in progress for a feature that required info about which nodes were at the border of the graph.
-		/// Note: This property is not functional at the moment.
-		/// </summary>
+		/** Work in progress for a feature that required info about which nodes were at the border of the graph.
+		 * \note This property is not functional at the moment.
+		 */
 		public bool EdgeNode {
 			get {
 				return (gridFlags & GridFlagsEdgeNodeMask) != 0;
@@ -235,6 +225,28 @@ namespace Pathfinding {
 			return false;
 		}
 
+		public override void FloodFill (Stack<GraphNode> stack, uint region) {
+			GridGraph gg = GetGridGraph(GraphIndex);
+
+			int[] neighbourOffsets = gg.neighbourOffsets;
+			GridNode[] nodes = gg.nodes;
+			var index = NodeInGridIndex;
+
+			for (int i = 0; i < 8; i++) {
+				if (HasConnectionInDirection(i)) {
+					GridNode other = nodes[index + neighbourOffsets[i]];
+					if (other != null && other.Area != region) {
+						other.Area = region;
+						stack.Push(other);
+					}
+				}
+			}
+
+#if !ASTAR_GRID_NO_CUSTOM_CONNECTIONS
+			base.FloodFill(stack, region);
+#endif
+		}
+
 		public override void UpdateRecursiveG (Path path, PathNode pathNode, PathHandler handler) {
 			GridGraph gg = GetGridGraph(GraphIndex);
 
@@ -330,26 +342,5 @@ namespace Pathfinding {
 			position = ctx.DeserializeInt3();
 			gridFlags = ctx.reader.ReadUInt16();
 		}
-#else
-		public override void AddConnection (GraphNode node, uint cost) {
-			throw new System.NotImplementedException();
-		}
-
-		public override void ClearConnections (bool alsoReverse) {
-			throw new System.NotImplementedException();
-		}
-
-		public override void GetConnections (GraphNodeDelegate del) {
-			throw new System.NotImplementedException();
-		}
-
-		public override void Open (Path path, PathNode pathNode, PathHandler handler) {
-			throw new System.NotImplementedException();
-		}
-
-		public override void RemoveConnection (GraphNode node) {
-			throw new System.NotImplementedException();
-		}
-#endif
 	}
 }

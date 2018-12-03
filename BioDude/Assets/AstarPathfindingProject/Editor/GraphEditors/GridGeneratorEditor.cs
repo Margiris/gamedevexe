@@ -22,19 +22,19 @@ namespace Pathfinding {
 		[JsonMember]
 		public GridPivot pivot;
 
-		/// <summary>Cached gui style</summary>
+		/** Cached gui style */
 		static GUIStyle lockStyle;
 
-		/// <summary>Cached gui style</summary>
+		/** Cached gui style */
 		static GUIStyle gridPivotSelectBackground;
 
-		/// <summary>Cached gui style</summary>
+		/** Cached gui style */
 		static GUIStyle gridPivotSelectButton;
 
 		static readonly float standardIsometric = 90-Mathf.Atan(1/Mathf.Sqrt(2))*Mathf.Rad2Deg;
 		static readonly float standardDimetric = Mathf.Acos(1/2f)*Mathf.Rad2Deg;
 
-		/// <summary>Rounds a vector's components to multiples of 0.5 (i.e 0.5, 1.0, 1.5, etc.) if very close to them</summary>
+		/** Rounds a vector's components to multiples of 0.5 (i.e 0.5, 1.0, 1.5, etc.) if very close to them */
 		public static Vector3 RoundVector3 (Vector3 v) {
 			const int Multiplier = 2;
 
@@ -354,7 +354,7 @@ namespace Pathfinding {
 					graph.erosionUseTags);
 				if (graph.erosionUseTags) {
 					EditorGUI.indentLevel++;
-					graph.erosionFirstTag = EditorGUILayoutx.TagField("First Tag", graph.erosionFirstTag, () => AstarPathEditor.EditTags());
+					graph.erosionFirstTag = EditorGUILayoutx.TagField("First Tag", graph.erosionFirstTag);
 					EditorGUI.indentLevel--;
 				}
 				EditorGUI.indentLevel--;
@@ -412,7 +412,7 @@ namespace Pathfinding {
 			// Jump point search is a pro only feature
 		}
 
-		/// <summary>Draws the inspector for a \link Pathfinding.GraphCollision GraphCollision class \endlink</summary>
+		/** Draws the inspector for a \link Pathfinding.GraphCollision GraphCollision class \endlink */
 		protected virtual void DrawCollisionEditor (GraphCollision collision) {
 			collision = collision ?? new GraphCollision();
 

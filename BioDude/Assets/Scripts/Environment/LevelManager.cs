@@ -1,71 +1,69 @@
-﻿using GUI_scripts;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Environment
-{
-    public class LevelManager : MonoBehaviour
+public class LevelManager : MonoBehaviour {
+
+    [SerializeField]
+    int EnemiesOnMapLeft = 0;
+    public bool clear = false;
+    [SerializeField]
+    public bool LastLevel = false;
+    PauseMenu Pausemenu;
+    string LastLevelKeyName = "LastLevelCheckpoint";
+	// Use this for initialization
+    void Start()
     {
-        [SerializeField] private int EnemiesOnMapLeft;
-        public bool clear;
-        [SerializeField] public bool LastLevel;
+        GameObject obj = GameObject.Find("Pausemenu Canvas");
+        if(obj != null)
+            Pausemenu = obj.GetComponent<PauseMenu>();
+        if (GameObject.Find("Enemies") != null)
+            EnemiesOnMapLeft = GameObject.Find("Enemies").transform.childCount;
+        if (SceneManager.GetActiveScene().buildIndex > 0 &&
+            SceneManager.GetActiveScene().name != "Menu")
+            SaveCurrentLevelIndex();
+        if (SceneManager.GetActiveScene().buildIndex >= 4)
+            LastLevel = true;
+    }
 
-        private PauseMenu PauseMenu;
+    public void LevelCleared()
+    {
+        //play level finished screen with option to load next level
+        Pausemenu.ShowNextLevelScreen();
+        Debug.Log("Stage cleared");
+    }
 
-        private const string LastLevelKeyName = "LastLevelCheckpoint";
+    public void LoadNextLevel()
+    {
+        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex +1;
+        PlayerPrefs.SetInt(LastLevelKeyName, nextSceneIndex);
+        SceneManager.LoadScene(nextSceneIndex);
+    }
+    public int GetLastLevelIndex()
+    {
+        if (PlayerPrefs.HasKey(LastLevelKeyName))
+            return PlayerPrefs.GetInt(LastLevelKeyName);
+        else
+            return -1;
+    }
+    public void SaveCurrentLevelIndex()
+    {
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        PlayerPrefs.SetInt(LastLevelKeyName, currentSceneIndex);
+        PlayerPrefs.Save();
+    }
 
-        // Use this for initialization
-        private void Start()
+    public bool DoesPlayerProgressExist()
+    {
+        return PlayerPrefs.HasKey(LastLevelKeyName);
+    }
+
+    public void EnemyDefeated()
+    {
+        EnemiesOnMapLeft--;
+        if (EnemiesOnMapLeft <= 0)
         {
-            var obj = GameObject.Find("Pausemenu Canvas");
-            if (obj != null)
-                PauseMenu = obj.GetComponent<PauseMenu>();
-            if (GameObject.Find("Enemies") != null)
-                EnemiesOnMapLeft = GameObject.Find("Enemies").transform.childCount;
-            if (SceneManager.GetActiveScene().buildIndex > 0 &&
-                SceneManager.GetActiveScene().name != "Menu")
-                SaveCurrentLevelIndex();
-            if (SceneManager.GetActiveScene().buildIndex >= 4)
-                LastLevel = true;
-        }
-
-        public void LevelCleared()
-        {
-            //play level finished screen with option to load next level
-            PauseMenu.ShowNextLevelScreen();
-            Debug.Log("Stage cleared");
-        }
-
-        public void LoadNextLevel()
-        {
-            var nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
-            PlayerPrefs.SetInt(LastLevelKeyName, nextSceneIndex);
-            SceneManager.LoadScene(nextSceneIndex);
-        }
-
-//        public int GetLastLevelIndex()
-//        {
-//            if (PlayerPrefs.HasKey(LastLevelKeyName))
-//                return PlayerPrefs.GetInt(LastLevelKeyName);
-//            return -1;
-//        }
-
-        public void SaveCurrentLevelIndex()
-        {
-            var currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-            PlayerPrefs.SetInt(LastLevelKeyName, currentSceneIndex);
-            PlayerPrefs.Save();
-        }
-
-//        public bool DoesPlayerProgressExist()
-//        {
-//            return PlayerPrefs.HasKey(LastLevelKeyName);
-//        }
-
-        public void EnemyDefeated()
-        {
-            EnemiesOnMapLeft--;
-            if (EnemiesOnMapLeft > 0) return;
             clear = true;
             GameObject.Find("Exit").GetComponent<LevelManagerTrigger>().OpenExit();
         }

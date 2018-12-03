@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
-#if UNITY_5_5_OR_NEWER
-using UnityEngine.Profiling;
-#endif
 
 namespace Pathfinding {
 	using UnityEngine.Assertions;
@@ -17,37 +14,33 @@ namespace Pathfinding {
 	class GraphUpdateProcessor {
 		public event System.Action OnGraphsUpdated;
 
-		/// <summary>Holds graphs that can be updated</summary>
+		/** Holds graphs that can be updated */
 		readonly AstarPath astar;
 
 #if !UNITY_WEBGL
-		/// <summary>
-		/// Reference to the thread which handles async graph updates.
-		/// See: ProcessGraphUpdatesAsync
-		/// </summary>
+		/**
+		 * Reference to the thread which handles async graph updates.
+		 * \see ProcessGraphUpdatesAsync
+		 */
 		Thread graphUpdateThread;
 #endif
 
-		/// <summary>Used for IsAnyGraphUpdateInProgress</summary>
+		/** Used for IsAnyGraphUpdateInProgress */
 		bool anyGraphUpdateInProgress;
 
-#if UNITY_2017_3_OR_NEWER && !UNITY_WEBGL
-		CustomSampler asyncUpdateProfilingSampler;
-#endif
-
-		/// <summary>
-		/// Queue containing all waiting graph update queries. Add to this queue by using \link AddToQueue \endlink.
-		/// See: AddToQueue
-		/// </summary>
+		/**
+		 * Queue containing all waiting graph update queries. Add to this queue by using \link AddToQueue \endlink.
+		 * \see AddToQueue
+		 */
 		readonly Queue<GraphUpdateObject> graphUpdateQueue = new Queue<GraphUpdateObject>();
 
-		/// <summary>Queue of all async graph updates waiting to be executed</summary>
+		/** Queue of all async graph updates waiting to be executed */
 		readonly Queue<GUOSingle> graphUpdateQueueAsync = new Queue<GUOSingle>();
 
-		/// <summary>Queue of all non-async graph update post events waiting to be executed</summary>
+		/** Queue of all non-async graph update post events waiting to be executed */
 		readonly Queue<GUOSingle> graphUpdateQueuePost = new Queue<GUOSingle>();
 
-		/// <summary>Queue of all non-async graph updates waiting to be executed</summary>
+		/** Queue of all non-async graph updates waiting to be executed */
 		readonly Queue<GUOSingle> graphUpdateQueueRegular = new Queue<GUOSingle>();
 
 		readonly System.Threading.ManualResetEvent asyncGraphUpdatesComplete = new System.Threading.ManualResetEvent(true);
@@ -57,19 +50,25 @@ namespace Pathfinding {
 		readonly System.Threading.AutoResetEvent exitAsyncThread = new System.Threading.AutoResetEvent(false);
 #endif
 
-		/// <summary>Returns if any graph updates are waiting to be applied</summary>
+		/** Returns if any graph updates are waiting to be applied */
 		public bool IsAnyGraphUpdateQueued { get { return graphUpdateQueue.Count > 0; } }
 
-		/// <summary>Returns if any graph updates are in progress</summary>
+		/** Returns if any graph updates are in progress */
 		public bool IsAnyGraphUpdateInProgress { get { return anyGraphUpdateInProgress; } }
 
-		/// <summary>Order type for updating graphs</summary>
+		/** The last area index which was used.
+		 * Used for the \link FloodFill(GraphNode node) FloodFill \endlink function to start flood filling with an unused area.
+		 * \see FloodFill(Node node)
+		 */
+		uint lastUniqueAreaIndex = 0;
+
+		/** Order type for updating graphs */
 		enum GraphUpdateOrder {
 			GraphUpdate,
-			// FloodFill
+			FloodFill
 		}
 
-		/// <summary>Holds a single update that needs to be performed on a graph</summary>
+		/** Holds a single update that needs to be performed on a graph */
 		struct GUOSingle {
 			public GraphUpdateOrder order;
 			public IUpdatableGraph graph;
@@ -80,7 +79,7 @@ namespace Pathfinding {
 			this.astar = astar;
 		}
 
-		/// <summary>Work item which can be used to apply all queued updates</summary>
+		/** Work item which can be used to apply all queued updates */
 		public AstarWorkItem GetWorkItem () {
 			return new AstarWorkItem(QueueGraphUpdatesInternal, ProcessGraphUpdates);
 		}
@@ -88,10 +87,6 @@ namespace Pathfinding {
 		public void EnableMultithreading () {
 #if !UNITY_WEBGL
 			if (graphUpdateThread == null || !graphUpdateThread.IsAlive) {
-#if UNITY_2017_3_OR_NEWER && !UNITY_WEBGL
-				asyncUpdateProfilingSampler = CustomSampler.Create("Graph Update");
-#endif
-
 				graphUpdateThread = new Thread(ProcessGraphUpdatesAsync);
 				graphUpdateThread.IsBackground = true;
 
@@ -120,22 +115,25 @@ namespace Pathfinding {
 #endif
 		}
 
-		/// <summary>
-		/// Update all graphs using the GraphUpdateObject.
-		/// This can be used to, e.g make all nodes in an area unwalkable, or set them to a higher penalty.
-		/// The graphs will be updated as soon as possible (with respect to AstarPath.batchGraphUpdates)
-		///
-		/// See: FlushGraphUpdates
-		/// </summary>
+		/** Update all graphs using the GraphUpdateObject.
+		 * This can be used to, e.g make all nodes in an area unwalkable, or set them to a higher penalty.
+		 * The graphs will be updated as soon as possible (with respect to AstarPath.batchGraphUpdates)
+		 *
+		 * \see FlushGraphUpdates
+		 */
 		public void AddToQueue (GraphUpdateObject ob) {
 			// Put the GUO in the queue
 			graphUpdateQueue.Enqueue(ob);
 		}
 
-		/// <summary>Schedules graph updates internally</summary>
+		/** Schedules graph updates internally */
 		void QueueGraphUpdatesInternal () {
+			bool anyRequiresFloodFill = false;
+
 			while (graphUpdateQueue.Count > 0) {
 				GraphUpdateObject ob = graphUpdateQueue.Dequeue();
+
+				if (ob.requiresFloodFill) anyRequiresFloodFill = true;
 
 				foreach (IUpdatableGraph g in astar.data.GetUpdateableGraphs()) {
 					NavGraph gr = g as NavGraph;
@@ -149,20 +147,26 @@ namespace Pathfinding {
 				}
 			}
 
+			if (anyRequiresFloodFill) {
+				var guo = new GUOSingle();
+				guo.order = GraphUpdateOrder.FloodFill;
+				graphUpdateQueueRegular.Enqueue(guo);
+			}
+
 			GraphModifier.TriggerEvent(GraphModifier.EventType.PreUpdate);
 			anyGraphUpdateInProgress = true;
 		}
 
-		/// <summary>
-		/// Updates graphs.
-		/// Will do some graph updates, possibly signal another thread to do them.
-		/// Will only process graph updates added by QueueGraphUpdatesInternal
-		///
-		/// Returns: True if all graph updates have been done and pathfinding (or other tasks) may resume.
-		/// False if there are still graph updates being processed or waiting in the queue.
-		/// </summary>
-		/// <param name="force">If true, all graph updates will be processed before this function returns. The return value
-		/// will be True.</param>
+		/** Updates graphs.
+		 * Will do some graph updates, possibly signal another thread to do them.
+		 * Will only process graph updates added by QueueGraphUpdatesInternal
+		 *
+		 * \param force If true, all graph updates will be processed before this function returns. The return value
+		 * will be True.
+		 *
+		 * \returns True if all graph updates have been done and pathfinding (or other tasks) may resume.
+		 * False if there are still graph updates being processed or waiting in the queue.
+		 */
 		bool ProcessGraphUpdates (bool force) {
 			Assert.IsTrue(anyGraphUpdateInProgress);
 
@@ -198,7 +202,7 @@ namespace Pathfinding {
 			while (graphUpdateQueueRegular.Count > 0) {
 				GUOSingle s = graphUpdateQueueRegular.Peek();
 
-				GraphUpdateThreading threading = s.graph.CanUpdateAsync(s.obj);
+				GraphUpdateThreading threading = s.order == GraphUpdateOrder.FloodFill ? GraphUpdateThreading.SeparateThread : s.graph.CanUpdateAsync(s.obj);
 
 #if UNITY_WEBGL
 				// Never use multithreading in WebGL
@@ -243,10 +247,14 @@ namespace Pathfinding {
 
 					graphUpdateQueueRegular.Dequeue();
 
-					try {
-						s.graph.UpdateArea(s.obj);
-					} catch (System.Exception e) {
-						Debug.LogError("Error while updating graphs\n"+e);
+					if (s.order == GraphUpdateOrder.FloodFill) {
+						FloodFill();
+					} else {
+						try {
+							s.graph.UpdateArea(s.obj);
+						} catch (System.Exception e) {
+							Debug.LogError("Error while updating graphs\n"+e);
+						}
 					}
 
 					if ((threading & GraphUpdateThreading.UnityPost) != 0) {
@@ -262,10 +270,9 @@ namespace Pathfinding {
 			return true;
 		}
 
-		/// <summary>
-		/// Signal the graph update thread to start processing graph updates if there are any in the <see cref="graphUpdateQueueAsync"/> queue.
-		/// Returns: True if the other thread was signaled.
-		/// </summary>
+		/** Signal the graph update thread to start processing graph updates if there are any in the #graphUpdateQueueAsync queue.
+		 * \returns True if the other thread was signaled.
+		 */
 		bool StartAsyncUpdatesIfQueued () {
 			if (graphUpdateQueueAsync.Count > 0) {
 #if UNITY_WEBGL
@@ -296,15 +303,10 @@ namespace Pathfinding {
 		}
 
 	#if !UNITY_WEBGL
-		/// <summary>
-		/// Graph update thread.
-		/// Async graph updates will be executed by this method in another thread.
-		/// </summary>
+		/** Graph update thread.
+		 * Async graph updates will be executed by this method in another thread.
+		 */
 		void ProcessGraphUpdatesAsync () {
-#if UNITY_2017_3_OR_NEWER
-			Profiler.BeginThreadProfiling("Pathfinding", "Threaded Graph Updates");
-#endif
-
 			var handles = new [] { graphUpdateAsyncEvent, exitAsyncThread };
 
 			while (true) {
@@ -316,16 +318,10 @@ namespace Pathfinding {
 					// Abort thread and clear queue
 					graphUpdateQueueAsync.Clear();
 					asyncGraphUpdatesComplete.Set();
-#if UNITY_2017_3_OR_NEWER
-					Profiler.EndThreadProfiling();
-#endif
 					return;
 				}
 
 				while (graphUpdateQueueAsync.Count > 0) {
-#if UNITY_2017_3_OR_NEWER
-					asyncUpdateProfilingSampler.Begin();
-#endif
 					// Note that no locking is required here because the main thread
 					// cannot access it until asyncGraphUpdatesComplete is signaled
 					GUOSingle aguo = graphUpdateQueueAsync.Dequeue();
@@ -334,15 +330,14 @@ namespace Pathfinding {
 						if (aguo.order == GraphUpdateOrder.GraphUpdate) {
 							aguo.graph.UpdateArea(aguo.obj);
 							graphUpdateQueuePost.Enqueue(aguo);
+						} else if (aguo.order == GraphUpdateOrder.FloodFill) {
+							FloodFill();
 						} else {
 							throw new System.NotSupportedException("" + aguo.order);
 						}
 					} catch (System.Exception e) {
 						Debug.LogError("Exception while updating graphs:\n"+e);
 					}
-#if UNITY_2017_3_OR_NEWER
-					asyncUpdateProfilingSampler.End();
-#endif
 				}
 
 				// Done
@@ -350,5 +345,117 @@ namespace Pathfinding {
 			}
 		}
 #endif
+
+		/** Floodfills starting from the specified node.
+		 * \see https://en.wikipedia.org/wiki/Flood_fill
+		 */
+		public void FloodFill (GraphNode seed) {
+			FloodFill(seed, lastUniqueAreaIndex+1);
+			lastUniqueAreaIndex++;
+		}
+
+		/** Floodfills starting from 'seed' using the specified area.
+		 * \see https://en.wikipedia.org/wiki/Flood_fill
+		 */
+		public void FloodFill (GraphNode seed, uint area) {
+			if (area > GraphNode.MaxAreaIndex) {
+				Debug.LogError("Too high area index - The maximum area index is " + GraphNode.MaxAreaIndex);
+				return;
+			}
+
+			if (area < 0) {
+				Debug.LogError("Too low area index - The minimum area index is 0");
+				return;
+			}
+
+			var stack = Pathfinding.Util.StackPool<GraphNode>.Claim();
+
+			stack.Push(seed);
+			seed.Area = (uint)area;
+
+			while (stack.Count > 0) {
+				stack.Pop().FloodFill(stack, (uint)area);
+			}
+
+			Pathfinding.Util.StackPool<GraphNode>.Release(stack);
+		}
+
+		/** Floodfills all graphs and updates areas for every node.
+		 * The different colored areas that you see in the scene view when looking at graphs
+		 * are called just 'areas', this method calculates which nodes are in what areas.
+		 * \see Pathfinding.Node.area
+		 */
+		public void FloodFill () {
+			var graphs = astar.graphs;
+
+			if (graphs == null) {
+				return;
+			}
+
+			// Iterate through all nodes in all graphs
+			// and reset their Area field
+			for (int i = 0; i < graphs.Length; i++) {
+				var graph = graphs[i];
+
+				if (graph != null) {
+					graph.GetNodes(node => node.Area = 0);
+				}
+			}
+
+			lastUniqueAreaIndex = 0;
+			uint area = 0;
+			int forcedSmallAreas = 0;
+
+			// Get a temporary stack from a pool
+			var stack = Pathfinding.Util.StackPool<GraphNode>.Claim();
+
+			for (int i = 0; i < graphs.Length; i++) {
+				NavGraph graph = graphs[i];
+
+				if (graph == null) continue;
+
+				graph.GetNodes(node => {
+					if (node.Walkable && node.Area == 0) {
+						area++;
+
+						uint thisArea = area;
+
+						if (area > GraphNode.MaxAreaIndex) {
+					        // Forced to consider this a small area
+							area--;
+							thisArea = area;
+
+					        // Make sure the first small area is also counted
+							if (forcedSmallAreas == 0) forcedSmallAreas = 1;
+
+							forcedSmallAreas++;
+						}
+
+						stack.Clear();
+						stack.Push(node);
+
+						int counter = 1;
+						node.Area = thisArea;
+
+						while (stack.Count > 0) {
+							counter++;
+							stack.Pop().FloodFill(stack, thisArea);
+						}
+					}
+				});
+			}
+
+			lastUniqueAreaIndex = area;
+
+			if (forcedSmallAreas > 0) {
+				Debug.LogError(forcedSmallAreas +" areas had to share IDs. " +
+					"This usually doesn't affect pathfinding in any significant way (you might get 'Searched whole area but could not find target' as a reason for path failure) " +
+					"however some path requests may take longer to calculate (specifically those that fail with the 'Searched whole area' error)." +
+					"The maximum number of areas is " + GraphNode.MaxAreaIndex +".");
+			}
+
+			// Put back into the pool
+			Pathfinding.Util.StackPool<GraphNode>.Release(stack);
+		}
 	}
 }

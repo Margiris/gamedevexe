@@ -4,17 +4,16 @@ using System.Collections.Generic;
 namespace Pathfinding {
 	[AddComponentMenu("Pathfinding/Modifiers/Alternative Path")]
 	[System.Serializable]
-	/// <summary>
-	/// Applies penalty to the paths it processes telling other units to avoid choosing the same path.
-	///
-	/// Note that this might not work properly if penalties are modified by other actions as well (e.g graph update objects which reset the penalty to zero).
-	/// It will only work when all penalty modifications are relative, i.e adding or subtracting penalties, but not when setting penalties
-	/// to specific values.
-	///
-	/// When destroyed, it will correctly remove any added penalty.
-	///
-	/// \ingroup modifiers
-	/// </summary>
+	/** Applies penalty to the paths it processes telling other units to avoid choosing the same path.
+	 *
+	 * Note that this might not work properly if penalties are modified by other actions as well (e.g graph update objects which reset the penalty to zero).
+	 * It will only work when all penalty modifications are relative, i.e adding or subtracting penalties, but not when setting penalties
+	 * to specific values.
+	 *
+	 * When destroyed, it will correctly remove any added penalty.
+	 *
+	 * \ingroup modifiers
+	 */
 	[HelpURL("http://arongranberg.com/astar/docs/class_pathfinding_1_1_alternative_path.php")]
 	public class AlternativePath : MonoModifier {
 	#if UNITY_EDITOR
@@ -26,19 +25,19 @@ namespace Pathfinding {
 
 		public override int Order { get { return 10; } }
 
-		/// <summary>How much penalty (weight) to apply to nodes</summary>
+		/** How much penalty (weight) to apply to nodes */
 		public int penalty = 1000;
 
-		/// <summary>Max number of nodes to skip in a row</summary>
+		/** Max number of nodes to skip in a row */
 		public int randomStep = 10;
 
-		/// <summary>The previous path</summary>
+		/** The previous path */
 		List<GraphNode> prevNodes = new List<GraphNode>();
 
-		/// <summary>The previous penalty used. Stored just in case it changes during operation</summary>
+		/** The previous penalty used. Stored just in case it changes during operation */
 		int prevPenalty;
 
-		/// <summary>A random object</summary>
+		/** A random object */
 		readonly System.Random rnd = new System.Random();
 
 		bool destroyed;

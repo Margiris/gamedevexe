@@ -4,22 +4,21 @@ using System.Collections.Generic;
 namespace Pathfinding {
 	using Pathfinding.Util;
 
-	/// <summary>
-	/// Connects two nodes via two intermediate point nodes.
-	/// In contrast to the NodeLink component, this link type will not connect the nodes directly
-	/// instead it will create two point nodes at the start and end position of this link and connect
-	/// through those nodes.
-	///
-	/// If the closest node to this object is called A and the closest node to the end transform is called
-	/// D, then it will create one point node at this object's position (call it B) and one point node at
-	/// the position of the end transform (call it C), it will then connect A to B, B to C and C to D.
-	///
-	/// This link type is possible to detect while following since it has these special point nodes in the middle.
-	/// The link corresponding to one of those intermediate nodes can be retrieved using the <see cref="GetNodeLink"/> method
-	/// which can be of great use if you want to, for example, play a link specific animation when reaching the link.
-	///
-	/// See: The example scene RecastExample2 contains a few links which you can take a look at to see how they are used.
-	/// </summary>
+	/** Connects two nodes via two intermediate point nodes.
+	 * In contrast to the NodeLink component, this link type will not connect the nodes directly
+	 * instead it will create two point nodes at the start and end position of this link and connect
+	 * through those nodes.
+	 *
+	 * If the closest node to this object is called A and the closest node to the end transform is called
+	 * D, then it will create one point node at this object's position (call it B) and one point node at
+	 * the position of the end transform (call it C), it will then connect A to B, B to C and C to D.
+	 *
+	 * This link type is possible to detect while following since it has these special point nodes in the middle.
+	 * The link corresponding to one of those intermediate nodes can be retrieved using the #GetNodeLink method
+	 * which can be of great use if you want to, for example, play a link specific animation when reaching the link.
+	 *
+	 * \see The example scene RecastExample2 contains a few links which you can take a look at to see how they are used.
+	 */
 	[AddComponentMenu("Pathfinding/Link2")]
 	[HelpURL("http://arongranberg.com/astar/docs/class_pathfinding_1_1_node_link2.php")]
 	public class NodeLink2 : GraphModifier {
@@ -31,17 +30,16 @@ namespace Pathfinding {
 			return v;
 		}
 
-		/// <summary>End position of the link</summary>
+		/** End position of the link */
 		public Transform end;
 
-		/// <summary>
-		/// The connection will be this times harder/slower to traverse.
-		/// Note that values lower than 1 will not always make the pathfinder choose this path instead of another path even though this one should
-		/// lead to a lower total cost unless you also adjust the Heuristic Scale in A* Inspector -> Settings -> Pathfinding or disable the heuristic altogether.
-		/// </summary>
+		/** The connection will be this times harder/slower to traverse.
+		 * Note that values lower than 1 will not always make the pathfinder choose this path instead of another path even though this one should
+		 * lead to a lower total cost unless you also adjust the Heuristic Scale in A* Inspector -> Settings -> Pathfinding or disable the heuristic altogether.
+		 */
 		public float costFactor = 1.0f;
 
-		/// <summary>Make a one-way connection</summary>
+		/** Make a one-way connection */
 		public bool oneWay = false;
 
 		public Transform StartTransform {
@@ -75,9 +73,6 @@ namespace Pathfinding {
 		public void InternalOnPostScan () {
 			if (EndTransform == null || StartTransform == null) return;
 
-#if ASTAR_NO_POINT_GRAPH
-			throw new System.Exception("Point graph is not included. Check your A* optimization settings.");
-#else
 			if (AstarPath.active.data.pointGraph == null) {
 				var graph = AstarPath.active.data.AddGraph(typeof(PointGraph)) as PointGraph;
 				graph.name = "PointGraph (used for node links)";
@@ -110,7 +105,6 @@ namespace Pathfinding {
 			reference[startNode] = this;
 			reference[endNode] = this;
 			Apply(true);
-#endif
 		}
 
 		public override void OnGraphsPostUpdate () {
@@ -135,12 +129,10 @@ namespace Pathfinding {
 		protected override void OnEnable () {
 			base.OnEnable();
 
-#if !ASTAR_NO_POINT_GRAPH
 			if (Application.isPlaying && AstarPath.active != null && AstarPath.active.data != null && AstarPath.active.data.pointGraph != null && !AstarPath.active.isScanning) {
 				// Call OnGraphsPostUpdate as soon as possible when it is safe to update the graphs
 				AstarPath.active.AddWorkItem(OnGraphsPostUpdate);
 			}
-#endif
 		}
 
 		protected override void OnDisable () {
@@ -174,6 +166,9 @@ namespace Pathfinding {
 		void ContextApplyForce () {
 			if (Application.isPlaying) {
 				Apply(true);
+				if (AstarPath.active != null) {
+					AstarPath.active.FloodFill();
+				}
 			}
 		}
 

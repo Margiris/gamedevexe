@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Pathfinding {
-	/// <summary>Helper for creating editors</summary>
+	/** Helper for creating editors */
 	[CustomEditor(typeof(VersionedMonoBehaviour), true)]
 	[CanEditMultipleObjects]
 	public class EditorBase : Editor {
@@ -16,7 +16,6 @@ namespace Pathfinding {
 		static GUIContent content = new GUIContent();
 		static GUIContent showInDocContent = new GUIContent("Show in online documentation", "");
 		static GUILayoutOption[] noOptions = new GUILayoutOption[0];
-		public static System.Func<string> getDocumentationURL;
 
 		static void LoadMeta () {
 			if (cachedTooltips == null) {
@@ -84,7 +83,7 @@ namespace Pathfinding {
 		}
 
 		protected virtual void OnEnable () {
-			foreach (var target in targets) if (target != null) (target as IVersionedMonoBehaviourInternal).UpgradeFromUnityThread();
+			foreach (var target in targets) if (target != null) (target as IVersionedMonoBehaviourInternal).OnUpgradeSerializedData(int.MaxValue, true);
 		}
 
 		public sealed override void OnInspectorGUI () {
@@ -123,16 +122,6 @@ namespace Pathfinding {
 			return res;
 		}
 
-		protected void Section (string label) {
-			EditorGUILayout.Separator();
-			EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
-		}
-
-		protected void FloatField (string propertyPath, string label = null, string tooltip = null, float min = float.NegativeInfinity, float max = float.PositiveInfinity) {
-			PropertyField(propertyPath, label, tooltip);
-			Clamp(propertyPath, min, max);
-		}
-
 		protected bool PropertyField (string propertyPath, string label = null, string tooltip = null) {
 			return PropertyField(FindProperty(propertyPath), label, tooltip, propertyPath);
 		}
@@ -158,10 +147,10 @@ namespace Pathfinding {
 		void CaptureContextClick (string propertyPath) {
 			var url = FindURL(target.GetType(), propertyPath);
 
-			if (url != null && getDocumentationURL != null) {
+			if (url != null) {
 				Event.current.Use();
 				var menu = new GenericMenu();
-				menu.AddItem(showInDocContent, false, () => Application.OpenURL(getDocumentationURL() + url));
+				menu.AddItem(showInDocContent, false, () => Application.OpenURL(AstarUpdateChecker.GetURL("documentation") + url));
 				menu.ShowAsContext();
 			}
 		}

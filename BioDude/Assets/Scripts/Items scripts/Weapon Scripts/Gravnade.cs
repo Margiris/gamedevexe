@@ -1,44 +1,48 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-namespace Items_scripts.Weapon_Scripts
+public class Gravnade : Explosive
 {
-    public class Gravnade : Explosive
+
+    public float delay = 2f;
+    float countdown;
+
+    public GameObject blackHoleEffect;
+
+    bool exploded = false;
+    public float radius = 3f;
+    public float force = 500f;
+    private Rigidbody2D rb;
+
+    // Use this for initialization
+    void Start()
     {
-        public float delay = 2f;
-        private float countdown;
+        countdown = delay;
+        rb = GetComponent<Rigidbody2D>();
+    }
 
-        public GameObject blackHoleEffect;
 
-        private bool exploded;
-
-        // Use this for initialization
-        private void Start()
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        if(!started)
         {
-            countdown = delay;
-            GetComponent<Rigidbody2D>();
+            Throw(throwForce);
+            started = true;
         }
-
-
-        // Update is called once per frame
-        private void FixedUpdate()
+        countdown -= Time.deltaTime;
+        if (countdown <= 0f && !exploded)
         {
-            if (!started)
-            {
-                Throw(throwForce);
-                started = true;
-            }
-
-            countdown -= Time.deltaTime;
-            if (!(countdown <= 0f) || exploded) return;
             Explode();
             exploded = true;
         }
+    }
 
-        public override void Explode()
-        {
-            //gravnade effect
-            Instantiate(blackHoleEffect, transform.position, transform.rotation);
-            Destroy(gameObject);
-        }
+    public override void Explode()
+    {
+        //gravnade effect
+        Instantiate(blackHoleEffect, transform.position, transform.rotation);
+        Destroy(gameObject);
     }
 }

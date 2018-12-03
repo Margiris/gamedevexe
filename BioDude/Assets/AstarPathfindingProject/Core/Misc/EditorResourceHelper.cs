@@ -4,12 +4,10 @@ namespace Pathfinding {
 	using UnityEngine;
 	using System.Collections.Generic;
 
-	/// <summary>Internal utility class for looking up editor resources</summary>
+	/** Internal utility class for looking up editor resources */
 	public static class EditorResourceHelper {
-		/// <summary>
-		/// Path to the editor assets folder for the A* Pathfinding Project. If this path turns out to be incorrect, the script will try to find the correct path
-		/// See: LoadStyles
-		/// </summary>
+		/** Path to the editor assets folder for the A* Pathfinding Project. If this path turns out to be incorrect, the script will try to find the correct path
+		 * \see LoadStyles */
 		public static string editorAssets;
 
 		static EditorResourceHelper () {
@@ -32,7 +30,7 @@ namespace Pathfinding {
 			}
 		}
 
-		/// <summary>Locates the editor assets folder in case the user has moved it</summary>
+		/** Locates the editor assets folder in case the user has moved it */
 		public static bool LocateEditorAssets () {
 			string projectPath = Application.dataPath;
 

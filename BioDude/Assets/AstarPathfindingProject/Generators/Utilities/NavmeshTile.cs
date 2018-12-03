@@ -3,40 +3,38 @@ namespace Pathfinding {
 	using UnityEngine;
 
 	public class NavmeshTile : INavmeshHolder {
-		/// <summary>Tile triangles</summary>
+		/** Tile triangles */
 		public int[] tris;
 
-		/// <summary>Tile vertices</summary>
+		/** Tile vertices */
 		public Int3[] verts;
 
-		/// <summary>Tile vertices in graph space</summary>
+		/** Tile vertices in graph space */
 		public Int3[] vertsInGraphSpace;
 
-		/// <summary>Tile X Coordinate</summary>
+		/** Tile X Coordinate */
 		public int x;
 
-		/// <summary>Tile Z Coordinate</summary>
+		/** Tile Z Coordinate */
 		public int z;
 
-		/// <summary>
-		/// Width, in tile coordinates.
-		/// Warning: Widths other than 1 are not supported. This is mainly here for possible future features.
-		/// </summary>
+		/** Width, in tile coordinates.
+		 * \warning Widths other than 1 are not supported. This is mainly here for possible future features.
+		 */
 		public int w;
 
-		/// <summary>
-		/// Depth, in tile coordinates.
-		/// Warning: Depths other than 1 are not supported. This is mainly here for possible future features.
-		/// </summary>
+		/** Depth, in tile coordinates.
+		 * \warning Depths other than 1 are not supported. This is mainly here for possible future features.
+		 */
 		public int d;
 
-		/// <summary>All nodes in the tile</summary>
+		/** All nodes in the tile */
 		public TriangleMeshNode[] nodes;
 
-		/// <summary>Bounding Box Tree for node lookups</summary>
+		/** Bounding Box Tree for node lookups */
 		public BBTree bbTree;
 
-		/// <summary>Temporary flag used for batching</summary>
+		/** Temporary flag used for batching */
 		public bool flag;
 
 		public NavmeshBase graph;
@@ -52,7 +50,7 @@ namespace Pathfinding {
 			return index & NavmeshBase.VertexIndexMask;
 		}
 
-		/// <summary>Get a specific vertex in the tile</summary>
+		/** Get a specific vertex in the tile */
 		public Int3 GetVertex (int index) {
 			int idx = index & NavmeshBase.VertexIndexMask;
 
@@ -63,7 +61,7 @@ namespace Pathfinding {
 			return vertsInGraphSpace[index & NavmeshBase.VertexIndexMask];
 		}
 
-		/// <summary>Transforms coordinates from graph space to world space</summary>
+		/** Transforms coordinates from graph space to world space */
 		public GraphTransform transform { get { return graph.transform; } }
 
 		#endregion

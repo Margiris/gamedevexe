@@ -3,7 +3,7 @@ using UnityEditor;
 using System.Collections.Generic;
 
 namespace Pathfinding {
-	/// <summary>Editor for GraphUpdateScene</summary>
+	/** Editor for GraphUpdateScene */
 	[CustomEditor(typeof(GraphUpdateScene))]
 	[CanEditMultipleObjects]
 	public class GraphUpdateSceneEditor : EditorBase {
@@ -55,7 +55,8 @@ namespace Pathfinding {
 
 			// Minimum bounds height is not applied when using the bounds from a collider or renderer
 			if (points.hasMultipleDifferentValues || points.arraySize > 0) {
-				FloatField("minBoundsHeight", min: 0.1f);
+				PropertyField("minBoundsHeight");
+				Clamp("minBoundsHeight", 0.1f);
 			}
 			PropertyField("applyOnStart");
 			PropertyField("applyOnScan");
@@ -160,7 +161,7 @@ namespace Pathfinding {
 				EditorGUI.indentLevel++;
 				EditorGUI.showMixedValue = tagValue.hasMultipleDifferentValues;
 				EditorGUI.BeginChangeCheck();
-				var newTag = EditorGUILayoutx.TagField("Tag Value", tagValue.intValue, () => AstarPathEditor.EditTags());
+				var newTag = EditorGUILayoutx.TagField("Tag Value", tagValue.intValue);
 				if (EditorGUI.EndChangeCheck()) {
 					tagValue.intValue = newTag;
 				}

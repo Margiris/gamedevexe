@@ -2,10 +2,9 @@ using UnityEngine;
 
 namespace Pathfinding {
 	[ExecuteInEditMode]
-	/// <summary>
-	/// Helper class to keep track of references to GameObjects.
-	/// Does nothing more than to hold a GUID value.
-	/// </summary>
+	/** Helper class to keep track of references to GameObjects.
+	 * Does nothing more than to hold a GUID value.
+	 */
 	[HelpURL("http://arongranberg.com/astar/docs/class_pathfinding_1_1_unity_reference_helper.php")]
 	public class UnityReferenceHelper : MonoBehaviour {
 		[HideInInspector]
