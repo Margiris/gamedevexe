@@ -110,7 +110,7 @@ public class PauseMenu : MonoBehaviour {
         if (lvlManager.LastLevel)
         {
             LevelClearedMenu.transform.Find("NextLevelButton").GetComponent<Button>().interactable = false;
-            LevelClearedMenu.transform.Find("LevelClearedText").GetComponent<Text>().text += "\n End of the Game";
+            LevelClearedMenu.transform.Find("LevelClearedText").GetComponent<Text>().text += "\n This is the end of the Game.\nThank you for playing!";
         }
     }
 

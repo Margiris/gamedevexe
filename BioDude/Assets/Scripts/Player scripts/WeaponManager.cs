@@ -252,9 +252,9 @@ public class WeaponManager : MonoBehaviour
         }
         else
         {
-            Debug.Log(awAmmoType);
+//            Debug.Log(awAmmoType);
 
-            Debug.Log(fireArmAmmo[awAmmoType].amount.ToString());
+//            Debug.Log(fireArmAmmo[awAmmoType].amount.ToString());
             guiManager.SetBulletGUI(aWeaponScript.currentClipAmmo.ToString(), fireArmAmmo[awAmmoType].amount.ToString());
             // show how many bullets left 
             // weapon sprite to display next to bullets nums: weaponArray[selectedFireArm].GetComponent<SpriteRenderer>().sprite
@@ -355,9 +355,9 @@ public class WeaponManager : MonoBehaviour
         {
             if(PlayerPrefs.HasKey(weaponArray[i].name + "Discovered"))
             {
-                Debug.Log(weaponArray[i].name + "had a key");
+//                Debug.Log(weaponArray[i].name + "had a key");
                 weaponArray[i].GetComponent<Weapon>().isDiscovered = PlayerPrefs.GetInt(weaponArray[i].GetComponent<Weapon>().name + "Discovered") == 1 ? true : false;
-                Debug.Log(weaponArray[i].GetComponent<Weapon>().isDiscovered);
+//                Debug.Log(weaponArray[i].GetComponent<Weapon>().isDiscovered);
             }
             else
                 weaponArray[i].GetComponent<Weapon>().isDiscovered = false;
@@ -702,7 +702,7 @@ public class WeaponManager : MonoBehaviour
                 {
                     TakeExplosivesByIndex(selectedExplosive, 1);
                     Vector3 instantiatePos = transform.position;
-                    Debug.Log("throw");
+//                    Debug.Log("throw");
                     if (explosiveArray[selectedExplosive] != null)
                     {
                         //var nade = PrefabUtility.InstantiatePrefab(explosiveArray[selectedExplosive]) as GameObject;
@@ -859,8 +859,8 @@ public class WeaponManager : MonoBehaviour
                 DiscoverWeaponByindex(i);
                 break;
             }
-            else
-                Debug.Log(name + " !=" + weaponArray[i].name);
+//            else
+//                Debug.Log(name + " !=" + weaponArray[i].name);
         }
     }
 

@@ -4,19 +4,22 @@ using UnityEngine;
 
 public class player : Character
 {
-    public float speed { get; set; }            // The speed that the player will move at.
+    public float speed { get; set; } // The speed that the player will move at.
 
-    Vector2 movement;                   // The vector to store the direction of the player's movement.
-    Animator anim;                      // Reference to the animator component.
-    Rigidbody2D playerRigidbody;          // Reference to the player's rigidbody.
+    Vector2 movement; // The vector to store the direction of the player's movement.
+    Animator anim; // Reference to the animator component.
+    Rigidbody2D playerRigidbody; // Reference to the player's rigidbody.
     bool ableToMove = true;
     private AudioSource audioSource;
     public AudioClip[] painSounds;
     public AudioClip deathSound;
+    public Joystick joystick;
 
     private PauseMenu PausemenuCanvas;
     private float rot_z;
-    private WeaponManager weaponManager; 
+    public WeaponManager weaponManager;
+
+    private Vector3 lastPosition = Vector3.zero;
 
     void Awake()
     {
@@ -32,6 +35,8 @@ public class player : Character
 
     override protected void Initiate()
     {
+        joystick = GameObject.FindGameObjectWithTag("Joystick").GetComponent<Joystick>();
+
         healthMax = 100;
 
         if (PlayerPrefs.HasKey("PlayerHP"))
@@ -46,7 +51,7 @@ public class player : Character
 
     private void Update()
     {
-        if(ableToMove)
+        if (ableToMove)
         {
             Controls();
             Turning(); // Turn the player to face the mouse cursor.
@@ -57,53 +62,74 @@ public class player : Character
     {
         if (ableToMove)
         {
-            float h = Input.GetAxisRaw("Horizontal");
-            float v = Input.GetAxisRaw("Vertical");
+//            float h = Input.GetAxisRaw("Horizontal");
+//            float v = Input.GetAxisRaw("Vertical");
+
+            var h = joystick.Horizontal();
+            var v = joystick.Vertical();
 
             Move(h, v);
-            Animating(h, v); // Animate the player. //BULLSHIT kam nurodyti h ir v jei jau bus issaugota i movement vectoriu tik atsargiai kad nepakelti auksciau nes tada nebus
+            Animating(h,
+                v); // Animate the player. //BULLSHIT kam nurodyti h ir v jei jau bus issaugota i movement vectoriu tik atsargiai kad nepakelti auksciau nes tada nebus
         }
     }
 
     void Controls() //BULLSHIT reikia susitvarkyti ir apgalvoti ar viskas bus ok jei vienu framu pasileistu visos komandos nes nenaudojami else if - galbut reikia debouncing arba kintamuju delayinti veiksma kitam framui  
     {
-        if (Input.GetButtonDown("Fire"))
-            weaponManager.Shoot();
-        else if (Input.GetButton("Fire"))
-            weaponManager.AutomaticShoot();
+//        if (Input.GetButtonDown("Fire"))
+//            weaponManager.Shoot();
+//        else if (Input.GetButton("Fire"))
+//            weaponManager.AutomaticShoot();
 
-        if (Input.GetButtonDown("ThrowGranade"))
-            weaponManager.UseExplosive();
-        if (Input.GetButtonDown("Reload"))
-            Reload();
-        if (Input.GetButtonDown("SwitchWeaponRight"))
-            weaponManager.SwitchWeaponRight();
-        if (Input.GetButtonDown("SwitchWeaponLeft"))
-            weaponManager.SwitchWeaponLeft();
-        if (Input.GetButtonDown("SwitchGrenadeRight"))
-            weaponManager.SwitchExplosiveRight();
-        if (Input.GetButtonDown("SwitchGrenadeLeft"))
-            weaponManager.SwitchExplosiveLeft();
-        if (Input.GetButtonDown("SelectKnife"))
-            weaponManager.SelectWeaponByIndex(-1);
+//        if (Input.GetButtonDown("ThrowGranade"))
+//            weaponManager.UseExplosive();
+//        if (Input.GetButtonDown("Reload"))
+//            Reload();
+//        if (Input.GetButtonDown("SwitchWeaponRight"))
+//            weaponManager.SwitchWeaponRight();
+//        if (Input.GetButtonDown("SwitchWeaponLeft"))
+//            weaponManager.SwitchWeaponLeft();
+//        if (Input.GetButtonDown("SwitchGrenadeRight"))
+//            weaponManager.SwitchExplosiveRight();
+//        if (Input.GetButtonDown("SwitchGrenadeLeft"))
+//            weaponManager.SwitchExplosiveLeft();
+//        if (Input.GetButtonDown("SelectKnife"))
+//            weaponManager.SelectWeaponByIndex(-1);
     }
 
     void Move(float h, float v)
     {
         //playerRigidbody.velocity = new Vector2(h * speed, v * speed);  //option1
-        movement = new Vector2(h, v);         //option2
+        movement = new Vector2(h, v); //option2
         playerRigidbody.AddForce(movement * speed);
     }
 
-    void Turning()
+    public void Turning()
     {
-        Vector3 diff = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+        var position = lastPosition;
+        
+        switch (Input.touchCount)
+        {
+            case 1:
+                if (!joystick.isPressed)
+                {
+                    position = Input.GetTouch(0).position;
+                }
+                break;
+            case 2:
+                position = Input.GetTouch(1).position;
+                break;
+        }
+
+        Vector3 diff = Camera.main.ScreenToWorldPoint(position) - transform.position;
         diff.Normalize();
 
-        Vector2 playerPos = Camera.main.ScreenToWorldPoint(transform.position);
+//        Vector2 playerPos = Camera.main.ScreenToWorldPoint(transform.position);
 
         rot_z = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0f, 0f, rot_z - 90);
+
+        lastPosition = position;
     }
 
     void Animating(float h, float v)
@@ -126,6 +152,7 @@ public class player : Character
         ableToMove = false;
         Destroy(gameObject.GetComponent<Rigidbody2D>());
         Destroy(gameObject.GetComponent<CircleCollider2D>());
+        Destroy(GameObject.FindGameObjectWithTag("HUD"));
         audioSource.clip = deathSound;
         audioSource.Play();
         //^^^ pakeist i player death animation
@@ -135,7 +162,7 @@ public class player : Character
 
     public override void Damage(float amount)
     {
-		healthCurrent -= amount;
+        healthCurrent -= amount;
         if (healthCurrent <= 0)
         {
             healthCurrent = 0;
@@ -147,7 +174,6 @@ public class player : Character
             audioSource.clip = painSounds[indexSound];
             audioSource.Play();
         }
-
     }
 
 
@@ -179,12 +205,14 @@ public class player : Character
             //Saving info
             string name;
             int ammoCount;
-            if(weaponManager.fireArmAmmo != null)
+            if (weaponManager.fireArmAmmo != null)
             {
                 for (int j = 0; j < weaponManager.weaponArray.Length; j++)
                 {
-                    weaponManager.fireArmAmmo[weaponManager.weaponArray[j].GetComponent<Weapon>().ammoType].amount += weaponManager.weaponArray[j].GetComponent<Weapon>().currentClipAmmo;
+                    weaponManager.fireArmAmmo[weaponManager.weaponArray[j].GetComponent<Weapon>().ammoType].amount +=
+                        weaponManager.weaponArray[j].GetComponent<Weapon>().currentClipAmmo;
                 }
+
                 for (int i = 0; i < weaponManager.fireArmAmmo.Length; i++)
                 {
                     name = weaponManager.fireArmAmmo[i].name;
@@ -222,9 +250,8 @@ public class player : Character
                 }
             else
                 Debug.Log("failed to save weapon discovery info");
+        }
 
-    }
-
-    PlayerPrefs.Save();
+        PlayerPrefs.Save();
     }
 }

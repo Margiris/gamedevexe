@@ -8,15 +8,15 @@ Prefab:
     m_TransformParent: {fileID: 0}
     m_Modifications: []
     m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 0}
+  m_SourcePrefab: {fileID: 0}
   m_RootGameObject: {fileID: 1203585214289418}
-  m_IsPrefabParent: 1
+  m_IsPrefabAsset: 1
 --- !u!1 &1203585214289418
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 5
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 4906442713179518}
   - component: {fileID: 61379516637976564}
@@ -31,11 +31,11 @@ GameObject:
 --- !u!4 &4906442713179518
 Transform:
   m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1203585214289418}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.39001465, y: -0.8699951, z: 10}
+  m_LocalPosition: {x: -0.41, y: -12.63, z: 10}
   m_LocalScale: {x: 0.6912936, y: 0.7427449, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -44,7 +44,7 @@ Transform:
 --- !u!61 &61379516637976564
 BoxCollider2D:
   m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1203585214289418}
   m_Enabled: 1
@@ -53,7 +53,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.15896755, y: 0.08875945}
+  m_Offset: {x: -0.14305511, y: 0.26323608}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -64,12 +64,12 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.131821, y: 0.6275188}
+  m_Size: {x: 0.44445914, y: 0.2785655}
   m_EdgeRadius: 0
 --- !u!114 &114574024811635360
 MonoBehaviour:
   m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1203585214289418}
   m_Enabled: 1
@@ -78,9 +78,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dialogue:
-  - sentence: "Objectives:\n - Destroy all enemies\n - Don't die"
+  - sentence: Is this pistol ammo?
+    name: Biodude
+    avatar: {fileID: 21300000, guid: 76cc9edee08694b4aa28ee11ef4da0fc, type: 3}
+  - sentence: Yes, you will find some ammo laying around. Don't forget to collect
+      them.
     name: System
     avatar: {fileID: 21300000, guid: 69799b07683048046b2cb46334ac292a, type: 3}
-  - sentence: Let's do this!
-    name: BioDude
-    avatar: {fileID: 21300000, guid: ff16fc614cab59443ae8b86dad183c65, type: 3}
+  active: 1
+  multi_use: 0

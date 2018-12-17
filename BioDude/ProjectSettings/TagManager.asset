@@ -16,6 +16,9 @@ TagManager:
   - Bouncy
   - VideoSurface
   - AlertionIndicator
+  - VideoPlayer
+  - Joystick
+  - HUD
   layers:
   - Default
   - TransparentFX
