@@ -1432,7 +1432,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.9230769, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1863,7 +1863,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.2, y: 0.2}
   m_AnchorMax: {x: 0.8, y: 0.8}
-  m_AnchoredPosition: {x: -1.2000122, y: 47.200012}
+  m_AnchoredPosition: {x: -1.1999512, y: 47.200012}
   m_SizeDelta: {x: -102.9, y: -95.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &629696043
@@ -2151,7 +2151,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.12541202, y: -0.0000074403083}
+  m_AnchoredPosition: {x: -0.12541202, y: 0}
   m_SizeDelta: {x: 0.25, y: 0}
   m_Pivot: {x: 0.00000010430813, y: 1}
 --- !u!114 &678707798
@@ -2599,7 +2599,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.10004427, y: -0.000038500064}
+  m_AnchoredPosition: {x: 0.10004427, y: 0}
   m_SizeDelta: {x: -4.399994, y: 0}
   m_Pivot: {x: 0.000000044703484, y: 0.99999964}
 --- !u!114 &742021865
@@ -3040,7 +3040,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &862019482
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3147,7 +3147,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.373625, y: 0.8}
   m_AnchorMax: {x: 0.62718755, y: 0.92333335}
-  m_AnchoredPosition: {x: -397.9999, y: 17.099976}
+  m_AnchoredPosition: {x: -398, y: 17.099976}
   m_SizeDelta: {x: 796, y: 17.57901}
   m_Pivot: {x: 0.0000000727798, y: 0.99999964}
 --- !u!114 &865257242
@@ -5413,7 +5413,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.13800001, y: 0.051858794}
   m_AnchorMax: {x: 0.883, y: 0.23633271}
-  m_AnchoredPosition: {x: 137.9998, y: -3.000122}
+  m_AnchoredPosition: {x: 137.99979, y: -3.000122}
   m_SizeDelta: {x: -276, y: -3}
   m_Pivot: {x: 0.00000002142042, y: 0.99999994}
 --- !u!114 &1360655725
@@ -7025,8 +7025,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 999835464}
   m_HandleRect: {fileID: 999835463}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.99999994
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -8216,7 +8216,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Made in associacion with \nSneakyBox.\r\n\nMade by \nGameDev.exe"
+  m_Text: "Made in associacion with \nSneakyBox.\r\nMade by GameDev.exe\n\nPorted
+    to Android by Margiris Burakauskas"
 --- !u!222 &1866630136
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -8991,8 +8992,8 @@ RectTransform:
   m_Father: {fileID: 1787247339}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.9230769, y: 0}
+  m_AnchorMax: {x: 0.9230769, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
