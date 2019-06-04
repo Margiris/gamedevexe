@@ -12,6 +12,10 @@ public class DialogueColliderTrigger : MonoBehaviour {
     {
         //Debug.Log("enter");
         if(collision.gameObject.tag=="Player")
-        FindObjectOfType<DialogueManager>().StartDialogue(this);
+        {
+            collision.transform.parent.Find("Dialogue Manager").GetComponent<DialogueManager>().StartDialogue(this);
+            if (!multi_use)
+                active = false;
+        }
     }
 }

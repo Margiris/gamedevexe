@@ -9,16 +9,14 @@ public class AmmoPickup : MonoBehaviour {
 	private WeaponManager weaponManager;
 
 	// Use this for initialization
-	void Start () {
-		weaponManager = GameObject.FindGameObjectWithTag("Player").GetComponent<WeaponManager>();     
+	void Start () {  
 	}
 	
 	private void OnTriggerEnter2D(Collider2D other)
 	{
 		if(other.tag == "Player")
 		{
-			weaponManager.AddAmmoByName(ammoName, ammoAmount);
-
+			other.gameObject.GetComponent<WeaponManager>().AddAmmoByName(ammoName, ammoAmount);
             Destroy(gameObject);
 		}
 	}

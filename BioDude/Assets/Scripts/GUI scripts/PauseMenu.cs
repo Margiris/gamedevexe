@@ -15,14 +15,14 @@ public class PauseMenu : MonoBehaviour {
     public GameObject DeathSplashImage;
     public GameObject LevelClearedMenu;
     private LevelManager lvlManager;
-    player _player;
+    public player _player;
     DialogueManager DialManager;
 
 
     private float time;
     void Start()
     {
-        _player = GameObject.Find("player").GetComponent<player>();
+        //_player = GameObject.Find("player").GetComponent<player>();
         lvlManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
         PauseMenuUI.SetActive(false);  //disabling pausemenu canvas because it should only be active when pausemenu is summoned
         DialManager = GameObject.Find("Dialogue Manager").GetComponent<DialogueManager>();
@@ -83,7 +83,7 @@ public class PauseMenu : MonoBehaviour {
     }
     public void LoadMainMenu()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(0);
         Resume();
     }
 

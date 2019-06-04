@@ -147,8 +147,8 @@ public class Achievement : MonoBehaviour
     public void DestroyAchievement()
     {
         int tmpPoints = PlayerPrefs.GetInt("Points");
-        tmpPoints -= points;
-        PlayerPrefs.SetInt("Points", tmpPoints);
+
+        PlayerPrefs.SetInt("Points", tmpPoints -= points);
         PlayerPrefs.SetInt(achText, 0);
         PlayerPrefs.SetInt("Progression" + Name, 0);
         PlayerPrefs.Save();

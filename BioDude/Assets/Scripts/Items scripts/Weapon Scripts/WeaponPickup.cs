@@ -10,14 +10,13 @@ public class WeaponPickup : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        weaponManager = GameObject.FindGameObjectWithTag("Player").GetComponent<WeaponManager>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.tag == "Player")
         {
-            weaponManager.DiscoverWeaponByName(weapon.name);
+            other.gameObject.GetComponent<WeaponManager>().DiscoverWeaponByName(weapon.name);
             Destroy(gameObject);
         }
     }

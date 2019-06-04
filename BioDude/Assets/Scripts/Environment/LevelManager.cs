@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Networking;
 
-public class LevelManager : MonoBehaviour {
+public class LevelManager : NetworkBehaviour {
 
     [SerializeField]
     int EnemiesOnMapLeft = 0;
@@ -25,6 +26,12 @@ public class LevelManager : MonoBehaviour {
             SaveCurrentLevelIndex();
         if (SceneManager.GetActiveScene().buildIndex >= 4)
             LastLevel = true;
+
+        if (EnemiesOnMapLeft <= 0)
+        {
+            clear = true;
+            GameObject.Find("Exit").GetComponent<LevelManagerTrigger>().OpenExit();
+        }
     }
 
     public void LevelCleared()

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
-public class WeaponManager : MonoBehaviour
+public class WeaponManager : NetworkBehaviour 
 {
     /// <summary>
     /// this script should be replaced on player itself!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -102,15 +103,15 @@ public class WeaponManager : MonoBehaviour
     private int selectedExplosive = -1;
     private Transform projectiles;
 
-    private GUIManager guiManager;
+    public GUIManager guiManager;
     private CameraScript mainCameraScript;
     private AudioSource weaponAudioSource;
     private AudioSource reloadAudioSource;
     private AudioSource emptyAudioSource;
-    private AchievementManager notifications;
+    //private AchievementManager notifications;
 
-    private RawImage ammoImage;
-    private RawImage explosiveImage;
+    public RawImage ammoImage;
+    public RawImage explosiveImage;
     private RawImage weaponSlotImage;
 
     private int[] AutomaticWeapons = { 2 };
@@ -119,70 +120,73 @@ public class WeaponManager : MonoBehaviour
     // Use this for initialization
     void Start ()
     {
-        //rightHandSlot = transform.Find("hand_R").GetChild(0).gameObject;
-        activeWeaponRTip = rightHandSlot.transform.GetChild(0).gameObject;
-        //leftHandSlot = transform.Find("hand_L").GetChild(0).gameObject;
-        activeWeaponLTip = leftHandSlot.transform.GetChild(0).gameObject;
-
-
-        // static information about ofence weapons 
-        fireArmAmmo = new Ammo[4];
-        explosiveAmmo = new Ammo[2];
-        LoadFromPrefs();
-        ///
-
-        notifications = GameObject.Find("AchievementManager").GetComponent<AchievementManager>();
-        knifeScript = knife.GetComponent<Knife>();
-        projectiles = GameObject.Find("Projectiles").transform;
-        mainCameraScript = GameObject.Find("Main Camera").GetComponent<CameraScript>();
-        guiManager = GameObject.Find("GUI").GetComponent<GUIManager>();
-        playerAnimator = GetComponentInChildren<Animator>();
-        playerAlerting = GetComponent<Allerting>();
-        weaponAudioSource = GetComponent<AudioSource>();
-        reloadAudioSource = GetComponents<AudioSource>()[2];
-        emptyAudioSource = GetComponents<AudioSource>()[3];
-        ammoImage = GameObject.Find("PlayerAmmoText").GetComponentInChildren<RawImage>();
-        explosiveImage = GameObject.Find("PlayerExplosiveText").GetComponentInChildren<RawImage>();
-
-        // get weapon slots
-        weaponSlots = new GameObject[weaponArray.Length + 1]; // knife at last position
-        weaponSlotReds = new RawImage[weaponArray.Length + 1]; // knife at last position
-        for (int i = 0; i < weaponArray.Length; i++)
+        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
         {
-            weaponSlots[i] = GameObject.Find("WeaponSelectionSlot0" + (i + 1).ToString());  // sets the last selected firearm as a knife (also, the selected weapon should be set as knife too, when the knife is implemented)
-            weaponSlotReds[i] = weaponSlots[i].transform.GetChild(0).GetChild(0).GetComponent<RawImage>();
-        }
-        weaponSlots[weaponArray.Length] = GameObject.Find("WeaponSelectionSlot06");
-        // get explosive slots
-        explosiveSlots = new GameObject[explosiveArray.Length];
-        explosiveSlotReds = new RawImage[explosiveArray.Length];
-        for (int i = 0; i < explosiveArray.Length; i++)
-        {
-            explosiveSlots[i] = GameObject.Find("ExplosiveSelectionSlot0" + (i + 1).ToString());  // sets the last selected explosion as a standard grenade
-            explosiveSlotReds[i] = explosiveSlots[i].transform.GetChild(0).GetChild(0).GetComponent<RawImage>();
-        }
-        //GetAllWeapons();
-        // fill weapons with bullets and display discovered on start
-        for(int i = 0; i < weaponArray.Length; i++)
-        {
-            Weapon weapon = weaponArray[i].GetComponent<Weapon>();
-            if (weapon.isDiscovered)
+            //rightHandSlot = transform.Find("hand_R").GetChild(0).gameObject;
+            activeWeaponRTip = rightHandSlot.transform.GetChild(0).gameObject;
+            //leftHandSlot = transform.Find("hand_L").GetChild(0).gameObject;
+            activeWeaponLTip = leftHandSlot.transform.GetChild(0).gameObject;
+
+
+            // static information about ofence weapons 
+            fireArmAmmo = new Ammo[4];
+            explosiveAmmo = new Ammo[2];
+            LoadFromPrefs();
+            ///
+
+            //notifications = GameObject.Find("AchievementManager").GetComponent<AchievementManager>();
+            knifeScript = knife.GetComponent<Knife>();
+            projectiles = GameObject.Find("Projectiles").transform;
+            mainCameraScript = gameObject.GetComponent<player>().cam.GetComponent<CameraScript>();// GameObject.Find("Main Camera").GetComponent<CameraScript>();
+                                                                                                  //guiManager = GameObject.Find("GUI").GetComponent<GUIManager>();
+            playerAnimator = GetComponentInChildren<Animator>();
+            playerAlerting = GetComponent<Allerting>();
+            weaponAudioSource = GetComponent<AudioSource>();
+            reloadAudioSource = GetComponents<AudioSource>()[2];
+            emptyAudioSource = GetComponents<AudioSource>()[3];
+            //ammoImage = guiManager.gameObject.transform.Find("PlayerAmmoText").GetComponentInChildren<RawImage>();
+            //explosiveImage = transform.parent.Find("PlayerExplosiveText").GetComponentInChildren<RawImage>();
+
+            // get weapon slots
+            weaponSlots = new GameObject[weaponArray.Length + 1]; // knife at last position
+            weaponSlotReds = new RawImage[weaponArray.Length + 1]; // knife at last position
+            for (int i = 0; i < weaponArray.Length; i++)
             {
-                weapon.currentClipAmmo = fireArmAmmo[weapon.ammoType].TakeAmmo(weapon.clipSize); // load with bullets from pool
-                DisplayDiscoveredWeapon(i);
+                weaponSlots[i] = transform.parent.Find("GUI").Find("WeaponSelection").Find("WeaponSelectionSlot0" + (i + 1).ToString()).gameObject;  // sets the last selected firearm as a knife (also, the selected weapon should be set as knife too, when the knife is implemented)
+                weaponSlotReds[i] = weaponSlots[i].transform.GetChild(0).GetChild(0).GetComponent<RawImage>();
             }
-            else
+            weaponSlots[weaponArray.Length] = transform.parent.Find("GUI").Find("WeaponSelection").Find("WeaponSelectionSlot06").gameObject;
+            // get explosive slots
+            explosiveSlots = new GameObject[explosiveArray.Length];
+            explosiveSlotReds = new RawImage[explosiveArray.Length];
+            for (int i = 0; i < explosiveArray.Length; i++)
             {
-                weapon.currentClipAmmo = 0;
+                explosiveSlots[i] = transform.parent.Find("GUI").Find("ExplosiveSelection").Find("ExplosiveSelectionSlot0" + (i + 1).ToString()).gameObject;  // sets the last selected explosion as a standard grenade
+                explosiveSlotReds[i] = explosiveSlots[i].transform.GetChild(0).GetChild(0).GetComponent<RawImage>();
             }
+            //GetAllWeapons();
+            // fill weapons with bullets and display discovered on start
+            for (int i = 0; i < weaponArray.Length; i++)
+            {
+                Weapon weapon = weaponArray[i].GetComponent<Weapon>();
+                if (weapon.isDiscovered)
+                {
+                    weapon.currentClipAmmo = fireArmAmmo[weapon.ammoType].TakeAmmo(weapon.clipSize); // load with bullets from pool
+                    DisplayDiscoveredWeapon(i);
+                }
+                else
+                {
+                    weapon.currentClipAmmo = 0;
+                }
+            }
+
+            SwitchWeaponRight();
+            SwitchExplosiveRight();
+
+            UpdateWeaponGUI();
+            UpdateExplosiveGUI();
+            UpdateBulletGUI();
         }
-
-        SwitchWeaponRight();
-        SwitchExplosiveRight();
-
-        UpdateWeaponGUI();
-        UpdateExplosiveGUI();
-        UpdateBulletGUI();
     }
 
     // Automatic Reloading
@@ -427,7 +431,14 @@ public class WeaponManager : MonoBehaviour
 
     private void DisplayDiscoveredWeapon(int idx)
     {
-        weaponSlots[idx].transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>(weaponArray[idx].GetComponent<Weapon>().ItemName + "Image");
+        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
+        {
+            Debug.Log(weaponSlots.Length);
+            Debug.Log(idx);
+            weaponSlots[idx].transform.GetChild(0);
+            weaponSlots[idx].transform.GetChild(0).GetComponent<Image>();
+            weaponSlots[idx].transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>(weaponArray[idx].GetComponent<Weapon>().ItemName + "Image");
+        }
     }
 
     private void UpdateExplosive()
@@ -844,7 +855,7 @@ public class WeaponManager : MonoBehaviour
         if (!weapon.isDiscovered) // not yet
         {
             weapon.isDiscovered = true;
-            notifications.Notify(weapon.name + " discovered!");
+            //notifications.Notify(weapon.name + " discovered!");
             DisplayDiscoveredWeapon(idx);
         }
         AddAmmoByWeaponIndex(idx, weapon.clipSize * 2);
@@ -852,15 +863,18 @@ public class WeaponManager : MonoBehaviour
 
     public void DiscoverWeaponByName(string name)
     {
-        for (int i = 0; i < weaponArray.Length; i++)
+        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
         {
-            if (weaponArray[i].name == name)
+            for (int i = 0; i < weaponArray.Length; i++)
             {
-                DiscoverWeaponByindex(i);
-                break;
+                if (weaponArray[i].name == name)
+                {
+                    DiscoverWeaponByindex(i);
+                    break;
+                }
+                else
+                    Debug.Log(name + " !=" + weaponArray[i].name);
             }
-            else
-                Debug.Log(name + " !=" + weaponArray[i].name);
         }
     }
 
@@ -889,7 +903,7 @@ public class WeaponManager : MonoBehaviour
                 ReloadOnPickup(fireArmAmmo[i].name);
                 UpdateWeaponGUI();
                 UpdateBulletGUI();
-                notifications.Notify(added.ToString() + " " + fireArmAmmo[i].name.ToString() + " ammo added");
+                //notifications.Notify(added.ToString() + " " + fireArmAmmo[i].name.ToString() + " ammo added");
                 return added;
             }
         }
@@ -899,7 +913,7 @@ public class WeaponManager : MonoBehaviour
                 int added = explosiveAmmo[i].AddAmmo(amount);
                 UpdateWeaponGUI();
                 UpdateExplosiveGUI();
-                notifications.Notify(added.ToString() + " " + explosiveAmmo[i].name.ToString() + " added");
+                //notifications.Notify(added.ToString() + " " + explosiveAmmo[i].name.ToString() + " added");
                 return added;
             }
         return -1;
@@ -946,7 +960,7 @@ public class WeaponManager : MonoBehaviour
             ReloadOnPickup(index);
             UpdateWeaponGUI();
             UpdateBulletGUI();
-            notifications.Notify(added.ToString() + " " + fireArmAmmo[index].name.ToString() + " ammo added");
+            //notifications.Notify(added.ToString() + " " + fireArmAmmo[index].name.ToString() + " ammo added");
             return added;
         }
         return -1;
@@ -986,7 +1000,7 @@ public class WeaponManager : MonoBehaviour
             UpdateWeaponGUI();
             if (index == selectedFireArm)
                 UpdateBulletGUI();
-            notifications.Notify(added.ToString() + " " + fireArmAmmo[ammoType].name.ToString() + " ammo added");
+            //notifications.Notify(added.ToString() + " " + fireArmAmmo[ammoType].name.ToString() + " ammo added");
             return added;
         }
         return -1;
@@ -1023,7 +1037,7 @@ public class WeaponManager : MonoBehaviour
         {
             int added = explosiveAmmo[index].AddAmmo(amount);
             UpdateExplosiveGUI();
-            notifications.Notify(added.ToString() + " " + explosiveAmmo[index].name.ToString() + " added");
+            //notifications.Notify(added.ToString() + " " + explosiveAmmo[index].name.ToString() + " added");
             return added;
         }
         return -1;

@@ -109,8 +109,6 @@ public class AchievementManager : MonoBehaviour
         {
             item.Value.DestroyAchievement();
         }
-        PlayerPrefs.SetInt("Points", 0);
-        PlayerPrefs.Save();
     }
 
     public void CreateAchievement(string parent, string title, string description, int points, int spriteIndex, int progress, string[] dependencies = null)

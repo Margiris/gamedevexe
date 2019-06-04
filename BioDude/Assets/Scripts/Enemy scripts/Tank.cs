@@ -305,7 +305,7 @@ public abstract class Tank : Character
         else
         {
             ai.maxSpeed = normalSpeed;
-//            alertionIndicatorSpriteRenderer.sprite = new Sprite();
+            alertionIndicatorSpriteRenderer.sprite = null;
             alertionIndicatorAnimator.SetFloat("Speed", 0);
         }
     }

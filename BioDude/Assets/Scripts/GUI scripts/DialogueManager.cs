@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
-public class DialogueManager : MonoBehaviour {
+public class DialogueManager : NetworkBehaviour {
     private Text DialogueText;
     private Text NameText;
     private Image Avatar;
-    private GameObject DialogueCanvas;
+    public GameObject DialogueCanvas;
     private Queue<string> sentences;
     private Queue<string> names;
     private Queue<Sprite> avatars;
-    player _player;
+    public player _player;
 
 
     private Animator animator;
@@ -21,8 +22,8 @@ public class DialogueManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        _player = GameObject.Find("player").GetComponent<player>();
-        DialogueCanvas = GameObject.Find("Dialogue canvas");
+        //_player = GameObject.Find("player").GetComponent<player>();
+        //DialogueCanvas = GameObject.Find("Dialogue canvas");
         GameObject pannel = DialogueCanvas.transform.Find("DialoguePanel").gameObject;
         DialogueText = pannel.transform.Find("DialogueText").GetComponent<Text>();
         NameText = pannel.transform.Find("Name").Find("NameText").GetComponent<Text>();
@@ -39,25 +40,26 @@ public class DialogueManager : MonoBehaviour {
 
     public void StartDialogue(DialogueColliderTrigger DialogueData)
     {
-        if (DialogueData.active)
+        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
         {
-            time = Time.timeScale;
-            Time.timeScale = 0;
-            _player.SetAbleToMove(false);
-
-            animator.SetBool("IsOpen", true);
-            sentences.Clear();
-            if(!DialogueData.multi_use)
-                DialogueData.active = false;
-
-            foreach (Dialogue DialogueUnit in DialogueData.dialogue)
+            if (DialogueData.active)
             {
-                sentences.Enqueue(DialogueUnit.sentence);
-                names.Enqueue(DialogueUnit.name);
-                avatars.Enqueue(DialogueUnit.avatar);
-            }
+                time = Time.timeScale;
+                Time.timeScale = 0;
+                _player.SetAbleToMove(false);
 
-            DisplayNextSentence();
+                animator.SetBool("IsOpen", true);
+                sentences.Clear();
+
+                foreach (Dialogue DialogueUnit in DialogueData.dialogue)
+                {
+                    sentences.Enqueue(DialogueUnit.sentence);
+                    names.Enqueue(DialogueUnit.name);
+                    avatars.Enqueue(DialogueUnit.avatar);
+                }
+
+                DisplayNextSentence();
+            }
         }
     }
     public void DisplayNextSentence()

@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-abstract public class Character : MonoBehaviour
+abstract public class Character : NetworkBehaviour
 {
     public float healthMax; //{ get; protected set; }
     [SerializeField]

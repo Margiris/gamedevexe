@@ -8,7 +8,7 @@ public class GUIManager : MonoBehaviour
 
     public Slider healthBar;
     public Text HPText;
-    player playerCharacter;
+    public player playerCharacter;
     public Text AmmoText;
     WeaponManager weaponManager;
     public Text ExplosiveText;
@@ -16,7 +16,7 @@ public class GUIManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        playerCharacter = GameObject.Find("player").GetComponent<player>();
+        //playerCharacter = //GameObject.Find("player").GetComponent<player>();
         weaponManager = playerCharacter.GetComponent<WeaponManager>();
         healthBar.maxValue = playerCharacter.healthMax;
         //AmmoText = transform.Find("PlayerAmmoText").GetComponent<Text>();

@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class CameraScript : MonoBehaviour {
+public class CameraScript : NetworkBehaviour {
     
     public enum Following
     {
@@ -11,7 +12,7 @@ public class CameraScript : MonoBehaviour {
         Point
     }
     Following following;
-    GameObject Player;
+    public GameObject Player;
     [SerializeField]
     GameObject objectToFollow;
     [SerializeField]
@@ -39,7 +40,9 @@ public class CameraScript : MonoBehaviour {
 
     private void Start()
     {
-        Player = GameObject.Find("player");
+        //Player = GameObject.Find("player");
+        //Player = GameObject.Find("SpawnPoint1");
+        following = Following.Player;
     }
 
     // Update is called once per frame
@@ -48,33 +51,35 @@ public class CameraScript : MonoBehaviour {
         //fot TESTING:
         //Imitate_actions();
         /////////////
-
-        UpdateTargetPosition();
-        //following 
-        Vector2 cameraPos = transform.position;
-
-        Vector2 LerpPos = new Vector2(0, 0);
-        if(following == Following.Player)
+        if (Player != null)
         {
-            float distance = (cameraPos - (Vector2)Player.transform.position).magnitude;
-            if (DoDynamicCameraZoom)
+            UpdateTargetPosition();
+            //following 
+            Vector2 cameraPos = transform.position;
+
+            Vector2 LerpPos = new Vector2(0, 0);
+            if (following == Following.Player)
             {
-                gameObject.GetComponent<Camera>().orthographicSize = (1 - distance / MaxOffset) * (MaxCamZoom - MinCamZoom) + MinCamZoom;
+                float distance = (cameraPos - (Vector2)Player.transform.position).magnitude;
+                if (DoDynamicCameraZoom)
+                {
+                    gameObject.GetComponent<Camera>().orthographicSize = (1 - distance / MaxOffset) * (MaxCamZoom - MinCamZoom) + MinCamZoom;
+                }
+
+                if (distance > Offset.magnitude)
+                    LerpPos = Vector2.Lerp(cameraPos, FollowingPos, InMovmentSpeed);
+                else
+                    LerpPos = Vector2.Lerp(cameraPos, FollowingPos, OutMovmentSpeed);
+            }
+            else //folowing point or object
+            {
+                LerpPos = Vector2.Lerp(cameraPos, FollowingPos, InMovmentSpeed);
             }
 
-            if (distance > Offset.magnitude)
-                LerpPos = Vector2.Lerp(cameraPos, FollowingPos, InMovmentSpeed);
-            else
-                LerpPos = Vector2.Lerp(cameraPos, FollowingPos, OutMovmentSpeed);
+            transform.position = new Vector3(LerpPos.x, LerpPos.y, -10);
+            //Debug.DrawLine(cameraPos, FollowingPos, Color.green, 2); // what camera is fllowing
+            //Debug.DrawLine(Player.transform.position, FollowingPos, Color.blue); // offset from player
         }
-        else //folowing point or object
-        {
-            LerpPos = Vector2.Lerp(cameraPos, FollowingPos, InMovmentSpeed);
-        }
-
-        transform.position = new Vector3(LerpPos.x, LerpPos.y, -10);
-        //Debug.DrawLine(cameraPos, FollowingPos, Color.green, 2); // what camera is fllowing
-        //Debug.DrawLine(Player.transform.position, FollowingPos, Color.blue); // offset from player
     }
 
     //private void Imitate_actions()

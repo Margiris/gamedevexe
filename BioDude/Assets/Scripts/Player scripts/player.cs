@@ -13,21 +13,32 @@ public class player : Character
     private AudioSource audioSource;
     public AudioClip[] painSounds;
     public AudioClip deathSound;
-
+    public Camera cam;
     private PauseMenu PausemenuCanvas;
     private float rot_z;
-    private WeaponManager weaponManager; 
+    private WeaponManager weaponManager;
+    private bool initiated = false;
 
-    void Awake()
+    void Start()
     {
-        Initiate();
-        // Set up references.
-        audioSource = gameObject.GetComponents<AudioSource>()[1];
-        PausemenuCanvas = GameObject.Find("Pausemenu Canvas").GetComponent<PauseMenu>();
-        anim = GetComponentInChildren<Animator>();
-        playerRigidbody = GetComponent<Rigidbody2D>();
-        weaponManager = transform.GetComponent<WeaponManager>();
-        speed = 150;
+        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
+        {
+            Debug.Log("initiating on awake");
+            Initiate();
+            // Set up references.
+            audioSource = gameObject.GetComponents<AudioSource>()[1];
+            transform.parent.Find("GUI").gameObject.SetActive(true);
+            PausemenuCanvas = transform.parent.Find("Pausemenu Canvas").GetComponent<PauseMenu>();
+            transform.parent.Find("Pausemenu Canvas").gameObject.SetActive(true);
+            transform.parent.Find("Dialogue Manager").gameObject.SetActive(true);
+            anim = GetComponentInChildren<Animator>();
+            playerRigidbody = GetComponent<Rigidbody2D>();
+            weaponManager = transform.GetComponent<WeaponManager>();
+            speed = 150;
+            cam.gameObject.SetActive(true);
+            cam.GetComponent<CameraScript>().Player = this.gameObject;
+
+        }
     }
 
     override protected void Initiate()
@@ -46,22 +57,29 @@ public class player : Character
 
     private void Update()
     {
-        if(ableToMove)
+        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
         {
-            Controls();
-            Turning(); // Turn the player to face the mouse cursor.
+            if (ableToMove)
+            {
+                Controls();
+                Turning(); // Turn the player to face the mouse cursor.
+            }
         }
     }
 
     void FixedUpdate()
     {
-        if (ableToMove)
+        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
         {
-            float h = Input.GetAxisRaw("Horizontal");
-            float v = Input.GetAxisRaw("Vertical");
+            Debug.Log("this is local and it is doing something");
+            if (ableToMove)
+            {
+                float h = Input.GetAxisRaw("Horizontal");
+                float v = Input.GetAxisRaw("Vertical");
 
-            Move(h, v);
-            Animating(h, v); // Animate the player. //BULLSHIT kam nurodyti h ir v jei jau bus issaugota i movement vectoriu tik atsargiai kad nepakelti auksciau nes tada nebus
+                Move(h, v);
+                Animating(h, v); // Animate the player. //BULLSHIT kam nurodyti h ir v jei jau bus issaugota i movement vectoriu tik atsargiai kad nepakelti auksciau nes tada nebus
+            }
         }
     }
 

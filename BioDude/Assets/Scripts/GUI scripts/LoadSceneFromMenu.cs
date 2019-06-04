@@ -26,7 +26,7 @@ public class LoadSceneFromMenu : MonoBehaviour
         Destroy(GameObject.Find("MainMenuCanvas"));
 
         GamePrefs.DeletePlayerProgress();
-        LoadByIndex(2);
+        LoadByIndex(1);
     }
     public void ContinueGame()
     {
