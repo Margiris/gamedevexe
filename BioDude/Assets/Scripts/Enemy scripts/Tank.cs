@@ -57,7 +57,7 @@ public abstract class Tank : Character
     protected bool targetInVision = false;
 
     //to multiplayer stuff
-    protected List<int> prevTargetsInVision;
+    protected List<int> prevTargetsInVision = new List<int>();
     protected List<int> targetsInVision;
     protected Dictionary<int, Transform> PLKPs;
     protected Dictionary<int, GameObject> players;
