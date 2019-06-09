@@ -58,7 +58,7 @@ public class LevelManagerTrigger : MonoBehaviour {
                 if (lvlManager.clear)
                 {
                     Player.SavePlayerStats();
-                    lvlManager.LevelCleared();
+                    lvlManager.LevelCleared(Player);
                 }
                 else
                 {

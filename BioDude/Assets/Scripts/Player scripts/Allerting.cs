@@ -16,7 +16,7 @@ public class Allerting : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        PLKP = GameObject.Find("PlayerLastKnownPosition").transform;
+        PLKP = transform.parent.Find("PlayerLastKnownPosition").transform;
 	}
 	
 	// Update is called once per frame
@@ -26,12 +26,19 @@ public class Allerting : MonoBehaviour {
 
     public void AllertSurroundings(float radius)
     {
-        PLKP.position = transform.position;
+        bool plkpSet = false;
         RaycastHit2D[] objects = Physics2D.CircleCastAll(transform.position, radius, Vector2.right, radius, LayerMask.GetMask("Enemy"));
         foreach (RaycastHit2D obj in objects)
         {
-            if(obj.transform.GetComponent<Tank>() != null)
-                obj.transform.GetComponent<Tank>().PursuePlayer();
+            if (obj.transform.GetComponent<Tank>() != null)
+            {
+                if(!plkpSet)
+                {
+                    plkpSet = true;
+                    PLKP.position = transform.position;
+                }
+                obj.transform.GetComponent<Tank>().PursuePlayer(transform.parent.GetComponent<Gamer>().getPlayerID());
+            }
         }
     }
 

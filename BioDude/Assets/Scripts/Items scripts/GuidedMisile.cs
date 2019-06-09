@@ -26,8 +26,10 @@ public class GuidedMisile : Explosive {
         emitters = transform.GetComponentsInChildren<ParticleSystem>();
     }
 
-    public void Instantiate(float speed, float rotationSpeed, float radius, float force)
+    public void Instantiate(float speed, float rotationSpeed, float radius, float force, int ownerId = -1)
     {
+        creationLocation = transform.position;
+        this.ownerId = ownerId;
         this.speed = speed;
         this.rotSpeed = rotationSpeed;
         this.radius = radius;
@@ -72,7 +74,7 @@ public class GuidedMisile : Explosive {
             Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
             if (rb != null)
             {
-                AddExplosionForce(rb, force, transform.position, radius, damage);
+                AddExplosionForce(rb, force, transform.position, radius, damage, ownerId, creationLocation);
             }
         }
         Destroy(gameObject);

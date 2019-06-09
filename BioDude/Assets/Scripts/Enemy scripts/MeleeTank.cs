@@ -10,20 +10,14 @@ using UnityEngine.UI;
 public class MeleeTank : Tank
 {
     public int Meleedamage = 1;
+    private player target;
 
     //private:
-    // Use this for initialization
-    void Start()
-    {
-        Instantiate();
-    }
 
     // Update is called once per frame
-    void Update()
+    protected override void Update()
     {
-        CheckVision();
-        SetAlertionIndicator();
-        BechaviourIfCantSeePlayer();
+        base.Update();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -32,6 +26,7 @@ public class MeleeTank : Tank
         {
             targetInAttackRange = true;
             animator.SetBool("TargetInRange", true);
+            target = collision.GetComponent<player>();
         }
     }
 
@@ -48,7 +43,7 @@ public class MeleeTank : Tank
     {
         if (targetInAttackRange)
         {
-            player.GetComponent<player>().Damage(Meleedamage);
+            target.Damage(Meleedamage);
         }
     }
 

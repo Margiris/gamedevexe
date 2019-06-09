@@ -23,7 +23,6 @@ public class player : Character
     {
         if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
         {
-            Debug.Log("initiating on awake");
             Initiate();
             // Set up references.
             audioSource = gameObject.GetComponents<AudioSource>()[1];
@@ -71,7 +70,7 @@ public class player : Character
     {
         if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
         {
-            Debug.Log("this is local and it is doing something");
+            //Debug.Log("this is local and it is doing something");
             if (ableToMove)
             {
                 float h = Input.GetAxisRaw("Horizontal");

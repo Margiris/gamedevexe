@@ -6,11 +6,13 @@ public class Explosive : MonoBehaviour {
     public bool started = false;
     public float throwForce = 100f;
     public int AmmoType;
+    protected Vector2 creationLocation;
+    protected int ownerId = -1;
     public virtual void Explode()
     {
     }
 
-    public static void AddExplosionForce(Rigidbody2D body, float expForce, Vector3 expPosition, float expRadius, float damage)
+    public static void AddExplosionForce(Rigidbody2D body, float expForce, Vector3 expPosition, float expRadius, float damage, int ownerId = -1, Vector2 creationLocation = new Vector2())
     {
         var dir = (body.transform.position - expPosition);
         float calc = 1 - (dir.magnitude / expRadius);
@@ -23,7 +25,22 @@ public class Explosive : MonoBehaviour {
         Character charObj = body.gameObject.GetComponent<Character>();
         if (charObj != null)
         {
-            body.gameObject.GetComponent<Character>().Damage(damage * calc);
+            if (ownerId != -1) // player shot this explosive at sensitive enemy
+            {
+                Tank tankObj = charObj.gameObject.GetComponent<Tank>();
+                if (tankObj != null)
+                {
+                    tankObj.DamageAlerting(damage * calc, ownerId, creationLocation);
+                }
+                else
+                {
+                    charObj.Damage(damage * calc);
+                }
+            }
+            else
+            {
+                charObj.Damage(damage * calc);
+            }
         }
     }
     public virtual void Throw(float force)

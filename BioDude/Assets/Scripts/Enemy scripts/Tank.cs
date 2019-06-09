@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Pathfinding;
+using System.Collections.Generic;
 
 public abstract class Tank : Character
 {
@@ -17,7 +18,6 @@ public abstract class Tank : Character
     public float speedMultiplier = 0.8f;
 
     protected Transform head;
-    protected GameObject player;
     public float widthOfFirePathChecker = 0.1f;
 
     public bool isAlerted = false;
@@ -26,21 +26,14 @@ public abstract class Tank : Character
     protected float normalSpeed;
     protected float alertedSpeed;
     protected IAstarAI ai;
-    protected bool targetInVision = false;
-    protected float distanceToPlayer;
     protected bool targetInAttackRange = false;
     protected AIDestinationSetter aiDestinationSetter;
     protected Patrol aiPatrol;
-    protected bool prevTargetInVision = false;
     protected int localSearchLocationsTried = 0;
     protected int localSearchLookedAround = 0;
-    protected bool isTargetDestinationPlayer = false;
     protected Vector2 searchAreaCenter;
-    protected Allerting playerAllerting;
     protected Head headScript;
     protected bool isLooking = false;
-    protected Vector2 directionToPlayer;
-    protected Transform PLKP; //PlayerLastKnownPosition
     protected EnemyHPBar HpBar;
 
     protected Animator animator;
@@ -50,10 +43,40 @@ public abstract class Tank : Character
     protected Sprite targetInVisionSprite;
     protected Sprite isAlertedSprite;
 
+
+    protected float distanceToPlayer;
+    protected Vector2 directionToPlayer;
+
+    //from single player stuff
+    //protected bool isTargetDestinationPlayer = false;
+    //protected Allerting playerAllerting;
+    //protected Transform PLKP; //PlayerLastKnownPosition
+    //protected GameObject player;
+    //protected bool prevTargetInVision = false;
+
+    protected bool targetInVision = false;
+
+    //to multiplayer stuff
+    protected List<int> prevTargetsInVision;
+    protected List<int> targetsInVision;
+    protected Dictionary<int, Transform> PLKPs;
+    protected Dictionary<int, GameObject> players;
+    protected Dictionary<int, Allerting> playerAlertings;
+    protected int targetedPlayerID = -1;
+    protected bool noOneSeen = true;
+    protected int otherID = -1;
+    Vector2 directionToOther;
+    float distanceToOther;
+    protected bool issensitive = true;
+
     // Use this for initialization
-    public void Instantiate () {
-        PLKP = GameObject.Find("PlayerLastKnownPosition").transform;
-        player = GameObject.Find("player");
+    protected virtual void Start () {
+        //PLKP = GameObject.Find("PlayerLastKnownPosition").transform;
+        //player = GameObject.Find("player");
+
+        List<Gamer> playersData = GameObject.Find("LevelManager").GetComponent<LevelManager>().GetPlayersData();
+        UpdatePLayerList(playersData);
+
         head = transform.Find("body");
         headScript = head.GetComponent<Head>();
         animator = GetComponent<Animator>();
@@ -66,7 +89,7 @@ public abstract class Tank : Character
         aiDestinationSetter = GetComponent<AIDestinationSetter>();
         aiPatrol = GetComponent<Patrol>();
         ai = GetComponent<IAstarAI>();
-        playerAllerting = player.GetComponent<Allerting>();
+        //playerAllerting = player.GetComponent<Allerting>();
         HpBar = transform.Find("EnemyCanvas").GetComponent<EnemyHPBar>();
         HpBar.Initiate();
         healthCurrent = healthMax;
@@ -76,6 +99,80 @@ public abstract class Tank : Character
 
     //PUBLIC METHODS:
 
+    public void UpdatePLayerList(List<Gamer> gamers)
+    {
+        List<int> prevPlayersInVision = prevTargetsInVision;
+
+        prevTargetsInVision = new List<int>();
+        PLKPs = new Dictionary<int, Transform>();
+        players = new Dictionary<int, GameObject>();
+        playerAlertings = new Dictionary<int, Allerting>();
+        for (int i = 0; i < gamers.Count; i++)
+        {
+            int ID = gamers[i].getPlayerID();
+            playerAlertings.Add(ID, gamers[i].playerAllerting);
+            players.Add(ID, gamers[i].player);
+            PLKPs.Add(ID, gamers[i].PLKP);
+            if (prevPlayersInVision.Contains(ID))
+            {
+                prevTargetsInVision.Add(ID);
+            }
+        }
+    }
+
+    protected virtual void Update()
+    {
+        int prevTargetID = targetedPlayerID;
+        bool prevTargetInVision = targetInVision;
+        //////////// checkoing surroundings and changing targets
+        CheckVision();
+        // if target appeared in vision
+        if(prevTargetID == -1 && targetedPlayerID != -1)
+        {
+            BecomeAllerted();
+        }
+        /////////////////////////////////////////////////////////
+
+
+        if (isAlerted) // if alerted     ///if not then patrolling
+        {
+            if (targetInVision && !prevTargetInVision) // appeared in vision
+            {
+                StartSpecialAttack();
+                SetAlertionIndicator();
+            }
+            else if (targetInVision) // continually in vision /// following player
+            {
+                //if (prevTargetID != targetedPlayerID) // changed target
+                //{
+                //}
+                FollowTarget();
+                SpecialAttack();
+            }
+            else if (prevTargetInVision) // disappeared from vision
+            {
+                if(playerAlertings[targetedPlayerID].howManySeeMe > 0) // still can follow 
+                {
+
+                }
+                else // can't follow anymore
+                {
+                    GoToPLKP();
+                }
+                SetAlertionIndicator();
+                StopSpecialAttack();
+            }
+            else if(!prevTargetInVision) // continually not in vision
+            {
+                if (ai.reachedEndOfPath && !ai.pathPending) // went to last known location and player not seen
+                {
+                    LookAround();
+                }
+            }
+        }
+        SetHeadRotation();
+    }
+
     //Stop pursuing player
     public virtual void ReturnToPatrol()
     {
@@ -83,95 +180,187 @@ public abstract class Tank : Character
         aiPatrol.enabled = true;
         isLooking = false;
         isAlerted = false;
+        issensitive = true;
+        targetedPlayerID = -1;
+        SetAlertionIndicator();
     }
 
     //call this method to make enemy go to last known player position
-    public void PursuePlayer()
+    public void PursuePlayer(int playerID)
     {
-        isAlerted = true;
-        localSearchLocationsTried = 0;
-        localSearchLookedAround = 0;
-        aiPatrol.enabled = false;
-        aiDestinationSetter.enabled = true;
-        isLooking = false;
-        if (playerAllerting.howManySeeMe > 0) // if someone can see player right now
+        if (!isAlerted) // if idle
         {
-            isTargetDestinationPlayer = true;
-            aiDestinationSetter.target = player.transform;
-            ai.canSearch = true;
+            targetedPlayerID = playerID;
+            BecomeAllerted();
         }
-        else
+        else if (issensitive) // allerted but sensitive (my target lost)
         {
-            isTargetDestinationPlayer = false;
-            aiDestinationSetter.target = PLKP;
-            ai.canSearch = false;
-            ai.SearchPath();
+            targetedPlayerID = playerID;
+            BecomeAllerted();
         }
     }
 
     //PRIVATE METHODS:
 
+    protected virtual void SpecialAttack()
+    {
+
+    }
+
+    protected virtual void StartSpecialAttack()
+    {
+
+    }
+
+    protected virtual void StopSpecialAttack()
+    {
+
+    }
+
+    protected void FollowTarget()
+    {
+        aiPatrol.enabled = false;
+        aiDestinationSetter.enabled = true;
+        aiDestinationSetter.target = players[targetedPlayerID].transform;
+        ai.canSearch = true;
+    }
+
+    protected void GoToPLKP()
+    {
+        aiPatrol.enabled = false;
+        aiDestinationSetter.enabled = true;
+        aiDestinationSetter.target = PLKPs[targetedPlayerID];
+        ai.canSearch = false;
+        ai.SearchPath();
+    }
+
+    protected void BecomeAllerted()
+    {
+        isAlerted = true;
+        localSearchLocationsTried = 0;
+        localSearchLookedAround = 0;
+        isLooking = false;
+        if (playerAlertings[targetedPlayerID].howManySeeMe > 0) // if someone can see player right now
+        {
+            FollowTarget();
+        }
+        else
+        {
+            GoToPLKP();
+        }
+        SetAlertionIndicator();
+    }
+
     protected void CheckVision()
     {
-        directionToPlayer = (player.transform.position - transform.position).normalized;
-
-        distanceToPlayer = Vector3.Distance(player.transform.position, transform.position);
+        targetsInVision = new List<int>();
         targetInVision = false;
-        if (distanceToPlayer < visionRange) // if in range
+        distanceToPlayer = 9999999;
+        distanceToOther = 9999999;
+        directionToOther = new Vector2();
+        float distanceToMyTarget = 9999999;
+        Vector2 directionToMyTarget = new Vector2();
+        otherID = -1;
+        bool noTargets = true;
+        noOneSeen = true;
+        issensitive = true;
+        foreach (var player in players)
         {
-            if (Vector3.Angle(head.transform.up, directionToPlayer) < visionAngle) // if in vision angle
+            float _distanceToPlayer = Vector2.Distance(player.Value.transform.position, transform.position);
+            Vector2 _directionToPlayer = (player.Value.transform.position - transform.position).normalized;
+            if (_distanceToPlayer < visionRange) // if in range
             {
-                if (!Physics2D.Raycast(transform.position, directionToPlayer, distanceToPlayer, obstacleMask)) //if no obstacles in between
+                if (Vector3.Angle(head.transform.up, _directionToPlayer) < visionAngle) // if in vision angle
                 {
-                    targetInVision = true;
-                    //lastPositionTargetSeen.position = player.transform.position; // Needs to be updated because other tanks might not see player and would attempt to go to last known location
+                    if (!Physics2D.Raycast(transform.position, _directionToPlayer, _distanceToPlayer, obstacleMask)) //if no obstacles in between
+                    {
+                        targetsInVision.Add(player.Key);
+                        if(_distanceToPlayer < distanceToPlayer)
+                        {
+                            distanceToPlayer = _distanceToPlayer;
+                            targetedPlayerID = player.Key;
+                            targetInVision = true;
+                            directionToPlayer = _directionToPlayer;
+                            noTargets = false;
+                            noOneSeen = false;
+                            issensitive = false;
+                        }
+                    }
+                }
+            }
+            if (noTargets && playerAlertings[player.Key].howManySeeMe > 0) // no one in vision and someone else can see this player
+            {
+                if(_distanceToPlayer < distanceToOther)
+                {
+                    distanceToOther = _distanceToPlayer;
+                    directionToOther = _directionToPlayer;
+                    otherID = player.Key;
+                    noOneSeen = false;
+                }
+                if (player.Key == targetedPlayerID)
+                {
+                    distanceToMyTarget = _distanceToPlayer;
+                    directionToMyTarget = _directionToPlayer;
+                    issensitive = false;
+                }
+            }
+        }
+        if (noTargets && !noOneSeen) // if no one in Vision and someone is visable 
+        {
+            if (isAlerted)
+            {
+                if (playerAlertings[targetedPlayerID].howManySeeMe > 0) // set my target if someone else can see it
+                {
+
+                    distanceToPlayer = distanceToMyTarget;
+                    directionToPlayer = directionToMyTarget;
+                }
+                else
+                {
+                    targetedPlayerID = otherID;
+                    distanceToPlayer = distanceToOther;
+                    directionToPlayer = directionToOther;
                 }
             }
         }
 
-        //Set head target direction:
+        for(int i = 0; i < targetsInVision.Count; i++)
+        {
+            int idx = prevTargetsInVision.IndexOf(targetsInVision[i]);
+            if(idx == -1) // player appeared into vision
+            {
+                PlayerEnterVision(targetsInVision[i]);
+            }
+            else // player still is in vision - no changes
+            {
+                prevTargetsInVision.RemoveAt(idx);
+            }
+        }
+        for (int i = 0; i < prevTargetsInVision.Count; i++) // players who disappeared from view
+        {
+            PlayerExitVision(prevTargetsInVision[i]);
+        }
+        prevTargetsInVision = targetsInVision;
+    }
+
+    protected void SetHeadRotation()
+    {
+        //Set head target direction: to player in vision or PLKP going to or if in patrol mode straight if looking dont set
         if (!isLooking)
         {
-            if (isAlerted)
+            if (isAlerted && localSearchLocationsTried == 0) // alerted but not searching area around PLKP
             {
-                if(targetInVision)
+                if (playerAlertings[targetedPlayerID].howManySeeMe > 0) // me or others can see my target
+                {
                     headScript.SetTargetAngle(VectorToAngle(directionToPlayer));
-                else
-                    headScript.SetTargetAngle(VectorToAngle((PLKP.transform.position - transform.position).normalized));
+                }
+                else // going to PLKP, because no one see my target
+                {
+                    headScript.SetTargetAngle(VectorToAngle((PLKPs[targetedPlayerID].transform.position - transform.position).normalized));
+                }
             }
             else
                 headScript.SetTargetAngle(VectorToAngle(transform.up));
-            //////////////////////////// or
-            /*
-            if (targetInVision)
-                headScript.SetTargetAngle(VectorToAngle(directionToPlayer));
-            else
-                headScript.SetTargetAngle(VectorToAngle(transform.up)); // this should always set head rotation to zero. better solution required
-            */
-        }
-
-        if (prevTargetInVision != targetInVision)
-            VisionStatusChange();
-        prevTargetInVision = targetInVision;
-    }
-
-    protected void BechaviourIfCantSeePlayer()
-    {
-        if (isAlerted && !targetInVision) // pursuing to last known location(local search) or player if someone can see him
-        {
-            if (isTargetDestinationPlayer && playerAllerting.howManySeeMe == 0) // if someone saw player till now and this enemy was pursuing player
-            {
-                PursuePlayer();
-            }
-            else if (!isTargetDestinationPlayer && playerAllerting.howManySeeMe > 0) // if someone can see player from now on this enemy should purue him
-            {
-                PursuePlayer();
-            }
-
-            if (ai.reachedEndOfPath && !ai.pathPending) // went to last known location and player not seen
-            {
-                LookAround();
-            }
         }
     }
 
@@ -184,11 +373,19 @@ public abstract class Tank : Character
             {
                 localSearchLookedAround = 0;
                 isLooking = false;
-                PerformLocalSearch();
+                if(localSearchLocationsTried == 0 && otherID != -1) // went to PLKP and others can see other player
+                {
+                    // change target if anyone can see anyone
+                    PursuePlayer(otherID);
+                }
+                else
+                {
+                    PerformLocalSearch();
+                }
                 return;
             }
             float randomRotation = 0;
-            if (localSearchLookedAround == localSearchLookAroundTimes)
+            if (localSearchLookedAround == localSearchLookAroundTimes) // lastly ortate to front
             {
                 randomRotation = VectorToAngle(transform.up);
             }
@@ -227,42 +424,16 @@ public abstract class Tank : Character
         //if(ai.remainingDistance > 2 * localSearchRadius) // maybe make this into do while loop
         //search for new point beacause this map point is too far for local search
     }
-
-    protected void VisionStatusChange()
+    
+    protected void PlayerEnterVision(int playerID)
     {
-        if (isAlerted)
-        {
-            if (targetInVision) // can see on its own now
-            {
-                playerAllerting.howManySeeMe++;
-                PursuePlayer();
-            }
-            else // can't see anymore
-            {
-                playerAllerting.howManySeeMe--;
-                CantSeePlayerAnyMore();
-            }
-        }
-        else
-        {
-            if (targetInVision)
-            {
-                playerAllerting.howManySeeMe++;
-                PursuePlayer();
-            }
-            else //if someone will force to not allerted then enemy can see player
-            {
-                playerAllerting.howManySeeMe--;
-                //ai.canMove = false;
-            }
-        }
-
+        playerAlertings[playerID].howManySeeMe++;
     }
 
-    protected virtual void CantSeePlayerAnyMore()
+    protected void PlayerExitVision(int playerID)
     {
-        PLKP.position = player.transform.position;
-        PursuePlayer();
+        playerAlertings[playerID].howManySeeMe--;
+        PLKPs[playerID].position = players[playerID].transform.position;
     }
 
     // FOR CALCULATIONS:
@@ -273,10 +444,18 @@ public abstract class Tank : Character
         return Mathf.Atan2(vect.y, vect.x) * Mathf.Rad2Deg - 90;
     }
 
+    public void DamageAlerting(float amount, int PlayerID = -1, Vector3 position = new Vector3())
+    {
+        if(PlayerID != -1)
+        {
+            PLKPs[PlayerID].position = position;
+            PursuePlayer(PlayerID);
+        }
+        Damage(amount);
+    }
     // OVERRIDES:
     public override void Damage(float amount)
     {
-        PursuePlayer();
         base.Damage(amount);
         HpBar.SetHealth(GetHealth());
     }

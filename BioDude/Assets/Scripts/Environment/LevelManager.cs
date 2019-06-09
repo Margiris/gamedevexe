@@ -8,25 +8,38 @@ public class LevelManager : NetworkBehaviour {
 
     [SerializeField]
     int EnemiesOnMapLeft = 0;
+    int playersOnMap = 0;
     public bool clear = false;
     [SerializeField]
     public bool LastLevel = false;
     PauseMenu Pausemenu;
     string LastLevelKeyName = "LastLevelCheckpoint";
+    int IDxgen = 0;
+
+    List<Gamer> players;
+    List<Tank> enemies;
+
 	// Use this for initialization
     void Start()
     {
         GameObject obj = GameObject.Find("Pausemenu Canvas");
-        if(obj != null)
+        Transform enemyparent = GameObject.Find("Enemies").transform;
+        if (obj != null)
             Pausemenu = obj.GetComponent<PauseMenu>();
         if (GameObject.Find("Enemies") != null)
-            EnemiesOnMapLeft = GameObject.Find("Enemies").transform.childCount;
+            EnemiesOnMapLeft = enemyparent.childCount;
         if (SceneManager.GetActiveScene().buildIndex > 0 &&
             SceneManager.GetActiveScene().name != "Menu")
             SaveCurrentLevelIndex();
         if (SceneManager.GetActiveScene().buildIndex >= 4)
             LastLevel = true;
 
+        enemies = new List<Tank>();
+        players = new List<Gamer>();
+        for (int i = 0; i < EnemiesOnMapLeft; i++)
+        {
+            enemies.Add(enemyparent.GetChild(i).GetComponent<Tank>());
+        }
         if (EnemiesOnMapLeft <= 0)
         {
             clear = true;
@@ -34,10 +47,10 @@ public class LevelManager : NetworkBehaviour {
         }
     }
 
-    public void LevelCleared()
+    public void LevelCleared(player player)
     {
         //play level finished screen with option to load next level
-        Pausemenu.ShowNextLevelScreen();
+        player.transform.parent.GetComponent<Gamer>().pausemenu.ShowNextLevelScreen();
         Debug.Log("Stage cleared");
     }
 
@@ -60,7 +73,7 @@ public class LevelManager : NetworkBehaviour {
         PlayerPrefs.SetInt(LastLevelKeyName, currentSceneIndex);
         PlayerPrefs.Save();
     }
-
+     
     public bool DoesPlayerProgressExist()
     {
         return PlayerPrefs.HasKey(LastLevelKeyName);
@@ -74,5 +87,35 @@ public class LevelManager : NetworkBehaviour {
             clear = true;
             GameObject.Find("Exit").GetComponent<LevelManagerTrigger>().OpenExit();
         }
+    }
+
+    //Player management
+    public int RegisterNewPlayer(Gamer player)
+    {
+        playersOnMap++;
+        players.Add(player);
+        player.setPLayerID(IDxgen++);
+        UpdateEnemies();
+        return players.Count - 1;
+    }
+    
+    public void DisconnectPlayer(int playerID)
+    {
+        players.Remove(players.Find(e => e.getPlayerID() == playerID));
+        playersOnMap--;
+        UpdateEnemies();
+    }
+
+    void UpdateEnemies()
+    {
+        for(int i = 0; i < enemies.Count; i++)
+        {
+            enemies[i].UpdatePLayerList(players);
+        }
+    }
+
+    public List<Gamer> GetPlayersData()
+    {
+        return players;
     }
 }

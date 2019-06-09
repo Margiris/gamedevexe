@@ -114,6 +114,8 @@ public class WeaponManager : NetworkBehaviour
     public RawImage explosiveImage;
     private RawImage weaponSlotImage;
 
+    public int playerID = -1;
+
     private int[] AutomaticWeapons = { 2 };
 
 
@@ -581,14 +583,14 @@ public class WeaponManager : NetworkBehaviour
         
         float bulletAngle = Random.Range(-weaponScript.accuracy, weaponScript.accuracy);
         GameObject newBullet = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position, Quaternion.Euler(0f, 0f, activeWeaponRTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
-        newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage);
+        newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
     }
 
     private void ShootRocket()
     {
         GameObject newRocket = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position, rightHandSlot.transform.rotation);
         RocketLauncher rocketLauncher = weaponArray[selectedFireArm].GetComponent<RocketLauncher>();
-        newRocket.GetComponent<GuidedMisile>().Instantiate(rocketLauncher.projectileSpeed, rocketLauncher.rotationSpeed, rocketLauncher.radius, rocketLauncher.force);
+        newRocket.GetComponent<GuidedMisile>().Instantiate(rocketLauncher.projectileSpeed, rocketLauncher.rotationSpeed, rocketLauncher.radius, rocketLauncher.force, playerID);
     }
     
     private void ShootAssaultRifle()
@@ -597,7 +599,7 @@ public class WeaponManager : NetworkBehaviour
         EjectWeaponCartridgeCasing(weaponScript);
         float bulletAngle = Random.Range(-weaponScript.accuracy, weaponScript.accuracy);
         GameObject newBullet = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position , Quaternion.Euler(0f, 0f, activeWeaponRTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
-        newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage);
+        newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
     }
 
     private void ShootShotgun()
@@ -610,7 +612,7 @@ public class WeaponManager : NetworkBehaviour
         {
             bulletAngle = Random.Range(-shotgunscript.accuracy, shotgunscript.accuracy);
             newBullet = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position, Quaternion.Euler(0f, 0f, activeWeaponRTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
-            newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage);
+            newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
         }
     }
 
@@ -621,11 +623,11 @@ public class WeaponManager : NetworkBehaviour
         EjectWeaponCartridgeCasing(weaponScript, "l");
         float bulletAngle = Random.Range(-weaponScript.accuracy, weaponScript.accuracy);
         GameObject newBullet = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position, Quaternion.Euler(0f, 0f, activeWeaponRTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
-        newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage);
+        newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
         if (aWeaponScript.currentClipAmmo > 1) // if only one bullet left in clip so two guns can't fire
         {
             GameObject newBullet2 = Instantiate(aWeaponScript.projectile, activeWeaponLTip.transform.position, Quaternion.Euler(0f, 0f, activeWeaponLTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
-            newBullet2.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage);
+            newBullet2.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
             aWeaponScript.currentClipAmmo--;
         }
     }
