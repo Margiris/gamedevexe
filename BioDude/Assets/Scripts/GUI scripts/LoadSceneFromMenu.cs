@@ -9,9 +9,6 @@ public class LoadSceneFromMenu : MonoBehaviour
 
     public GameObject[] ObjectToMove;
     
-    public AchievementManager achievementManager;
-    public GameObject achievementPanel;
-
     private void Awake()
     {
         foreach (var item in ObjectToMove)
@@ -22,7 +19,6 @@ public class LoadSceneFromMenu : MonoBehaviour
     }
     public void NewGame()
     {
-        achievementManager.DestroyAllAchievements();
         Destroy(GameObject.Find("MainMenuCanvas"));
 
         GamePrefs.DeletePlayerProgress();
