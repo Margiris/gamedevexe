@@ -97,6 +97,7 @@ public class WeaponManager : NetworkBehaviour
     private bool cooldownEnded = true;
     private bool isReloading = false;
     //private SpriteRenderer spriteRenderer;
+    private player player;
     private Allerting playerAlerting;
     private Animator playerAnimator;
     private int selectedFireArm = -1;
@@ -122,7 +123,8 @@ public class WeaponManager : NetworkBehaviour
     // Use this for initialization
     void Start ()
     {
-        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
+        projectiles = GameObject.Find("Projectiles").transform;
+        if (transform.GetComponent<Gamer>().isLocalPlayer)
         {
             //rightHandSlot = transform.Find("hand_R").GetChild(0).gameObject;
             activeWeaponRTip = rightHandSlot.transform.GetChild(0).gameObject;
@@ -138,14 +140,14 @@ public class WeaponManager : NetworkBehaviour
 
             //notifications = GameObject.Find("AchievementManager").GetComponent<AchievementManager>();
             knifeScript = knife.GetComponent<Knife>();
-            projectiles = GameObject.Find("Projectiles").transform;
-            mainCameraScript = gameObject.GetComponent<player>().cam.GetComponent<CameraScript>();// GameObject.Find("Main Camera").GetComponent<CameraScript>();
+            player = transform.Find("player").GetComponent<player>();
+            mainCameraScript = player.cam.GetComponent<CameraScript>();// GameObject.Find("Main Camera").GetComponent<CameraScript>();
                                                                                                   //guiManager = GameObject.Find("GUI").GetComponent<GUIManager>();
-            playerAnimator = GetComponentInChildren<Animator>();
-            playerAlerting = GetComponent<Allerting>();
-            weaponAudioSource = GetComponent<AudioSource>();
-            reloadAudioSource = GetComponents<AudioSource>()[2];
-            emptyAudioSource = GetComponents<AudioSource>()[3];
+            playerAnimator = player.transform.Find("Animatable").GetComponent<Animator>();
+            playerAlerting = transform.Find("player").GetComponent<Allerting>();
+            weaponAudioSource = transform.Find("player").GetComponent<AudioSource>();
+            reloadAudioSource = transform.Find("player").GetComponents<AudioSource>()[2];
+            emptyAudioSource = transform.Find("player").GetComponents<AudioSource>()[3];
             //ammoImage = guiManager.gameObject.transform.Find("PlayerAmmoText").GetComponentInChildren<RawImage>();
             //explosiveImage = transform.parent.Find("PlayerExplosiveText").GetComponentInChildren<RawImage>();
 
@@ -154,16 +156,16 @@ public class WeaponManager : NetworkBehaviour
             weaponSlotReds = new RawImage[weaponArray.Length + 1]; // knife at last position
             for (int i = 0; i < weaponArray.Length; i++)
             {
-                weaponSlots[i] = transform.parent.Find("GUI").Find("WeaponSelection").Find("WeaponSelectionSlot0" + (i + 1).ToString()).gameObject;  // sets the last selected firearm as a knife (also, the selected weapon should be set as knife too, when the knife is implemented)
+                weaponSlots[i] = transform.Find("GUI").Find("WeaponSelection").Find("WeaponSelectionSlot0" + (i + 1).ToString()).gameObject;  // sets the last selected firearm as a knife (also, the selected weapon should be set as knife too, when the knife is implemented)
                 weaponSlotReds[i] = weaponSlots[i].transform.GetChild(0).GetChild(0).GetComponent<RawImage>();
             }
-            weaponSlots[weaponArray.Length] = transform.parent.Find("GUI").Find("WeaponSelection").Find("WeaponSelectionSlot06").gameObject;
+            weaponSlots[weaponArray.Length] = transform.Find("GUI").Find("WeaponSelection").Find("WeaponSelectionSlot06").gameObject;
             // get explosive slots
             explosiveSlots = new GameObject[explosiveArray.Length];
             explosiveSlotReds = new RawImage[explosiveArray.Length];
             for (int i = 0; i < explosiveArray.Length; i++)
             {
-                explosiveSlots[i] = transform.parent.Find("GUI").Find("ExplosiveSelection").Find("ExplosiveSelectionSlot0" + (i + 1).ToString()).gameObject;  // sets the last selected explosion as a standard grenade
+                explosiveSlots[i] = transform.Find("GUI").Find("ExplosiveSelection").Find("ExplosiveSelectionSlot0" + (i + 1).ToString()).gameObject;  // sets the last selected explosion as a standard grenade
                 explosiveSlotReds[i] = explosiveSlots[i].transform.GetChild(0).GetChild(0).GetComponent<RawImage>();
             }
             //GetAllWeapons();
@@ -171,6 +173,7 @@ public class WeaponManager : NetworkBehaviour
             for (int i = 0; i < weaponArray.Length; i++)
             {
                 Weapon weapon = weaponArray[i].GetComponent<Weapon>();
+                if (weapon.isDiscovered)
                 if (weapon.isDiscovered)
                 {
                     weapon.currentClipAmmo = fireArmAmmo[weapon.ammoType].TakeAmmo(weapon.clipSize); // load with bullets from pool
@@ -258,9 +261,9 @@ public class WeaponManager : NetworkBehaviour
         }
         else
         {
-            Debug.Log(awAmmoType);
+            //Debug.Log(awAmmoType);
 
-            Debug.Log(fireArmAmmo[awAmmoType].amount.ToString());
+            //Debug.Log(fireArmAmmo[awAmmoType].amount.ToString());
             guiManager.SetBulletGUI(aWeaponScript.currentClipAmmo.ToString(), fireArmAmmo[awAmmoType].amount.ToString());
             // show how many bullets left 
             // weapon sprite to display next to bullets nums: weaponArray[selectedFireArm].GetComponent<SpriteRenderer>().sprite
@@ -361,9 +364,9 @@ public class WeaponManager : NetworkBehaviour
         {
             if(PlayerPrefs.HasKey(weaponArray[i].name + "Discovered"))
             {
-                Debug.Log(weaponArray[i].name + "had a key");
+                //Debug.Log(weaponArray[i].name + "had a key");
                 weaponArray[i].GetComponent<Weapon>().isDiscovered = PlayerPrefs.GetInt(weaponArray[i].GetComponent<Weapon>().name + "Discovered") == 1 ? true : false;
-                Debug.Log(weaponArray[i].GetComponent<Weapon>().isDiscovered);
+                //Debug.Log(weaponArray[i].GetComponent<Weapon>().isDiscovered);
             }
             else
                 weaponArray[i].GetComponent<Weapon>().isDiscovered = false;
@@ -433,10 +436,10 @@ public class WeaponManager : NetworkBehaviour
 
     private void DisplayDiscoveredWeapon(int idx)
     {
-        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
+        if (this.transform.GetComponent<Gamer>().isLocalPlayer)
         {
-            Debug.Log(weaponSlots.Length);
-            Debug.Log(idx);
+            //Debug.Log(weaponSlots.Length);
+            //Debug.Log(idx);
             weaponSlots[idx].transform.GetChild(0);
             weaponSlots[idx].transform.GetChild(0).GetComponent<Image>();
             weaponSlots[idx].transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>(weaponArray[idx].GetComponent<Weapon>().ItemName + "Image");
@@ -516,96 +519,121 @@ public class WeaponManager : NetworkBehaviour
 
     public void Shoot()
     {
-        if(selectedFireArm == -1) // knife attack
+        if (transform.GetComponent<Gamer>().isLocalPlayer)
         {
-            if (cooldownEnded)
+            if (selectedFireArm == -1) // knife attack
             {
-                playerAnimator.SetTrigger("Shoot");
-                cooldownEnded = false;
-                StartCoroutine("Cooldown");
-                //mainCameraScript.AddOffset(knifeScript.cameraRecoil);
-            }
-        }
-        else
-        {
-            if (cooldownEnded && !isReloading)
-            {
-                if (aWeaponScript.currentClipAmmo > 0)
+                if (cooldownEnded)
                 {
+                    playerAnimator.SetTrigger("Shoot");
                     cooldownEnded = false;
-                    aWeaponScript.currentClipAmmo--;
                     StartCoroutine("Cooldown");
-                    mainCameraScript.AddOffset(aWeaponScript.cameraRecoil);
-                    playerAlerting.AllertSurroundings(aWeaponScript.allertingRadius);
-                    weaponAudioSource.Play();
-
-                    switch (selectedFireArm) ////////////requires optimisation - maybe code firing in weapon prefabs, or leave like this
-                    {
-                        case 0:
-                            ShootPistol();
-                            break;
-                        case 1:
-                            ShootRocket();
-                            break;
-                        case 2:
-                            ShootAssaultRifle();
-                            break;
-                        case 3:
-                            playerAnimator.SetTrigger("Shoot");
-                            ShootShotgun();
-                            break;
-                        case 4:
-                            ShootDualPistol();
-                            break;
-                    }
-
-                    if (aWeaponScript.currentClipAmmo == 0)
-                    {
-                        Reload();
-                        if (fireArmAmmo[awAmmoType].amount == 0)
-                            UpdateWeaponGUI();
-                    }
-                    UpdateBulletGUI();
+                    //mainCameraScript.AddOffset(knifeScript.cameraRecoil);
                 }
-                else
+            }
+            else
+            {
+                if (cooldownEnded && !isReloading)
                 {
-                    emptyAudioSource.Play();
-                    Reload();
+                    if (aWeaponScript.currentClipAmmo > 0)
+                    {
+                        cooldownEnded = false;
+                        aWeaponScript.currentClipAmmo--;
+                        StartCoroutine("Cooldown");
+                        mainCameraScript.AddOffset(aWeaponScript.cameraRecoil);
+                        playerAlerting.AllertSurroundings(aWeaponScript.allertingRadius);
+                        weaponAudioSource.Play();
+
+                        switch (selectedFireArm) ////////////requires optimisation - maybe code firing in weapon prefabs, or leave like this
+                        {
+                            case 0:
+                                CmdShootPistol(activeWeaponRTip.transform.position, activeWeaponRTip.transform.rotation.eulerAngles.z, player.transform.right);
+                                break;
+                            case 1:
+                                CmdShootRocket(activeWeaponRTip.transform.position, activeWeaponRTip.transform.rotation.eulerAngles.z, player.transform.right);
+                                break;
+                            case 2:
+                                CmdShootAssaultRifle(activeWeaponRTip.transform.position, activeWeaponRTip.transform.rotation.eulerAngles.z, player.transform.right);
+                                break;
+                            case 3:
+                                playerAnimator.SetTrigger("Shoot");
+                                CmdShootShotgun(activeWeaponRTip.transform.position, activeWeaponRTip.transform.rotation.eulerAngles.z, player.transform.right);
+                                break;
+                            case 4:
+                                CmdShootDualPistol(activeWeaponRTip.transform.position, activeWeaponRTip.transform.rotation.eulerAngles.z, player.transform.right);
+                                break;
+                        }
+
+                        if (aWeaponScript.currentClipAmmo == 0)
+                        {
+                            Reload();
+                            if (fireArmAmmo[awAmmoType].amount == 0)
+                                UpdateWeaponGUI();
+                        }
+                        UpdateBulletGUI();
+                    }
+                    else
+                    {
+                        emptyAudioSource.Play();
+                        Reload();
+                    }
                 }
             }
         }
     }
 
-    private void ShootPistol()
+    private void BulletSettings(GameObject newBullet, Weapon weaponScript, Vector2 position)
     {
-        Weapon weaponScript = weaponArray[selectedFireArm].GetComponent<Weapon>();
-        EjectWeaponCartridgeCasing(weaponScript);
-        
-        float bulletAngle = Random.Range(-weaponScript.accuracy, weaponScript.accuracy);
-        GameObject newBullet = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position, Quaternion.Euler(0f, 0f, activeWeaponRTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
-        newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
+        Bullet bulletScript = newBullet.GetComponent<Bullet>();
+        bulletScript.OwnerID = playerID;
+        Destroy(newBullet, weaponScript.timeUntilSelfDestrucion);
+        bulletScript.GetComponent<Rigidbody2D>().velocity = newBullet.transform.rotation * Vector3.up * weaponScript.projectileSpeed / 100;
+
+        //new Vector2(newBullet.transform.rotation.x, newBullet.transform.rotation.y) * (aWeaponScript.projectileSpeed / 4);
+        bulletScript.damage = weaponScript.damage;
+        bulletScript.creationLocation = position;
     }
 
-    private void ShootRocket()
+    [Command]
+    private void CmdShootPistol(Vector2 position, float rotation, Vector2 direction)
     {
+        Weapon weaponScript = weaponArray[0].GetComponent<Weapon>();
+        EjectWeaponCartridgeCasing(weaponScript, direction);
+        float bulletAngle = Random.Range(-weaponScript.accuracy, weaponScript.accuracy);
+        GameObject newBullet = Instantiate(weaponScript.projectile, position, Quaternion.Euler(0f, 0f, rotation + bulletAngle), projectiles);
+        //newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
+        BulletSettings(newBullet, weaponScript, position);
+        NetworkServer.Spawn(newBullet);
+    }
+
+    [Command]
+    private void CmdShootRocket(Vector2 position, float rotation, Vector2 direction)
+    {
+        Weapon weaponScript = weaponArray[1].GetComponent<Weapon>();
         GameObject newRocket = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position, rightHandSlot.transform.rotation);
         RocketLauncher rocketLauncher = weaponArray[selectedFireArm].GetComponent<RocketLauncher>();
         newRocket.GetComponent<GuidedMisile>().Instantiate(rocketLauncher.projectileSpeed, rocketLauncher.rotationSpeed, rocketLauncher.radius, rocketLauncher.force, playerID);
+        NetworkServer.Spawn(newRocket);
     }
-    
-    private void ShootAssaultRifle()
+
+    [Command]
+    private void CmdShootAssaultRifle(Vector2 position, float rotation, Vector2 direction)
     {
-        Weapon weaponScript = weaponArray[selectedFireArm].GetComponent<Weapon>();
-        EjectWeaponCartridgeCasing(weaponScript);
+        Weapon weaponScript = weaponArray[2].GetComponent<Weapon>();
+        //EjectWeaponCartridgeCasing(weaponScript);
         float bulletAngle = Random.Range(-weaponScript.accuracy, weaponScript.accuracy);
         GameObject newBullet = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position , Quaternion.Euler(0f, 0f, activeWeaponRTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
         newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
+        BulletSettings(newBullet, weaponScript, position);
+        NetworkServer.Spawn(newBullet);
     }
 
-    private void ShootShotgun()
+    [Command]
+    private void CmdShootShotgun(Vector2 position, float rotation, Vector2 direction)
     {
+        Weapon weaponScript = weaponArray[3].GetComponent<Weapon>();
         Shotgun shotgunscript = weaponArray[selectedFireArm].GetComponent<Shotgun>();
-        EjectWeaponCartridgeCasing(shotgunscript);
+        //EjectWeaponCartridgeCasing(shotgunscript);
         float bulletAngle;
         GameObject newBullet;
         for (int i = 0; i < shotgunscript.bulletCount; i++)
@@ -613,21 +641,28 @@ public class WeaponManager : NetworkBehaviour
             bulletAngle = Random.Range(-shotgunscript.accuracy, shotgunscript.accuracy);
             newBullet = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position, Quaternion.Euler(0f, 0f, activeWeaponRTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
             newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
+            BulletSettings(newBullet, weaponScript, position);
+            NetworkServer.Spawn(newBullet);
         }
     }
 
-    private void ShootDualPistol()
+    [Command]
+    private void CmdShootDualPistol(Vector2 position, float rotation, Vector2 direction)
     {
-        Weapon weaponScript = weaponArray[selectedFireArm].GetComponent<Weapon>();
-        EjectWeaponCartridgeCasing(weaponScript);
-        EjectWeaponCartridgeCasing(weaponScript, "l");
+        Weapon weaponScript = weaponArray[4].GetComponent<Weapon>();
+        //EjectWeaponCartridgeCasing(weaponScript);
+        //EjectWeaponCartridgeCasing(weaponScript, "l");
         float bulletAngle = Random.Range(-weaponScript.accuracy, weaponScript.accuracy);
         GameObject newBullet = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position, Quaternion.Euler(0f, 0f, activeWeaponRTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
         newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
+        BulletSettings(newBullet, weaponScript, position);
+        NetworkServer.Spawn(newBullet);
         if (aWeaponScript.currentClipAmmo > 1) // if only one bullet left in clip so two guns can't fire
         {
             GameObject newBullet2 = Instantiate(aWeaponScript.projectile, activeWeaponLTip.transform.position, Quaternion.Euler(0f, 0f, activeWeaponLTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
             newBullet2.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
+            BulletSettings(newBullet, weaponScript, position);
+            NetworkServer.Spawn(newBullet);
             aWeaponScript.currentClipAmmo--;
         }
     }
@@ -637,20 +672,24 @@ public class WeaponManager : NetworkBehaviour
     /// </summary>
     /// <param name="weapon"></param>
     /// <param name="direction">r - right, l - left</param>
-    public void EjectWeaponCartridgeCasing(Weapon weapon, string direction = "r")
+    public void EjectWeaponCartridgeCasing(Weapon weapon, Vector2 dirvect, string direction = "r")
     {
         float ejectionForce = 500;
         if (direction == "r")
         {
             GameObject cartridgeCasing = Instantiate(weapon.cartridgeCase, rightHandSlot.transform.position, rightHandSlot.transform.rotation);
             Rigidbody2D rb = cartridgeCasing.GetComponent<Rigidbody2D>();
-            rb.AddForce(transform.right * ejectionForce);
+            rb.velocity = dirvect * ejectionForce / 100;
+            //rb.AddForce(transform.right * ejectionForce);
+            NetworkServer.Spawn(cartridgeCasing);
         }
         else if (direction == "l")
         {
             GameObject cartridgeCasing = Instantiate(weapon.cartridgeCase, leftHandSlot.transform.position, leftHandSlot.transform.rotation);
             Rigidbody2D rb = cartridgeCasing.GetComponent<Rigidbody2D>();
-            rb.AddForce(-transform.right * ejectionForce);
+            //rb.AddForce(-transform.right * ejectionForce);
+            rb.velocity = -dirvect * ejectionForce / 100;
+            NetworkServer.Spawn(cartridgeCasing);
         }
     }
 
@@ -865,7 +904,7 @@ public class WeaponManager : NetworkBehaviour
 
     public void DiscoverWeaponByName(string name)
     {
-        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
+        if (this.transform.GetComponent<Gamer>().isLocalPlayer)
         {
             for (int i = 0; i < weaponArray.Length; i++)
             {

@@ -50,7 +50,7 @@ public class Gamer : NetworkBehaviour
         if(MyID == -1)
         {
             MyID = ID;
-            player.GetComponent<WeaponManager>().playerID = ID;
+            GetComponent<WeaponManager>().playerID = ID;
         }
     }
 }

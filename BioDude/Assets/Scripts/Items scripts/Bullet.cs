@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    private float damage = 0;
+    public float damage = 0;
     public ParticleSystem impactConcrete;
     public ParticleSystem impactMetal;
     public ParticleSystem impactFlesh;
     public Vector2 creationLocation;
     public int OwnerID = -1;
+    public float speed;
 
     //bool bulletFired = false;  //////////////////////////////
 
@@ -22,7 +23,8 @@ public class Bullet : MonoBehaviour
     {
         OwnerID = ownerId;
         Destroy(gameObject, destroyAfter);
-        GetComponent<Rigidbody2D>().AddRelativeForce(new Vector2(0, speed));
+        GetComponent<Rigidbody2D>().velocity = new Vector2(0, speed / 400);
+        //GetComponent<Rigidbody2D>().AddRelativeForce(new Vector2(0, speed));
         this.damage = damage;
         creationLocation = transform.position;
     }

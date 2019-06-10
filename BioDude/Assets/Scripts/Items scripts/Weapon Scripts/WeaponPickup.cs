@@ -16,7 +16,7 @@ public class WeaponPickup : MonoBehaviour {
     {
         if (other.tag == "Player")
         {
-            other.gameObject.GetComponent<WeaponManager>().DiscoverWeaponByName(weapon.name);
+            other.transform.parent.gameObject.GetComponent<WeaponManager>().DiscoverWeaponByName(weapon.name);
             Destroy(gameObject);
         }
     }

@@ -990,7 +990,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4472453334590180}
   - component: {fileID: 58434049808981236}
-  - component: {fileID: 114487975215813978}
   - component: {fileID: 50159912920543454}
   - component: {fileID: 114229037453758400}
   - component: {fileID: 114478412467893380}
@@ -1037,41 +1036,6 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.47
---- !u!114 &114487975215813978
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1629226856703174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7b54cf509ff4b043a9555299024d5d0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rightHandSlot: {fileID: 1838299241939870}
-  leftHandSlot: {fileID: 1406371027723680}
-  explosiveArray:
-  - {fileID: 1099810171760856, guid: b6e7af60750b7e04db1beb99cdebf8f0, type: 3}
-  - {fileID: 1605898272585064, guid: 739d46400fac7ad4fbe1053e95fb64a0, type: 3}
-  activeGrenade: {fileID: 0}
-  weaponArray:
-  - {fileID: 1164725371737510, guid: 20e1103fdde227d4fa389e993d13d0b4, type: 3}
-  - {fileID: 1974288062265692, guid: 2f4e0959a2df30144832cb4c0c744432, type: 3}
-  - {fileID: 1995316061485200, guid: c72f6a4e48ffefd43899f6fb74928673, type: 3}
-  - {fileID: 1128119802197726, guid: 054915740a40d4949be36724f0b7d637, type: 3}
-  - {fileID: 1164725371737510, guid: 49640031854b5ea41ae42401178bec04, type: 3}
-  knife: {fileID: 1153504089118082, guid: 13da6ec938cea7248bee271651d8e573, type: 3}
-  lastSelectedFireArm: 0
-  lastSelectedExplosive: 0
-  impactConcrete: {fileID: 198297326478612708, guid: 18951d2922ad3904981465f949da502f,
-    type: 3}
-  impactMetal: {fileID: 19800002, guid: 00fedc70b62a31e448e8ccc298257b56, type: 3}
-  impactFlesh: {fileID: 198618202314290210, guid: 7d7466c2bbef6b048ab60b9cda923ec8,
-    type: 3}
-  guiManager: {fileID: 0}
-  ammoImage: {fileID: 0}
-  explosiveImage: {fileID: 0}
 --- !u!50 &50159912920543454
 Rigidbody2D:
   serializedVersion: 4

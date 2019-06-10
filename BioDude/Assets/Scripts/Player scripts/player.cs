@@ -32,7 +32,7 @@ public class player : Character
             transform.parent.Find("Dialogue Manager").gameObject.SetActive(true);
             anim = GetComponentInChildren<Animator>();
             playerRigidbody = GetComponent<Rigidbody2D>();
-            weaponManager = transform.GetComponent<WeaponManager>();
+            weaponManager = transform.parent.GetComponent<WeaponManager>();
             speed = 150;
             cam.gameObject.SetActive(true);
             cam.GetComponent<CameraScript>().Player = this.gameObject;
