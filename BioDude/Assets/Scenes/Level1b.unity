@@ -96318,5 +96318,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3917054982125135866, guid: 00750d642e045ec4fa4a832ec3844c93,
+        type: 3}
+      propertyPath: m_Channels.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3917054982125135866, guid: 00750d642e045ec4fa4a832ec3844c93,
+        type: 3}
+      propertyPath: m_CustomConfig
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3917054982125135866, guid: 00750d642e045ec4fa4a832ec3844c93,
+        type: 3}
+      propertyPath: m_Channels.Array.data[0]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3917054982125135866, guid: 00750d642e045ec4fa4a832ec3844c93,
+        type: 3}
+      propertyPath: m_UseSimulator
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3917054982125135866, guid: 00750d642e045ec4fa4a832ec3844c93,
+        type: 3}
+      propertyPath: m_UseWebSockets
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 00750d642e045ec4fa4a832ec3844c93, type: 3}
