@@ -14,6 +14,11 @@ public class MeleeTank : Tank
 
     //private:
 
+    private void Start()
+    {
+        base.Start();
+    }
+
     // Update is called once per frame
     protected override void Update()
     {

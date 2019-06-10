@@ -22,6 +22,7 @@ public class LevelManager : NetworkBehaviour {
 	// Use this for initialization
     void Start()
     {
+        
         GameObject obj = GameObject.Find("Pausemenu Canvas");
         Transform enemyparent = GameObject.Find("Enemies").transform;
         if (obj != null)
@@ -33,7 +34,6 @@ public class LevelManager : NetworkBehaviour {
             SaveCurrentLevelIndex();
         if (SceneManager.GetActiveScene().buildIndex >= 4)
             LastLevel = true;
-
         enemies = new List<Tank>();
         players = new List<Gamer>();
         for (int i = 0; i < EnemiesOnMapLeft; i++)
@@ -110,6 +110,8 @@ public class LevelManager : NetworkBehaviour {
     {
         for(int i = 0; i < enemies.Count; i++)
         {
+            Debug.Log(players);
+            Debug.Log(isServer);
             enemies[i].UpdatePLayerList(players);
         }
     }
