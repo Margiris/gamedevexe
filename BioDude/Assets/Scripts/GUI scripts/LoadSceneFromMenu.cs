@@ -22,7 +22,7 @@ public class LoadSceneFromMenu : MonoBehaviour
         Destroy(GameObject.Find("MainMenuCanvas"));
 
         GamePrefs.DeletePlayerProgress();
-        LoadByIndex(StaticsConfig.SingleLvl1);
+        LoadByIndex(StaticsConfig.LobbyIdx);
     }
     public void ContinueGame()
     {
