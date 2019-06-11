@@ -160,6 +160,9 @@ namespace Prototype.NetworkLobby
                 }
             }
 
+            if (w.error != null)
+                Debug.LogError("Error: " + w.error);
+
             return false;
         }
     }
