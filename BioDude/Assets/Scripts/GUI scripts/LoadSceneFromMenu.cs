@@ -6,17 +6,22 @@ using UnityEngine.SceneManagement;
 
 public class LoadSceneFromMenu : MonoBehaviour
 {
-
     public GameObject[] ObjectToMove;
-    
+
     private void Awake()
     {
         foreach (var item in ObjectToMove)
         {
             DontDestroyOnLoad(item);
         }
+
         Time.timeScale = 1;
+#if !UNITY_WEBGL
+        Destroy(GameObject.Find("MainMenuCanvas"));
+        LoadByIndex(StaticsConfig.LobbyServerIdx);
+#endif
     }
+
     public void NewGame()
     {
         Destroy(GameObject.Find("MainMenuCanvas"));
@@ -24,6 +29,7 @@ public class LoadSceneFromMenu : MonoBehaviour
         GamePrefs.DeletePlayerProgress();
         LoadByIndex(StaticsConfig.LobbyIdx);
     }
+
     public void ContinueGame()
     {
         int indexToLoad = PlayerPrefs.GetInt("LastLevelCheckpoint");

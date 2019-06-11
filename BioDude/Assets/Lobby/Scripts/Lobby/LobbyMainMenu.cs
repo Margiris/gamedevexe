@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
@@ -15,8 +16,16 @@ namespace Prototype.NetworkLobby
         public InputField ipInput;
         public InputField matchNameInput;
 
+        public Button joinButton;
+        public Button dedicatedServerStartButton;
+
         public void OnEnable()
         {
+#if !UNITY_WEBGL
+            joinButton.gameObject.SetActive(false);
+            dedicatedServerStartButton.gameObject.SetActive(true);
+#endif
+
             lobbyManager.topPanel.ToggleVisibility(true);
 
             ipInput.onEndEdit.RemoveAllListeners();
@@ -35,7 +44,8 @@ namespace Prototype.NetworkLobby
         {
             lobbyManager.ChangeTo(lobbyPanel);
 
-            lobbyManager.networkAddress = ipInput.text;
+            lobbyManager.networkAddress = StaticsConfig.SERVER_IP;
+            lobbyManager.networkPort = int.Parse(ipInput.text) + StaticsConfig.PORT_OFFSET;
             lobbyManager.StartClient();
 
             lobbyManager.backDelegate = lobbyManager.StopClientClbk;
@@ -47,6 +57,7 @@ namespace Prototype.NetworkLobby
         public void OnClickDedicated()
         {
             lobbyManager.ChangeTo(null);
+            lobbyManager.networkPort = int.Parse(ipInput.text);
             lobbyManager.StartServer();
 
             lobbyManager.backDelegate = lobbyManager.StopServerClbk;
@@ -94,5 +105,9 @@ namespace Prototype.NetworkLobby
             }
         }
 
+        void getPort(int port)
+        {
+
+        }
     }
 }
