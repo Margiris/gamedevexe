@@ -136,10 +136,12 @@ namespace Prototype.NetworkLobby
             if (currentPanel != mainMenuPanel)
             {
                 backButton.gameObject.SetActive(true);
+                backToMainMenuButton.gameObject.SetActive(false);
             }
             else
             {
                 backButton.gameObject.SetActive(false);
+                backToMainMenuButton.gameObject.SetActive(true);
                 SetServerInfo("Offline", "None");
                 _isMatchmaking = false;
             }

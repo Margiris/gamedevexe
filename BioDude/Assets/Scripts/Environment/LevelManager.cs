@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -24,7 +25,13 @@ public class LevelManager : NetworkBehaviour {
     {
         
         GameObject obj = GameObject.Find("Pausemenu Canvas");
-        Transform enemyparent = GameObject.Find("Enemies").transform;
+        Transform enemyparent = null;
+        try
+        {
+            enemyparent = GameObject.Find("Enemies").transform;
+        }
+        catch (NullReferenceException e){}
+
         if (obj != null)
             Pausemenu = obj.GetComponent<PauseMenu>();
         if (GameObject.Find("Enemies") != null)
@@ -43,7 +50,12 @@ public class LevelManager : NetworkBehaviour {
         if (EnemiesOnMapLeft <= 0)
         {
             clear = true;
-            GameObject.Find("Exit").GetComponent<LevelManagerTrigger>().OpenExit();
+            
+            try
+            {
+                GameObject.Find("Exit").GetComponent<LevelManagerTrigger>().OpenExit();
+            }
+            catch (NullReferenceException e){}
         }
     }
 
