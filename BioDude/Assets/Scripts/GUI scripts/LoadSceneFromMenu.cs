@@ -16,6 +16,12 @@ public class LoadSceneFromMenu : MonoBehaviour
         }
 
         Time.timeScale = 1;
+
+        if (StaticsConfig.IsServer)
+        {
+            Destroy(GameObject.Find("MainMenuCanvas"));
+            LoadByIndex(StaticsConfig.LobbyIdx);
+        }
     }
 
     public void NewGame()

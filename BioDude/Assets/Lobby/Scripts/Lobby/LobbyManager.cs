@@ -61,7 +61,7 @@ namespace Prototype.NetworkLobby
             currentPanel = mainMenuPanel;
 
             backButton.gameObject.SetActive(false);
-            backToMainMenuButton.gameObject.SetActive(true);
+            backToMainMenuButton.gameObject.SetActive(!StaticsConfig.IsServer);
             GetComponent<Canvas>().enabled = true;
 
             DontDestroyOnLoad(gameObject);
@@ -141,7 +141,7 @@ namespace Prototype.NetworkLobby
             else
             {
                 backButton.gameObject.SetActive(false);
-                backToMainMenuButton.gameObject.SetActive(true);
+                backToMainMenuButton.gameObject.SetActive(!StaticsConfig.IsServer);
                 SetServerInfo("Offline", "None");
                 _isMatchmaking = false;
             }

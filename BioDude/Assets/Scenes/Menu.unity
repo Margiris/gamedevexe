@@ -425,7 +425,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 217418057}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.05, y: 0, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1262,8 +1262,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ObjectToMove:
   - {fileID: 1213988789}
-  achievementManager: {fileID: 0}
-  achievementPanel: {fileID: 0}
 --- !u!114 &536623925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2674,8 +2672,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ObjectToMove: []
-  achievementManager: {fileID: 0}
-  achievementPanel: {fileID: 0}
 --- !u!1 &902544149
 GameObject:
   m_ObjectHideFlags: 0
@@ -6548,7 +6544,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.1885, y: 0.23633271}
   m_AnchorMax: {x: 0.883, y: 0.9013337}
-  m_AnchoredPosition: {x: -83.09558, y: 16.97992}
+  m_AnchoredPosition: {x: -83.09559, y: 16.97992}
   m_SizeDelta: {x: 132.73083, y: 68.991615}
   m_Pivot: {x: 0.000000024060036, y: 1}
 --- !u!114 &1866630135

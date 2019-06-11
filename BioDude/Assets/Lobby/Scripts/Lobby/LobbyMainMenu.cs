@@ -5,8 +5,15 @@ using System.Collections;
 
 namespace Prototype.NetworkLobby
 {
+    [Serializable]
+    public class PortData
+    {
+        public int result;
+        public int port;
+    }
+
     //Main menu, mainly only a bunch of callback called by the UI (setup throught the Inspector)
-    public class LobbyMainMenu : MonoBehaviour 
+    public class LobbyMainMenu : MonoBehaviour
     {
         public LobbyManager lobbyManager;
 
@@ -19,12 +26,16 @@ namespace Prototype.NetworkLobby
         public Button joinButton;
         public Button dedicatedServerStartButton;
 
+        public Text portErrorMessage;
+
+        private WebSocket w;
+
         public void OnEnable()
         {
-#if !UNITY_WEBGL
-            joinButton.gameObject.SetActive(false);
-            dedicatedServerStartButton.gameObject.SetActive(true);
-#endif
+            joinButton.gameObject.SetActive(!StaticsConfig.IsServer);
+            dedicatedServerStartButton.gameObject.SetActive(StaticsConfig.IsServer);
+
+            joinButton.enabled = false;
 
             lobbyManager.topPanel.ToggleVisibility(true);
 
@@ -33,6 +44,15 @@ namespace Prototype.NetworkLobby
 
             matchNameInput.onEndEdit.RemoveAllListeners();
             matchNameInput.onEndEdit.AddListener(onEndEditGameName);
+
+            Init();
+        }
+
+        IEnumerable Init()
+        {
+            w = new WebSocket(new Uri("ws://localhost:8000"));
+            yield return StartCoroutine(w.Connect());
+            Debug.Log("CONNECTED TO WEBSOCKETS");
         }
 
         public void OnClickHost()
@@ -42,6 +62,8 @@ namespace Prototype.NetworkLobby
 
         public void OnClickJoin()
         {
+            if (!IsPortAvailable(true)) return;
+
             lobbyManager.ChangeTo(lobbyPanel);
 
             lobbyManager.networkAddress = StaticsConfig.SERVER_IP;
@@ -70,10 +92,10 @@ namespace Prototype.NetworkLobby
             lobbyManager.StartMatchMaker();
             lobbyManager.matchMaker.CreateMatch(
                 matchNameInput.text,
-                (uint)lobbyManager.maxPlayers,
+                (uint) lobbyManager.maxPlayers,
                 true,
-				"", "", "", 0, 0,
-				lobbyManager.OnMatchCreate);
+                "", "", "", 0, 0,
+                lobbyManager.OnMatchCreate);
 
             lobbyManager.backDelegate = lobbyManager.StopHost;
             lobbyManager._isMatchmaking = true;
@@ -105,9 +127,40 @@ namespace Prototype.NetworkLobby
             }
         }
 
-        void getPort(int port)
+        public bool IsPortAvailable(bool requestingServerStart = false)
         {
+            int port = int.Parse(ipInput.text);
 
+            // send message
+            w.SendString(requestingServerStart + "\t" + port + "\t" + StaticsConfig.PORT_OFFSET);
+            Debug.Log(requestingServerStart + "\t" + port + "\t" + StaticsConfig.PORT_OFFSET);
+
+            // read response
+            string message = w.RecvString();
+
+            // check if message is not empty
+            if (message != null)
+            {
+                PortData data = JsonUtility.FromJson<PortData>(message);
+
+                portErrorMessage.text = StaticsConfig.PortErrorMessages[data.result];
+
+                switch (data.result)
+                {
+                    case 0:
+                        joinButton.enabled = true;
+                        return true;
+                    case 1:
+                        portErrorMessage.text += ", suggested ID: " + data.port;
+                        joinButton.enabled = false;
+                        return false;
+                    default:
+                        joinButton.enabled = false;
+                        return false;
+                }
+            }
+
+            return false;
         }
     }
 }
