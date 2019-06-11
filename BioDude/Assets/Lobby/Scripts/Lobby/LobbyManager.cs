@@ -34,6 +34,7 @@ namespace Prototype.NetworkLobby
         protected RectTransform currentPanel;
 
         public Button backButton;
+        public Button backToMainMenuButton;
 
         public Text statusInfo;
         public Text hostInfo;
@@ -60,6 +61,7 @@ namespace Prototype.NetworkLobby
             currentPanel = mainMenuPanel;
 
             backButton.gameObject.SetActive(false);
+            backToMainMenuButton.gameObject.SetActive(true);
             GetComponent<Canvas>().enabled = true;
 
             DontDestroyOnLoad(gameObject);
@@ -162,6 +164,12 @@ namespace Prototype.NetworkLobby
         {
             backDelegate();
 			topPanel.isInGame = false;
+        }
+
+        public void GoBackToMainMenuButton()
+        {
+            Destroy(gameObject);
+            SceneManager.LoadScene(StaticsConfig.MainMenuIdx);
         }
 
         // ----------------- Server management

@@ -10,5 +10,5 @@ public static class StaticsConfig
 
     public const string SERVER_IP = "127.0.0.1";
 
-    public const int PORT_OFFSET = 39000;
+    public const int PORT_OFFSET = 0;
 }
