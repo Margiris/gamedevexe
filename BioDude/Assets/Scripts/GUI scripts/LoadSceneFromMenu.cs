@@ -16,10 +16,6 @@ public class LoadSceneFromMenu : MonoBehaviour
         }
 
         Time.timeScale = 1;
-#if !UNITY_WEBGL
-        Destroy(GameObject.Find("MainMenuCanvas"));
-        LoadByIndex(StaticsConfig.LobbyServerIdx);
-#endif
     }
 
     public void NewGame()
