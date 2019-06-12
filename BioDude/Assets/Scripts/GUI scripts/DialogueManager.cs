@@ -22,7 +22,7 @@ public class DialogueManager : NetworkBehaviour {
 
     // Use this for initialization
     void Start () {
-        //_player = GameObject.Find("player").GetComponent<player>();
+        _player = transform.parent.Find("player").GetComponent<player>();
         //DialogueCanvas = GameObject.Find("Dialogue canvas");
         GameObject pannel = DialogueCanvas.transform.Find("DialoguePanel").gameObject;
         DialogueText = pannel.transform.Find("DialogueText").GetComponent<Text>();

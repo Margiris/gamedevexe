@@ -122,14 +122,16 @@ public class LevelManager : NetworkBehaviour {
     {
         for(int i = 0; i < enemies.Count; i++)
         {
-            Debug.Log(players);
-            Debug.Log(isServer);
             enemies[i].UpdatePLayerList(players);
         }
     }
 
     public List<Gamer> GetPlayersData()
     {
+        if(players == null)
+        {
+            return new List<Gamer>();
+        }
         return players;
     }
 }
