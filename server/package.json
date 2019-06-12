@@ -1,13 +1,14 @@
 {
-  "name": "unity-webgl-multiplayer",
-  "author": "valia fetisov",
+  "name": "Server",
+  "author": "Margiris Burakauskas",
   "version": "0.1.0",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
   "dependencies": {
-    "ws": "^3.0.0"
+    "portscanner": "^2.2.0",
+    "ws": "^3.3.3"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"
