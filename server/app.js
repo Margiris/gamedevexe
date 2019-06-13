@@ -1,62 +1,67 @@
 const WebSocket = require('ws');
-import {exec} from "child_process";
-import portscanner from "portscanner";
+const exec = require("child_process").exec;
+let portScanner = require("portscanner");
+
+const SERVER_PORT = 8000;
+// const PORT_OFFSET = 10000;
+const MAX_PORT = 20000;
 
 // create new websocket server
-const wss = new WebSocket.Server({port: 8000});
-
-var result = 3;
+const wss = new WebSocket.Server({port: SERVER_PORT});
 
 // on new client connect
 wss.on('connection', function connection(client) {
+    console.log('new client connected');
     // on new message received
     client.on('message', function incoming(data) {
         // get data from string
-        var [requestingServerStart, port, portOffset] = data.toString().split('\t');
-        console.log(requestingServerStart, port, portOffset);
+        let [a, b] = data.toString().split('\t');
+        let requestingServerStart = (a === 'True');
+        let port = parseInt(b);
 
+        let result = 3;
+        /* result values:
+        0 - port not occupied and server not running on that port
+        1 - port in use by BioDude server
+        2 - port in use by another process
+         */
+
+        console.log(requestingServerStart, port);
+
+        let cmd = 'powershell (Get-Process -Id (Get-NetTCPConnection -LocalPort ' + port + ').OwningProcess).Name';
         // stdout is a string containing the output of the command.
-        exec('powershell (Get-Process -Id (Get-NetTCPConnection -LocalPort ' + (port + portOffset) + ').OwningProcess).Name', function (err, stdout, stderr) {
+        exec(cmd, function (err, stdout, stderr) {
+            let suggestedPort;
+
             // if port is currently not occupied by any process or is in use by BioDude server
-            if (err !== '' || stdout === 'BioDude')
-                result = 0;
-            else
-                result = 1
+            if (stderr !== '' || stdout.indexOf('BioDude') !== -1) {
+                result = stdout.indexOf('BioDude') !== -1 ? 1 : 0;
+                suggestedPort = port;
+                // send response
+                client.send(JSON.stringify({result, suggestedPort}));
+            } else {
+                result = 2;
+                getRandomFreePortInRange(port, MAX_PORT, function (port) {
+                    suggestedPort = port;
+                    // send response
+                    client.send(JSON.stringify({result, suggestedPort}));
+                });
+            }
+
+            if (result === 0 && requestingServerStart) {
+                cmd = '"M:\\KTU\\3 k. 2 s\\Interaktyvios interneto technologijos\\BioDude\\BioDude.exe" ' + port;
+                console.log(cmd);
+                exec(cmd, function (err, stdout, stderr) {
+                });
+            }
         });
 
-        if (result === 0 && requestingServerStart)
-            exec('BioDude.exe ' + (port + portOffset), function (err, stdout, stderr) {
-            });
+
     })
 });
 
-function getRandomFreePort() {
-    var net = require('net');
-    var server = net.createServer();
-
-    server.once('error', function (err) {
-        if (err.code === 'EADDRINUSE') {
-            // port is currently in use
-        }
+function getRandomFreePortInRange(portFrom, portTo, callback) {
+    portScanner.findAPortNotInUse(portFrom, portTo, function (error, port) {
+        callback(port);
     });
-
-    server.once('listening', function () {
-        // close the server if listening doesn't fail
-        server.close();
-    });
-
-    server.listen(/* put the port to check here */);
 }
-
-function broadcastUpdate() {
-    // broadcast messages to all clients
-    wss.clients.forEach(function each(client) {
-        // filter disconnected clients
-        if (client.readyState !== WebSocket.OPEN) return;
-        // send it
-        client.send(JSON.stringify({result}))
-    })
-}
-
-// call broadcastUpdate every 0.1s
-setInterval(broadcastUpdate, 100);
