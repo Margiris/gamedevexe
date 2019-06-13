@@ -143,7 +143,7 @@ public class WeaponManager : NetworkBehaviour
             player = transform.Find("player").GetComponent<player>();
             mainCameraScript = player.cam.GetComponent<CameraScript>();// GameObject.Find("Main Camera").GetComponent<CameraScript>();
                                                                                                   //guiManager = GameObject.Find("GUI").GetComponent<GUIManager>();
-            playerAnimator = player.transform.Find("Animatable").GetComponent<Animator>();
+            playerAnimator = transform.GetComponent<Animator>();
             playerAlerting = transform.Find("player").GetComponent<Allerting>();
             weaponAudioSource = transform.Find("player").GetComponent<AudioSource>();
             reloadAudioSource = transform.Find("player").GetComponents<AudioSource>()[2];

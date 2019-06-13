@@ -30,7 +30,7 @@ public class player : Character
             PausemenuCanvas = transform.parent.Find("Pausemenu Canvas").GetComponent<PauseMenu>();
             transform.parent.Find("Pausemenu Canvas").gameObject.SetActive(true);
             transform.parent.Find("Dialogue Manager").gameObject.SetActive(true);
-            anim = GetComponentInChildren<Animator>();
+            anim = transform.parent.GetComponent<Animator>();
             playerRigidbody = GetComponent<Rigidbody2D>();
             weaponManager = transform.parent.GetComponent<WeaponManager>();
             speed = 150;
@@ -143,6 +143,9 @@ public class player : Character
         ableToMove = false;
         Destroy(gameObject.GetComponent<Rigidbody2D>());
         Destroy(gameObject.GetComponent<CircleCollider2D>());
+        Debug.Log(deathSound);
+        Debug.Log(audioSource);
+        Debug.Log(audioSource.clip);
         audioSource.clip = deathSound;
         audioSource.Play();
         //^^^ pakeist i player death animation

@@ -22,20 +22,23 @@ public class DialogueManager : NetworkBehaviour {
 
     // Use this for initialization
     void Start () {
-        _player = transform.parent.Find("player").GetComponent<player>();
-        //DialogueCanvas = GameObject.Find("Dialogue canvas");
-        GameObject pannel = DialogueCanvas.transform.Find("DialoguePanel").gameObject;
-        DialogueText = pannel.transform.Find("DialogueText").GetComponent<Text>();
-        NameText = pannel.transform.Find("Name").Find("NameText").GetComponent<Text>();
-        Avatar = pannel.transform.Find("Avatar").GetComponent<Image>();
-        animator = pannel.GetComponent<Animator>();
+        if (transform.parent.GetComponent<Gamer>().isLocalPlayer)
+        {
+            _player = transform.parent.Find("player").GetComponent<player>();
+            //DialogueCanvas = GameObject.Find("Dialogue canvas");
+            GameObject pannel = DialogueCanvas.transform.Find("DialoguePanel").gameObject;
+            DialogueText = pannel.transform.Find("DialogueText").GetComponent<Text>();
+            NameText = pannel.transform.Find("Name").Find("NameText").GetComponent<Text>();
+            Avatar = pannel.transform.Find("Avatar").GetComponent<Image>();
+            animator = pannel.GetComponent<Animator>();
 
-        sentences = new Queue<string>();
-        names = new Queue<string>();
-        avatars = new Queue<Sprite>();
-        time = Time.timeScale;
-        animator.SetBool("IsOpen", false);
-        DialogueCanvas.SetActive(true);
+            sentences = new Queue<string>();
+            names = new Queue<string>();
+            avatars = new Queue<Sprite>();
+            time = Time.timeScale;
+            animator.SetBool("IsOpen", false);
+            DialogueCanvas.SetActive(true);
+        }
     }
 
     public void StartDialogue(DialogueColliderTrigger DialogueData)
