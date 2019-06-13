@@ -36,7 +36,7 @@ wss.on('connection', function connection(client) {
 
             // if port is currently not occupied by any process or is in use by BioDude server
             if ((stderr !== '' || stdout.indexOf('BioDude') !== -1) && port !== NETWORK_MANAGER_PORT) {
-                result = stdout.indexOf('BioDude') !== -1 ? 1 : 0;
+                result = stdout.indexOf('BioDude') === -1 ? 0 : 1;
                 suggestedPort = port;
                 // send response
                 client.send(JSON.stringify({result, suggestedPort}));

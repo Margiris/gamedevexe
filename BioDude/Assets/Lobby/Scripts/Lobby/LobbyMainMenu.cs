@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Sockets;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
 using Debug = UnityEngine.Debug;
@@ -103,7 +104,6 @@ namespace Prototype.NetworkLobby
             StartCoroutine(IsPortAvailable(!IsServerRunning));
 
             lobbyManager.ChangeTo(lobbyPanel);
-
             lobbyManager.networkAddress = StaticsConfig.SERVER_IP;
             lobbyManager.networkPort = int.Parse(ipInput.text) + StaticsConfig.PORT_OFFSET;
             lobbyManager.StartClient();
