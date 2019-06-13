@@ -14,12 +14,12 @@ public static class StaticsConfig
     public const bool IsServer = false;
 #endif
 
-//    public const string SERVER_IP = "127.0.0.1";
-    public const string SERVER_IP = "localhost";
+    public const string SERVER_IP = "127.0.0.1";
+//    public const string SERVER_IP = "localhost";
     public const int SERVER_PORT = 8000;
     public const int PORT_OFFSET = 0;
 
-    public const int RESPONSE_TIMEOUT = 5000;
+    public const int RESPONSE_TIMEOUT = 1000;
 
     /* error values:
         0 - port not occupied and server not running on that port

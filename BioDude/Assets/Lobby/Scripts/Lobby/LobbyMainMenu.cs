@@ -1,10 +1,11 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
-using System.Threading;
 using Debug = UnityEngine.Debug;
 
 namespace Prototype.NetworkLobby
@@ -61,11 +62,10 @@ namespace Prototype.NetworkLobby
             matchNameInput.onEndEdit.RemoveAllListeners();
             matchNameInput.onEndEdit.AddListener(onEndEditGameName);
 
-#if !UNITY_WEBGL
-            StartGameServer();
-#else
-            ConnectToServer();
-#endif
+            if (StaticsConfig.IsServer)
+                StartGameServer();
+            else
+                ConnectToServer();
         }
 
         public void StartGameServer()
@@ -100,7 +100,7 @@ namespace Prototype.NetworkLobby
 
         public void OnClickJoin()
         {
-            if (!IsPortAvailable(!IsServerRunning)) return;
+            StartCoroutine(IsPortAvailable(!IsServerRunning));
 
             lobbyManager.ChangeTo(lobbyPanel);
 
@@ -167,69 +167,68 @@ namespace Prototype.NetworkLobby
 
         public void OnPortChanged()
         {
-            if (!StaticsConfig.IsServer)
-                joinButton.interactable = IsPortAvailable();
-            Debug.Log(IsServerRunning);
+            if (StaticsConfig.IsServer) return;
+
+            joinButton.interactable = false;
+            StartCoroutine(IsPortAvailable());
         }
 
-        public bool IsPortAvailable(bool requestingServerStart = false)
+        public IEnumerator IsPortAvailable(bool requestingServerStart = false)
         {
+            bool available = false;
             int port;
-            if (!int.TryParse(ipInput.text, out port)) return false;
+            if (!int.TryParse(ipInput.text, out port)) yield break;
 
             Debug.Log("sending message " + requestingServerStart + "\t" + (port + StaticsConfig.PORT_OFFSET));
             // send message
-            SendString(requestingServerStart + "\t" + (port + StaticsConfig.PORT_OFFSET));
+            webSocket.SendString(requestingServerStart + "\t" + (port + StaticsConfig.PORT_OFFSET));
 
-            var stopwatch = Stopwatch.StartNew();
+            float startTime = Time.time;
+            float elapsedTime = 0;
 
-            while (stopwatch.Elapsed.TotalMilliseconds < StaticsConfig.RESPONSE_TIMEOUT)
+            // read response
+            string message = webSocket.RecvString();
+
+            // wait for message to not be empty until timeout
+            while (message == null && elapsedTime < StaticsConfig.RESPONSE_TIMEOUT)
             {
-                // read response
-                string message = ReceiveString();
-
-                // check if message is not empty
-                if (message != null)
-                {
-                    Debug.Log(message);
-                    PortData data = JsonUtility.FromJson<PortData>(message);
-
-                    portErrorMessage.text = StaticsConfig.PortErrorMessages[data.result];
-                    Debug.Log(
-                        string.Format("response was {0}, port {1} will be used.", data.result, data.suggestedPort));
-                    switch (data.result)
-                    {
-                        case 0:
-                            IsServerRunning = false;
-                            return true;
-                        case 1:
-                            IsServerRunning = true;
-                            return true;
-                        case 2:
-                            IsServerRunning = false;
-                            portErrorMessage.text +=
-                                ", suggested ID: " + (data.suggestedPort - StaticsConfig.PORT_OFFSET);
-                            return false;
-                    }
-                }
-
-                if (socketError != null)
-                    Debug.LogError("Error: " + socketError);
-
-                Thread.Sleep(StaticsConfig.RESPONSE_TIMEOUT / 100);
+                yield return new WaitForSeconds(0.5f);
+                elapsedTime = Time.time - startTime;
+                message = webSocket.RecvString();
             }
 
-            return false;
-        }
+            // break if not received message in time
+            if (message == null)
+                yield break;
+            
+            PortData data = JsonUtility.FromJson<PortData>(message);
 
-        private void SendString(string str)
-        {
-            webSocket.Send(Encoding.UTF8.GetBytes(str));
-        }
+            portErrorMessage.text = StaticsConfig.PortErrorMessages[data.result];
+            Debug.Log(
+                string.Format("response was {0}, port {1} will be used.", data.result, data.suggestedPort));
+            switch (data.result)
+            {
+                case 0:
+                    IsServerRunning = false;
+                    available = true;
+                    break;
+                case 1:
+                    IsServerRunning = true;
+                    available = true;
+                    break;
+                case 2:
+                    IsServerRunning = false;
+                    portErrorMessage.text +=
+                        ", suggested ID: " + (data.suggestedPort - StaticsConfig.PORT_OFFSET);
+                    available = false;
+                    break;
+            }
 
-        public string ReceiveString()
-        {
-            return socketMessages.Count == 0 ? null : Encoding.UTF8.GetString(socketMessages.Dequeue());
+
+            if (socketError != null)
+                Debug.LogError("Error: " + socketError);
+
+            joinButton.interactable = available;
         }
     }
 }

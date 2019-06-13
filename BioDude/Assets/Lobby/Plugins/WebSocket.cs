@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
+using System.Collections;
+using UnityEngine;
 using System.Runtime.InteropServices;
 
 public class WebSocket
@@ -68,7 +73,7 @@ public class WebSocket
         return buffer;
     }
 
-//    public IEnumerator Connect()
+//	public IEnumerator Connect()
     public void Connect()
     {
         m_NativeRef = SocketCreate(mUrl.ToString());
@@ -97,42 +102,43 @@ public class WebSocket
         }
     }
 #else
-	WebSocketSharp.WebSocket m_Socket;
-	Queue<byte[]> m_Messages = new Queue<byte[]>();
-	bool m_IsConnected = false;
-	string m_Error = null;
+    WebSocketSharp.WebSocket m_Socket;
+    Queue<byte[]> m_Messages = new Queue<byte[]>();
+    bool m_IsConnected = false;
+    string m_Error = null;
 
-	public void Connect()
-	{
-		m_Socket = new WebSocketSharp.WebSocket(mUrl.ToString());
-		m_Socket.OnMessage += (sender, e) => m_Messages.Enqueue (e.RawData);
-		m_Socket.OnOpen += (sender, e) => m_IsConnected = true;
-		m_Socket.OnError += (sender, e) => m_Error = e.Message;
-		m_Socket.Connect();
-	}
-    
-	public void Send(byte[] buffer)
-	{
-		m_Socket.Send(buffer);
-	}
+//	public IEnumerator Connect()
+    public void Connect()
+    {
+        m_Socket = new WebSocketSharp.WebSocket(mUrl.ToString());
+        m_Socket.OnMessage += (sender, e) => m_Messages.Enqueue(e.RawData);
+        m_Socket.OnOpen += (sender, e) => m_IsConnected = true;
+        m_Socket.OnError += (sender, e) => m_Error = e.Message;
+        m_Socket.ConnectAsync();
+//		while (!m_IsConnected && m_Error == null)
+//			yield return 0;
+    }
 
-	public byte[] Recv()
-	{
-		if (m_Messages.Count == 0)
-			return null;
-		return m_Messages.Dequeue();
-	}
+    public void Send(byte[] buffer)
+    {
+        m_Socket.Send(buffer);
+    }
 
-	public void Close()
-	{
-		m_Socket.Close();
-	}
+    public byte[] Recv()
+    {
+        if (m_Messages.Count == 0)
+            return null;
+        return m_Messages.Dequeue();
+    }
 
-	public string error
-	{
-		get {
-			return m_Error;
-		}
-	}
+    public void Close()
+    {
+        m_Socket.Close();
+    }
+
+    public string error
+    {
+        get { return m_Error; }
+    }
 #endif
 }
