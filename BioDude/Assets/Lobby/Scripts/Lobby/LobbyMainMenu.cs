@@ -102,10 +102,22 @@ namespace Prototype.NetworkLobby
         public void OnClickJoin()
         {
             StartCoroutine(IsPortAvailable(!IsServerRunning));
+            StartCoroutine(WaitForGameServerStartAndJoin());
+        }
 
+        private IEnumerator WaitForGameServerStartAndJoin()
+        {
+            int port = int.Parse(ipInput.text) + StaticsConfig.PORT_OFFSET;
+
+            while (!IsServerRunning)
+            {
+                yield return new WaitForSeconds(0.5f);
+                StartCoroutine(IsPortAvailable());
+            }
+            
             lobbyManager.ChangeTo(lobbyPanel);
             lobbyManager.networkAddress = StaticsConfig.SERVER_IP;
-            lobbyManager.networkPort = int.Parse(ipInput.text) + StaticsConfig.PORT_OFFSET;
+            lobbyManager.networkPort = port;
             lobbyManager.StartClient();
 
             lobbyManager.backDelegate = lobbyManager.StopClientClbk;
@@ -200,7 +212,7 @@ namespace Prototype.NetworkLobby
             // break if not received message in time
             if (message == null)
                 yield break;
-            
+
             PortData data = JsonUtility.FromJson<PortData>(message);
 
             portErrorMessage.text = StaticsConfig.PortErrorMessages[data.result];
