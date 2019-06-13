@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
-using System.Collections;
-using UnityEngine;
 using System.Runtime.InteropServices;
 
 public class WebSocket

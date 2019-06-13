@@ -3,10 +3,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net.Sockets;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
-using System.Text;
 using Debug = UnityEngine.Debug;
 
 namespace Prototype.NetworkLobby
