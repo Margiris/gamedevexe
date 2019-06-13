@@ -2699,6 +2699,7 @@ MonoBehaviour:
   joinButton: {fileID: 7532322311007142165}
   dedicatedServerStartButton: {fileID: 11478738}
   portErrorMessage: {fileID: 271240170}
+  IsServerRunning: 0
 --- !u!1 &149356
 GameObject:
   m_ObjectHideFlags: 0

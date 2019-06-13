@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
-using WebSocketSharp;
 using Debug = UnityEngine.Debug;
 
 namespace Prototype.NetworkLobby
@@ -38,7 +37,7 @@ namespace Prototype.NetworkLobby
 
         public Text portErrorMessage;
 
-        public bool IsServerRunning;
+        private bool IsServerRunning;
 
         private WebSocket webSocket;
         Queue<byte[]> socketMessages = new Queue<byte[]>();
@@ -63,6 +62,14 @@ namespace Prototype.NetworkLobby
             matchNameInput.onEndEdit.AddListener(onEndEditGameName);
 
 #if !UNITY_WEBGL
+            StartGameServer();
+#else
+            ConnectToServer();
+#endif
+        }
+
+        public void StartGameServer()
+        {
             var arguments = Environment.GetCommandLineArgs();
 
             if (arguments.Length < 2) return;
@@ -70,9 +77,6 @@ namespace Prototype.NetworkLobby
             ipInput.text = arguments[1];
             lobbyManager.backButton.interactable = false;
             initialized = true;
-#else
-            ConnectToServer();
-#endif
         }
 
         public void Update()
@@ -85,12 +89,7 @@ namespace Prototype.NetworkLobby
 
         private void ConnectToServer()
         {
-            webSocket = new WebSocket("ws://localhost:" + StaticsConfig.SERVER_PORT);
-
-            webSocket.OnMessage += (sender, e) => socketMessages.Enqueue(e.RawData);
-            webSocket.OnOpen += (sender, e) => socketIsConnected = true;
-            webSocket.OnError += (sender, e) => socketError = e.Message;
-
+            webSocket = new WebSocket(new Uri("ws://localhost:" + StaticsConfig.SERVER_PORT));
             webSocket.Connect();
         }
 

@@ -2,6 +2,7 @@ const WebSocket = require('ws');
 const exec = require("child_process").exec;
 let portScanner = require("portscanner");
 
+const NETWORK_MANAGER_PORT = 7777;
 const SERVER_PORT = 8000;
 // const PORT_OFFSET = 10000;
 const MAX_PORT = 20000;
@@ -34,14 +35,14 @@ wss.on('connection', function connection(client) {
             let suggestedPort;
 
             // if port is currently not occupied by any process or is in use by BioDude server
-            if (stderr !== '' || stdout.indexOf('BioDude') !== -1) {
+            if ((stderr !== '' || stdout.indexOf('BioDude') !== -1) && port !== NETWORK_MANAGER_PORT) {
                 result = stdout.indexOf('BioDude') !== -1 ? 1 : 0;
                 suggestedPort = port;
                 // send response
                 client.send(JSON.stringify({result, suggestedPort}));
             } else {
                 result = 2;
-                getRandomFreePortInRange(port, MAX_PORT, function (port) {
+                getRandomFreePortInRange(port + 1, MAX_PORT, function (port) {
                     suggestedPort = port;
                     // send response
                     client.send(JSON.stringify({result, suggestedPort}));
