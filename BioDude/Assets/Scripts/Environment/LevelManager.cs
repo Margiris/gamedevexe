@@ -6,9 +6,10 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 
 public class LevelManager : NetworkBehaviour {
-
-    [SerializeField]
+    
+    [SyncVar]
     int EnemiesOnMapLeft = 0;
+    [SyncVar]
     int playersOnMap = 0;
     public bool clear = false;
     [SerializeField]
@@ -16,14 +17,13 @@ public class LevelManager : NetworkBehaviour {
     PauseMenu Pausemenu;
     string LastLevelKeyName = "LastLevelCheckpoint";
     int IDxgen = 0;
-
     List<Gamer> players;
     List<Tank> enemies;
 
 	// Use this for initialization
     void Start()
     {
-        
+        Debug.Log("levelmanager start");
         GameObject obj = GameObject.Find("Pausemenu Canvas");
         Transform enemyparent = null;
         try
@@ -102,25 +102,31 @@ public class LevelManager : NetworkBehaviour {
     }
 
     //Player management
-    public int RegisterNewPlayer(Gamer player)
+    [Command]
+    public void CmdRegisterNewPlayer(GameObject player)
     {
         playersOnMap++;
-        players.Add(player);
-        player.setPLayerID(IDxgen++);
-        UpdateEnemies();
-        return players.Count - 1;
+        players.Add(player.GetComponent<Gamer>());
+        Debug.Log("Connecting new player"+ IDxgen);
+        player.GetComponent<Gamer>().setPLayerID(IDxgen++);
+        RpcUpdateEnemies();
+        //return players.Count - 1;
     }
     
-    public void DisconnectPlayer(int playerID)
+    [Command]
+    public void CmdDisconnectPlayer(int playerID)
     {
         players.Remove(players.Find(e => e.getPlayerID() == playerID));
         playersOnMap--;
-        UpdateEnemies();
+        RpcUpdateEnemies();
     }
 
-    void UpdateEnemies()
+    [ClientRpc]
+    void RpcUpdateEnemies()
     {
-        for(int i = 0; i < enemies.Count; i++)
+        Debug.Log("updating player for " + isServer);
+        Debug.Log(players);
+        for (int i = 0; i < enemies.Count; i++)
         {
             enemies[i].UpdatePLayerList(players);
         }

@@ -140,17 +140,17 @@ public class player : Character
 
     protected override void Die()
     {
-        ableToMove = false;
-        Destroy(gameObject.GetComponent<Rigidbody2D>());
-        Destroy(gameObject.GetComponent<CircleCollider2D>());
-        Debug.Log(deathSound);
-        Debug.Log(audioSource);
-        Debug.Log(audioSource.clip);
-        audioSource.clip = deathSound;
-        audioSource.Play();
-        //^^^ pakeist i player death animation
+        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
+        {
+            ableToMove = false;
+            Destroy(gameObject.GetComponent<Rigidbody2D>());
+            Destroy(gameObject.GetComponent<CircleCollider2D>());
+            audioSource.clip = deathSound;
+            audioSource.Play();
+            //^^^ pakeist i player death animation
 
-        StartCoroutine(PausemenuCanvas.PlayerDeath());
+            StartCoroutine(PausemenuCanvas.PlayerDeath());
+        }
     }
 
     public override void Damage(float amount)

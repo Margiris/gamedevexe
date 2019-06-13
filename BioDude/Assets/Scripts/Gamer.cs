@@ -22,7 +22,7 @@ public class Gamer : NetworkBehaviour
             PLKP = transform.Find("PlayerLastKnownPosition");
             playerAllerting = player.GetComponent<Allerting>();
             levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
-            levelManager.RegisterNewPlayer(this);
+            //levelManager.CmdRegisterNewPlayer(this);
         }
     }
 
@@ -36,7 +36,7 @@ public class Gamer : NetworkBehaviour
     {
         if (this.isLocalPlayer)
         {
-            levelManager.DisconnectPlayer(MyID);
+            //levelManager.CmdDisconnectPlayer(MyID);
         }
     }
 

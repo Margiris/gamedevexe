@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class FragGrenade : Explosive
 {
@@ -36,12 +37,13 @@ public class FragGrenade : Explosive
         countdown -= Time.deltaTime;
         if (countdown <= 0f && !exploded)
         {
-            Explode();
+            CmdExplode();
             exploded = true;
         }
     }
 
-    public override void Explode()
+    [Command]
+    public override void CmdExplode()
     {
         Instantiate(explosionEffect, transform.position, transform.rotation);
 
@@ -56,6 +58,6 @@ public class FragGrenade : Explosive
             }
         }
 
-        Destroy(gameObject);
+        NetworkServer.Destroy(gameObject);
     }
 }

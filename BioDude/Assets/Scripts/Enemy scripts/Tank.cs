@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Pathfinding;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 
 public abstract class Tank : Character
 {
@@ -20,6 +21,7 @@ public abstract class Tank : Character
     protected Transform head;
     public float widthOfFirePathChecker = 0.1f;
 
+    [SyncVar]
     public bool isAlerted = false;
 
     //private variables:
@@ -44,7 +46,9 @@ public abstract class Tank : Character
     protected Sprite isAlertedSprite;
 
 
+    [SyncVar]
     protected float distanceToPlayer;
+    [SyncVar]
     protected Vector2 directionToPlayer;
 
     //from single player stuff
@@ -62,10 +66,14 @@ public abstract class Tank : Character
     protected Dictionary<int, Transform> PLKPs;
     protected Dictionary<int, GameObject> players;
     protected Dictionary<int, Allerting> playerAlertings;
+    [SyncVar]
     protected int targetedPlayerID = -1;
     protected bool noOneSeen = true;
+    [SyncVar]
     protected int otherID = -1;
+    [SyncVar]
     Vector2 directionToOther;
+    [SyncVar]
     float distanceToOther;
     protected bool issensitive = true;
 
@@ -73,28 +81,38 @@ public abstract class Tank : Character
     protected virtual void Start () {
         //PLKP = GameObject.Find("PlayerLastKnownPosition").transform;
         //player = GameObject.Find("player");
+        if (isServer)
+        {
+            List<Gamer> playersData = GameObject.Find("LevelManager").GetComponent<LevelManager>().GetPlayersData();
+            UpdatePLayerList(playersData);
 
-        List<Gamer> playersData = GameObject.Find("LevelManager").GetComponent<LevelManager>().GetPlayersData();
-        UpdatePLayerList(playersData);
+            head = transform.Find("body");
+            headScript = head.GetComponent<Head>();
+            animator = GetComponent<Animator>();
 
-        head = transform.Find("body");
-        headScript = head.GetComponent<Head>();
-        animator = GetComponent<Animator>();
-        
-        alertionIndicatorAnimator = transform.Find("EnemyCanvas/AlertionIndicator").GetComponent<Animator>();
-        alertionIndicatorSpriteRenderer = transform.Find("EnemyCanvas/AlertionIndicator").GetComponent<SpriteRenderer>();
-        targetInVisionSprite = Resources.Load<Sprite>("e");
-        isAlertedSprite = Resources.Load<Sprite>("q");
-        
-        aiDestinationSetter = GetComponent<AIDestinationSetter>();
-        aiPatrol = GetComponent<Patrol>();
-        ai = GetComponent<IAstarAI>();
-        //playerAllerting = player.GetComponent<Allerting>();
-        HpBar = transform.Find("EnemyCanvas").GetComponent<EnemyHPBar>();
-        HpBar.Initiate();
-        healthCurrent = healthMax;
-        normalSpeed = ai.maxSpeed;
-        alertedSpeed = normalSpeed;
+            alertionIndicatorAnimator = transform.Find("EnemyCanvas/AlertionIndicator").GetComponent<Animator>();
+            alertionIndicatorSpriteRenderer = transform.Find("EnemyCanvas/AlertionIndicator").GetComponent<SpriteRenderer>();
+            targetInVisionSprite = Resources.Load<Sprite>("e");
+            isAlertedSprite = Resources.Load<Sprite>("q");
+
+            aiDestinationSetter = GetComponent<AIDestinationSetter>();
+            aiPatrol = GetComponent<Patrol>();
+            ai = GetComponent<IAstarAI>();
+            //playerAllerting = player.GetComponent<Allerting>();
+            HpBar = transform.GetComponent<EnemyHPBar>();
+            HpBar.Initiate();
+            healthCurrent = healthMax;
+            normalSpeed = ai.maxSpeed;
+            alertedSpeed = normalSpeed;
+            isAlerted = false;
+        }
+        else
+        {
+            ai = GetComponent<IAstarAI>();
+            ai.canMove = false;
+            gameObject.GetComponent<AIPath>().enabled = false;
+            gameObject.GetComponent<Patrol>().enabled = false;
+        }
     }
 
     //PUBLIC METHODS:
@@ -122,55 +140,58 @@ public abstract class Tank : Character
 
     protected virtual void Update()
     {
-        int prevTargetID = targetedPlayerID;
-        bool prevTargetInVision = targetInVision;
-        //////////// checkoing surroundings and changing targets
-        CheckVision();
-        // if target appeared in vision
-        if(prevTargetID == -1 && targetedPlayerID != -1)
+        if (isServer)
         {
-            BecomeAllerted();
+            int prevTargetID = targetedPlayerID;
+            bool prevTargetInVision = targetInVision;
+            //////////// checkoing surroundings and changing targets
+            CheckVision();
+            // if target appeared in vision
+            if (prevTargetID == -1 && targetedPlayerID != -1)
+            {
+                BecomeAllerted();
+            }
+            /////////////////////////////////////////////////////////
+
+
+            if (isAlerted) // if alerted     ///if not then patrolling
+            {
+                if (targetInVision && !prevTargetInVision) // appeared in vision
+                {
+                    StartSpecialAttack();
+                    SetAlertionIndicator();
+                }
+                else if (targetInVision) // continually in vision /// following player
+                {
+                    //if (prevTargetID != targetedPlayerID) // changed target
+                    //{
+                    //}
+                    FollowTarget();
+                    SpecialAttack();
+                }
+                else if (prevTargetInVision) // disappeared from vision
+                {
+                    if (playerAlertings[targetedPlayerID].howManySeeMe > 0) // still can follow 
+                    {
+
+                    }
+                    else // can't follow anymore
+                    {
+                        GoToPLKP();
+                    }
+                    SetAlertionIndicator();
+                    StopSpecialAttack();
+                }
+                else if (!prevTargetInVision) // continually not in vision
+                {
+                    if (ai.reachedEndOfPath && !ai.pathPending) // went to last known location and player not seen
+                    {
+                        LookAround();
+                    }
+                }
+            }
+            SetHeadRotation();
         }
-        /////////////////////////////////////////////////////////
-
-
-        if (isAlerted) // if alerted     ///if not then patrolling
-        {
-            if (targetInVision && !prevTargetInVision) // appeared in vision
-            {
-                StartSpecialAttack();
-                SetAlertionIndicator();
-            }
-            else if (targetInVision) // continually in vision /// following player
-            {
-                //if (prevTargetID != targetedPlayerID) // changed target
-                //{
-                //}
-                FollowTarget();
-                SpecialAttack();
-            }
-            else if (prevTargetInVision) // disappeared from vision
-            {
-                if(playerAlertings[targetedPlayerID].howManySeeMe > 0) // still can follow 
-                {
-
-                }
-                else // can't follow anymore
-                {
-                    GoToPLKP();
-                }
-                SetAlertionIndicator();
-                StopSpecialAttack();
-            }
-            else if(!prevTargetInVision) // continually not in vision
-            {
-                if (ai.reachedEndOfPath && !ai.pathPending) // went to last known location and player not seen
-                {
-                    LookAround();
-                }
-            }
-        }
-        SetHeadRotation();
     }
 
     //Stop pursuing player
@@ -186,17 +207,21 @@ public abstract class Tank : Character
     }
 
     //call this method to make enemy go to last known player position
-    public void PursuePlayer(int playerID)
+    [Command]
+    public void CmdPursuePlayer(int playerID)
     {
-        if (!isAlerted) // if idle
+        if (isServer)
         {
-            targetedPlayerID = playerID;
-            BecomeAllerted();
-        }
-        else if (issensitive) // allerted but sensitive (my target lost)
-        {
-            targetedPlayerID = playerID;
-            BecomeAllerted();
+            if (!isAlerted) // if idle
+            {
+                targetedPlayerID = playerID;
+                BecomeAllerted();
+            }
+            else if (issensitive) // allerted but sensitive (my target lost)
+            {
+                targetedPlayerID = playerID;
+                BecomeAllerted();
+            }
         }
     }
 
@@ -342,13 +367,21 @@ public abstract class Tank : Character
         }
         prevTargetsInVision = targetsInVision;
     }
-
+    
     protected void SetHeadRotation()
     {
         //Set head target direction: to player in vision or PLKP going to or if in patrol mode straight if looking dont set
         if (!isLooking)
         {
-            if (isAlerted && localSearchLocationsTried == 0) // alerted but not searching area around PLKP
+            if(isAlerted && localSearchLocationsTried == 0 && targetedPlayerID == -1)
+            {
+                Debug.Log("Tank LOGIC ERROR player target not selected, but alerted");
+                if (headScript != null)
+                    headScript.SetTargetAngle(VectorToAngle(transform.up));
+                else
+                    Debug.Log("Failure HeadScript not set");
+            }
+            else if (isAlerted && localSearchLocationsTried == 0) // alerted but not searching area around PLKP
             {
                 if (playerAlertings[targetedPlayerID].howManySeeMe > 0) // me or others can see my target
                 {
@@ -360,7 +393,10 @@ public abstract class Tank : Character
                 }
             }
             else {
-                headScript.SetTargetAngle(VectorToAngle(transform.up));
+                if (headScript != null)
+                    headScript.SetTargetAngle(VectorToAngle(transform.up));
+                else
+                    Debug.Log("Failure HeadScript not set");
             }
         }
     }
@@ -377,7 +413,7 @@ public abstract class Tank : Character
                 if(localSearchLocationsTried == 0 && otherID != -1) // went to PLKP and others can see other player
                 {
                     // change target if anyone can see anyone
-                    PursuePlayer(otherID);
+                    CmdPursuePlayer(otherID);
                 }
                 else
                 {
@@ -445,20 +481,24 @@ public abstract class Tank : Character
         return Mathf.Atan2(vect.y, vect.x) * Mathf.Rad2Deg - 90;
     }
 
-    public void DamageAlerting(float amount, int PlayerID = -1, Vector3 position = new Vector3())
+    [Command]
+    public void CmdDamageAlerting(float amount, int PlayerID = -1, Vector3 position = new Vector3())
     {
-        if(PlayerID != -1)
+        if(PlayerID != -1 && isServer)
         {
             PLKPs[PlayerID].position = position;
-            PursuePlayer(PlayerID);
+            CmdPursuePlayer(PlayerID);
         }
         Damage(amount);
     }
     // OVERRIDES:
     public override void Damage(float amount)
     {
-        base.Damage(amount);
-        HpBar.SetHealth(GetHealth());
+        if (isServer)
+        {
+            base.Damage(amount);
+            HpBar.RpcSetHealth(GetHealth());
+        }
     }
 
     protected override void Die()

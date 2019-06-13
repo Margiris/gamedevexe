@@ -61,7 +61,7 @@ public class Bullet : MonoBehaviour
                         Tank tankObj = charObj.gameObject.GetComponent<Tank>();
                         if(tankObj != null)
                         {
-                            tankObj.DamageAlerting(damage, OwnerID, creationLocation);
+                            tankObj.CmdDamageAlerting(damage, OwnerID, creationLocation);
                         }
                         else
                         {

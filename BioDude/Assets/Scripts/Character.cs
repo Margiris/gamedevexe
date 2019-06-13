@@ -6,8 +6,8 @@ using UnityEngine.Networking;
 abstract public class Character : NetworkBehaviour
 {
     public float healthMax; //{ get; protected set; }
-    [SerializeField]
-    public float healthCurrent { get; protected set; } 
+    [SyncVar]
+    public float healthCurrent; 
 
     protected abstract void Die(); // override
 

@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public abstract class Item : MonoBehaviour
+public abstract class Item : NetworkBehaviour
 {
     public string ItemName;
 	public Sprite sprite;

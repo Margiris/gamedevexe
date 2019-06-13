@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class GuidedMisile : Explosive {
@@ -38,23 +39,27 @@ public class GuidedMisile : Explosive {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-        Vector3 mousePos = Input.mousePosition;
-        mousePos.z = -10; // select distance = 10 units from the camera
-        Vector2 direction = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) - body.position;
+        if (hasAuthority)
+        {
+            Vector3 mousePos = Input.mousePosition;
+            mousePos.z = -10; // select distance = 10 units from the camera
+            Vector2 direction = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) - body.position;
 
-        direction.Normalize();
-        float rotateAmount = Vector3.Cross(direction, transform.up).z;
+            direction.Normalize();
+            float rotateAmount = Vector3.Cross(direction, transform.up).z;
 
-        body.angularVelocity = -rotateAmount * rotSpeed;
+            body.angularVelocity = -rotateAmount * rotSpeed;
 
-        body.velocity = transform.up * speed;
+            body.velocity = transform.up * speed;
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Explode();
     }
-    public override void Explode()
+    
+    public void Explode()
     {
         for (int i = 0; i < emitters.Length; i++)
         {
@@ -77,6 +82,6 @@ public class GuidedMisile : Explosive {
                 AddExplosionForce(rb, force, transform.position, radius, damage, ownerId, creationLocation);
             }
         }
-        Destroy(gameObject);
+        NetworkServer.Destroy(gameObject);
     }
 }

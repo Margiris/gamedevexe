@@ -14,7 +14,7 @@ public class Scarecrow : Character {
     // Use this for initialization
     void Start () {
 
-        HpBar = transform.Find("EnemyCanvas").GetComponent<EnemyHPBar>();
+        HpBar = transform.GetComponent<EnemyHPBar>();
         HpBar.Initiate();
         healthCurrent = healthMax;
     }
@@ -25,8 +25,11 @@ public class Scarecrow : Character {
 	}
     public override void Damage(float amount)
     {
-        base.Damage(amount);
-        HpBar.SetHealth(GetHealth());
+        if (isServer)
+        {
+            base.Damage(amount);
+            HpBar.RpcSetHealth(GetHealth());
+        }
     }
 
 }

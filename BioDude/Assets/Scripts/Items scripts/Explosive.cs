@@ -1,14 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class Explosive : MonoBehaviour {
+public class Explosive : NetworkBehaviour {
     public bool started = false;
     public float throwForce = 100f;
     public int AmmoType;
     protected Vector2 creationLocation;
-    protected int ownerId = -1;
-    public virtual void Explode()
+    public int ownerId = -1;
+    [Command]
+    public virtual void CmdExplode()
     {
     }
 
@@ -30,7 +32,7 @@ public class Explosive : MonoBehaviour {
                 Tank tankObj = charObj.gameObject.GetComponent<Tank>();
                 if (tankObj != null)
                 {
-                    tankObj.DamageAlerting(damage * calc, ownerId, creationLocation);
+                    tankObj.CmdDamageAlerting(damage * calc, ownerId, creationLocation);
                 }
                 else
                 {
@@ -43,6 +45,7 @@ public class Explosive : MonoBehaviour {
             }
         }
     }
+
     public virtual void Throw(float force)
     {
         Rigidbody2D rb = GetComponent<Rigidbody2D>();

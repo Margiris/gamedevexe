@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class Allerting : MonoBehaviour {
 
+    //[SyncVar]
     public uint howManySeeMe = 0;
     private Transform PLKP; //PlayerLastknownPosition
 
@@ -37,7 +39,7 @@ public class Allerting : MonoBehaviour {
                     plkpSet = true;
                     PLKP.position = transform.position;
                 }
-                obj.transform.GetComponent<Tank>().PursuePlayer(transform.parent.GetComponent<Gamer>().getPlayerID());
+                obj.transform.GetComponent<Tank>().CmdPursuePlayer(transform.parent.GetComponent<Gamer>().getPlayerID());
             }
         }
     }
