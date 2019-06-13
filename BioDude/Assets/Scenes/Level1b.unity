@@ -96347,5 +96347,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1433679252064700, guid: 8b32ac57595ad04498222161885280b5,
         type: 3}
+    - target: {fileID: 3917054982125135866, guid: 00750d642e045ec4fa4a832ec3844c93,
+        type: 3}
+      propertyPath: m_UseWebSockets
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 00750d642e045ec4fa4a832ec3844c93, type: 3}

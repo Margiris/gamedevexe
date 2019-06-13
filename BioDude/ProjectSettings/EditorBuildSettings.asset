@@ -23,7 +23,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Hazard Tiles.unity
     guid: f660de68546502f4dba5917d77cd1446
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Lobby.unity
     guid: c01154710d49b9e4ea3f7cc1a343e7c2
   - enabled: 1

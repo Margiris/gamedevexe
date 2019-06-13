@@ -79,7 +79,6 @@ public abstract class Tank : Character
 
         head = transform.Find("body");
         headScript = head.GetComponent<Head>();
-        Debug.Log(headScript);
         animator = GetComponent<Animator>();
         
         alertionIndicatorAnimator = transform.Find("EnemyCanvas/AlertionIndicator").GetComponent<Animator>();
@@ -361,7 +360,6 @@ public abstract class Tank : Character
                 }
             }
             else {
-                Debug.Log(headScript);
                 headScript.SetTargetAngle(VectorToAngle(transform.up));
             }
         }
