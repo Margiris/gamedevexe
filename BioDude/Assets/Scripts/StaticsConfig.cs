@@ -13,7 +13,7 @@
     public const string SERVER_IP = "127.0.0.1";
 //    public const string SERVER_IP = "localhost";
     public const int SERVER_PORT = 8000;
-    public const int PORT_OFFSET = 10000;
+    public const int PORT_OFFSET = 5000;
 
     public const int RESPONSE_TIMEOUT = 1000;
 

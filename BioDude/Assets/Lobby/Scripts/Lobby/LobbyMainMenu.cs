@@ -71,7 +71,7 @@ namespace Prototype.NetworkLobby
 
             if (arguments.Length < 2) return;
 
-            ipInput.text = arguments[1];
+            ipInput.text = (int.Parse(arguments[1]) - StaticsConfig.PORT_OFFSET).ToString();
             lobbyManager.backButton.interactable = false;
             initialized = true;
         }
@@ -103,6 +103,8 @@ namespace Prototype.NetworkLobby
 
         private IEnumerator WaitForGameServerStartAndJoin()
         {
+            lobbyManager.SetServerInfo("Connecting...", ipInput.text);
+
             int port = int.Parse(ipInput.text) + StaticsConfig.PORT_OFFSET;
 
             while (!IsServerRunning)
@@ -110,16 +112,14 @@ namespace Prototype.NetworkLobby
                 yield return new WaitForSeconds(0.5f);
                 StartCoroutine(IsPortAvailable());
             }
-            
+
             lobbyManager.ChangeTo(lobbyPanel);
             lobbyManager.networkAddress = StaticsConfig.SERVER_IP;
             lobbyManager.networkPort = port;
-            lobbyManager.StartClient();
 
             lobbyManager.backDelegate = lobbyManager.StopClientClbk;
             lobbyManager.DisplayIsConnecting();
-
-            lobbyManager.SetServerInfo("Connecting...", lobbyManager.networkAddress);
+            lobbyManager.StartClient();
         }
 
         public void OnClickDedicated()
@@ -130,7 +130,7 @@ namespace Prototype.NetworkLobby
 
             lobbyManager.backDelegate = lobbyManager.StopServerClbk;
 
-            lobbyManager.SetServerInfo("Dedicated Server", lobbyManager.networkAddress);
+            lobbyManager.SetServerInfo("Dedicated Server", lobbyManager.networkPort.ToString());
         }
 
         public void OnClickCreateMatchmakingGame()
