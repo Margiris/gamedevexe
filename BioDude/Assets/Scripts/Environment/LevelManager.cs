@@ -23,7 +23,7 @@ public class LevelManager : NetworkBehaviour {
 	// Use this for initialization
     void Start()
     {
-        Debug.Log("levelmanager start");
+        Debug.Log("levelmanager start :" + isServer);
         GameObject obj = GameObject.Find("Pausemenu Canvas");
         Transform enemyparent = null;
         try

@@ -81,6 +81,9 @@ public abstract class Tank : Character
     protected virtual void Start () {
         //PLKP = GameObject.Find("PlayerLastKnownPosition").transform;
         //player = GameObject.Find("player");
+        isAlerted = false;
+        HpBar = transform.GetComponent<EnemyHPBar>();
+        HpBar.Initiate();
         if (isServer)
         {
             List<Gamer> playersData = GameObject.Find("LevelManager").GetComponent<LevelManager>().GetPlayersData();
@@ -99,12 +102,9 @@ public abstract class Tank : Character
             aiPatrol = GetComponent<Patrol>();
             ai = GetComponent<IAstarAI>();
             //playerAllerting = player.GetComponent<Allerting>();
-            HpBar = transform.GetComponent<EnemyHPBar>();
-            HpBar.Initiate();
             healthCurrent = healthMax;
             normalSpeed = ai.maxSpeed;
             alertedSpeed = normalSpeed;
-            isAlerted = false;
         }
         else
         {
@@ -482,7 +482,7 @@ public abstract class Tank : Character
     }
 
     [Command]
-    public void CmdDamageAlerting(float amount, int PlayerID = -1, Vector3 position = new Vector3())
+    public void CmdDamageAlerting(float amount, int PlayerID, Vector3 position)
     {
         if(PlayerID != -1 && isServer)
         {

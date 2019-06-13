@@ -16,7 +16,7 @@ public class AmmoPickup : MonoBehaviour {
 	{
 		if(other.tag == "Player")
 		{
-			other.gameObject.GetComponent<WeaponManager>().AddAmmoByName(ammoName, ammoAmount);
+			other.gameObject.transform.parent.GetComponent<WeaponManager>().AddAmmoByName(ammoName, ammoAmount);
             Destroy(gameObject);
 		}
 	}

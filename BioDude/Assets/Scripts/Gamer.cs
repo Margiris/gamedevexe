@@ -15,14 +15,16 @@ public class Gamer : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("starting player isserver: " + isServer);
         if (this.isLocalPlayer)
         {
+            Debug.Log("Local player setting up stuff " );
             pausemenu = transform.Find("Pausemenu Canvas").GetComponent<PauseMenu>();
             player = transform.Find("player").gameObject;
             PLKP = transform.Find("PlayerLastKnownPosition");
             playerAllerting = player.GetComponent<Allerting>();
             levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
-            //levelManager.CmdRegisterNewPlayer(this);
+            levelManager.CmdRegisterNewPlayer(gameObject);
         }
     }
 
@@ -36,7 +38,7 @@ public class Gamer : NetworkBehaviour
     {
         if (this.isLocalPlayer)
         {
-            //levelManager.CmdDisconnectPlayer(MyID);
+            levelManager.CmdDisconnectPlayer(MyID);
         }
     }
 
