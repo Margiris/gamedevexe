@@ -111,7 +111,7 @@
 </head>
 
 <body>
-<video id="video-overlay" autoplay>
+<video id="video-overlay" autoplay onended="removeFromPage()" onclick="removeFromPage()">
     <source id='mp4'
             src="http://media.w3.org/2010/05/sintel/trailer.mp4"
             type='video/mp4'>
@@ -133,9 +133,21 @@
         <div class="full"></div>
     </div>
 </div>
+<script>
+    let gameInstance = null;
+
+    function removeFromPage() {
+        let introVideo = document.getElementById('video-overlay');
+        introVideo.pause();
+        introVideo.removeAttribute('src');
+        introVideo.load();
+        introVideo.parentNode.removeChild(introVideo);
+
+        gameInstance = UnityLoader.instantiate("gameContainer", "%UNITY_WEBGL_BUILD_URL%", {onProgress: UnityProgress});
+    }
+</script>
 <script src="%UNITY_WEBGL_LOADER_URL%"></script>
 <script>
-    const gameInstance = UnityLoader.instantiate("gameContainer", "%UNITY_WEBGL_BUILD_URL%", {onProgress: UnityProgress});
 
     function UnityProgress(gameInstance, progress) {
         if (!gameInstance.Module) {
