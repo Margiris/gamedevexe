@@ -1,0 +1,130 @@
+2019-06-14 17:25:57 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\zippe\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js --file "M:\KTU\3 k. 2 s\Interaktyvios interneto technologijos\gamedevexe\server\app.js" --log "BioDudeMatchmakingServer wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2019-06-14 17:25:57 - Started 2176
+2019-06-14 17:26:22 - Stopping biodudematchmakingserver.exe
+2019-06-14 17:26:22 - ProcessKill 2176
+2019-06-14 17:26:22 - Found child process: 5716 Name: conhost.exe
+2019-06-14 17:26:22 - Found child process: 3040 Name: node.exe
+2019-06-14 17:26:22 - Stopping process 5716
+2019-06-14 17:26:22 - Send SIGINT 5716
+2019-06-14 17:26:22 - SIGINT to 5716 failed - Killing as fallback
+2019-06-14 17:26:22 - Stopping process 3040
+2019-06-14 17:26:22 - Send SIGINT 3040
+2019-06-14 17:26:22 - SIGINT to 3040 failed - Killing as fallback
+2019-06-14 17:26:22 - Stopping process 2176
+2019-06-14 17:26:22 - Send SIGINT 2176
+2019-06-14 17:26:22 - SIGINT to 2176 failed - Killing as fallback
+2019-06-14 17:26:22 - Finished biodudematchmakingserver.exe
+2019-06-14 17:26:27 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\zippe\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js --file "M:\KTU\3 k. 2 s\Interaktyvios interneto technologijos\gamedevexe\server\app.js" --log "BioDudeMatchmakingServer wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2019-06-14 17:26:27 - Started 8556
+2019-06-14 17:28:40 - Stopping biodudematchmakingserver.exe
+2019-06-14 17:28:40 - ProcessKill 8556
+2019-06-14 17:28:40 - Found child process: 1676 Name: conhost.exe
+2019-06-14 17:28:40 - Found child process: 5756 Name: node.exe
+2019-06-14 17:28:40 - Stopping process 1676
+2019-06-14 17:28:40 - Send SIGINT 1676
+2019-06-14 17:28:40 - SIGINT to 1676 failed - Killing as fallback
+2019-06-14 17:28:40 - Stopping process 5756
+2019-06-14 17:28:40 - Send SIGINT 5756
+2019-06-14 17:28:40 - SIGINT to 5756 failed - Killing as fallback
+2019-06-14 17:28:40 - Stopping process 8556
+2019-06-14 17:28:40 - Send SIGINT 8556
+2019-06-14 17:28:40 - SIGINT to 8556 failed - Killing as fallback
+2019-06-14 17:28:40 - Finished biodudematchmakingserver.exe
+2019-06-14 17:28:50 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\zippe\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js --file "M:\KTU\3 k. 2 s\Interaktyvios interneto technologijos\gamedevexe\server\app.js" --log "BioDudeMatchmakingServer wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2019-06-14 17:28:50 - Started 16068
+2019-06-14 17:30:45 - Stopping biodudematchmakingserver.exe
+2019-06-14 17:30:45 - ProcessKill 16068
+2019-06-14 17:30:45 - Found child process: 11476 Name: conhost.exe
+2019-06-14 17:30:45 - Found child process: 11944 Name: node.exe
+2019-06-14 17:30:45 - Stopping process 11476
+2019-06-14 17:30:45 - Send SIGINT 11476
+2019-06-14 17:30:45 - SIGINT to 11476 failed - Killing as fallback
+2019-06-14 17:30:45 - Found child process: 13156 Name: cmd.exe
+2019-06-14 17:30:46 - Found child process: 6292 Name: cmd.exe
+2019-06-14 17:30:46 - Found child process: 7256 Name: cmd.exe
+2019-06-14 17:30:46 - Found child process: 11900 Name: cmd.exe
+2019-06-14 17:30:46 - Found child process: 14624 Name: conhost.exe
+2019-06-14 17:30:46 - Found child process: 13856 Name: BioDude.exe
+2019-06-14 17:30:46 - Stopping process 14624
+2019-06-14 17:30:46 - Send SIGINT 14624
+2019-06-14 17:30:46 - SIGINT to 14624 failed - Killing as fallback
+2019-06-14 17:30:46 - Found child process: 752 Name: UnityCrashHandler64.exe
+2019-06-14 17:30:46 - Stopping process 752
+2019-06-14 17:30:46 - Send SIGINT 752
+2019-06-14 17:30:46 - SIGINT to 752 failed - Killing as fallback
+2019-06-14 17:30:46 - Stopping process 13856
+2019-06-14 17:30:46 - Send SIGINT 13856
+2019-06-14 17:30:46 - SIGINT to 13856 failed - Killing as fallback
+2019-06-14 17:30:46 - Stopping process 13156
+2019-06-14 17:30:46 - Send SIGINT 13156
+2019-06-14 17:30:46 - SIGINT to 13156 failed - Killing as fallback
+2019-06-14 17:30:46 - Found child process: 12460 Name: conhost.exe
+2019-06-14 17:30:46 - Found child process: 5240 Name: powershell.exe
+2019-06-14 17:30:46 - Stopping process 12460
+2019-06-14 17:30:46 - Process 12460 is already stopped
+2019-06-14 17:30:46 - Stopping process 5240
+2019-06-14 17:30:46 - Process 5240 is already stopped
+2019-06-14 17:30:46 - Stopping process 6292
+2019-06-14 17:30:46 - Process 6292 is already stopped
+2019-06-14 17:30:46 - Found child process: 7540 Name: conhost.exe
+2019-06-14 17:30:46 - Found child process: 13240 Name: powershell.exe
+2019-06-14 17:30:46 - Stopping process 7540
+2019-06-14 17:30:46 - Send SIGINT 7540
+2019-06-14 17:30:46 - SIGINT to 7540 failed - Killing as fallback
+2019-06-14 17:30:46 - Stopping process 13240
+2019-06-14 17:30:46 - Send SIGINT 13240
+2019-06-14 17:30:46 - SIGINT to 13240 failed - Killing as fallback
+2019-06-14 17:30:46 - Stopping process 7256
+2019-06-14 17:30:46 - Send SIGINT 7256
+2019-06-14 17:30:46 - SIGINT to 7256 failed - Killing as fallback
+2019-06-14 17:30:46 - Finished biodudematchmakingserver.exe
+2019-06-14 17:42:17 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\zippe\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js --file "M:\KTU\3 k. 2 s\Interaktyvios interneto technologijos\gamedevexe\server\app.js" --log "BioDudeMatchmakingServer wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2019-06-14 17:42:17 - Started 10220
+2019-06-14 18:36:52 - Stopping biodudematchmakingserver.exe
+2019-06-14 18:36:52 - ProcessKill 10220
+2019-06-14 18:36:52 - Found child process: 16056 Name: conhost.exe
+2019-06-14 18:36:52 - Found child process: 10596 Name: node.exe
+2019-06-14 18:36:52 - Stopping process 16056
+2019-06-14 18:36:52 - Send SIGINT 16056
+2019-06-14 18:36:52 - SIGINT to 16056 failed - Killing as fallback
+2019-06-14 18:36:52 - Stopping process 10596
+2019-06-14 18:36:52 - Send SIGINT 10596
+2019-06-14 18:36:52 - SIGINT to 10596 failed - Killing as fallback
+2019-06-14 18:36:52 - Stopping process 10220
+2019-06-14 18:36:52 - Send SIGINT 10220
+2019-06-14 18:36:52 - SIGINT to 10220 failed - Killing as fallback
+2019-06-14 18:36:52 - Finished biodudematchmakingserver.exe
+2019-06-14 18:38:23 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\zippe\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js --file "M:\KTU\3 k. 2 s\Interaktyvios interneto technologijos\gamedevexe\server\app.js" --log "BioDudeMatchmakingServer wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2019-06-14 18:38:23 - Started 17376
+2019-06-14 18:40:07 - Stopping biodudematchmakingserver.exe
+2019-06-14 18:40:07 - ProcessKill 17376
+2019-06-14 18:40:07 - Found child process: 16796 Name: conhost.exe
+2019-06-14 18:40:07 - Found child process: 6688 Name: node.exe
+2019-06-14 18:40:07 - Stopping process 16796
+2019-06-14 18:40:07 - Send SIGINT 16796
+2019-06-14 18:40:07 - SIGINT to 16796 failed - Killing as fallback
+2019-06-14 18:40:07 - Stopping process 6688
+2019-06-14 18:40:07 - Send SIGINT 6688
+2019-06-14 18:40:07 - SIGINT to 6688 failed - Killing as fallback
+2019-06-14 18:40:07 - Stopping process 17376
+2019-06-14 18:40:07 - Send SIGINT 17376
+2019-06-14 18:40:07 - SIGINT to 17376 failed - Killing as fallback
+2019-06-14 18:40:07 - Finished biodudematchmakingserver.exe
+2019-06-14 18:40:08 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\zippe\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js --file "M:\KTU\3 k. 2 s\Interaktyvios interneto technologijos\gamedevexe\server\app.js" --log "BioDudeMatchmakingServer wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2019-06-14 18:40:08 - Started 4784
+2019-06-14 18:40:53 - Stopping biodudematchmakingserver.exe
+2019-06-14 18:40:53 - ProcessKill 4784
+2019-06-14 18:40:53 - Found child process: 6984 Name: conhost.exe
+2019-06-14 18:40:53 - Found child process: 9092 Name: node.exe
+2019-06-14 18:40:53 - Stopping process 6984
+2019-06-14 18:40:53 - Send SIGINT 6984
+2019-06-14 18:40:53 - SIGINT to 6984 failed - Killing as fallback
+2019-06-14 18:40:53 - Stopping process 9092
+2019-06-14 18:40:53 - Send SIGINT 9092
+2019-06-14 18:40:53 - SIGINT to 9092 failed - Killing as fallback
+2019-06-14 18:40:53 - Stopping process 4784
+2019-06-14 18:40:53 - Send SIGINT 4784
+2019-06-14 18:40:53 - SIGINT to 4784 failed - Killing as fallback
+2019-06-14 18:40:53 - Finished biodudematchmakingserver.exe
+2019-06-14 18:40:54 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\zippe\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js --file "M:\KTU\3 k. 2 s\Interaktyvios interneto technologijos\gamedevexe\server\app.js" --log "BioDudeMatchmakingServer wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2019-06-14 18:40:54 - Started 17676

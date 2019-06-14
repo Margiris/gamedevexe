@@ -35,8 +35,8 @@ wss.on('connection', function connection(client) {
             let suggestedPort;
 
             // if port is currently not occupied by any process or is in use by BioDude server
-            if ((stderr !== '' || stdout.indexOf('BioDude') !== -1) && port !== NETWORK_MANAGER_PORT) {
-                result = stdout.indexOf('BioDude') === -1 ? 0 : 1;
+            if ((stderr !== '' || stdout.indexOf('BioDude') !== -1 || stdout.indexOf('Unity') !== -1) && port !== NETWORK_MANAGER_PORT) {
+                result = (stdout.indexOf('BioDude') === -1 && stdout.indexOf('Unity') === -1) ? 0 : 1;
                 suggestedPort = port;
                 // send response
                 client.send(JSON.stringify({result, suggestedPort}));
@@ -50,7 +50,7 @@ wss.on('connection', function connection(client) {
             }
 
             if (result === 0 && requestingServerStart) {
-                cmd = '"M:\\KTU\\3 k. 2 s\\Interaktyvios interneto technologijos\\BioDude\\BioDude.exe" ' + port;
+                cmd = '"M:\\KTU\\3 k. 2 s\\Interaktyvios interneto technologijos\\BioDude\\BioDude.exe" ' + port + ' -batchmode';
                 console.log(cmd);
                 exec(cmd, function (err, stdout, stderr) {
                 });
