@@ -38,6 +38,11 @@ public class player : Character
             cam.GetComponent<CameraScript>().Player = this.gameObject;
 
         }
+        if (transform.parent.GetComponent<Gamer>().isServer)
+        {
+            if(healthCurrent <= 0)
+                healthCurrent = healthMax;
+        }
     }
 
     override protected void Initiate()
@@ -153,7 +158,7 @@ public class player : Character
         }
     }
 
-    public override void Damage(float amount)
+    public override void CmdDamage(float amount)
     {
 		healthCurrent -= amount;
         if (healthCurrent <= 0)

@@ -36,12 +36,12 @@ public class Explosive : NetworkBehaviour {
                 }
                 else
                 {
-                    charObj.Damage(damage * calc);
+                    charObj.CmdDamage(damage * calc);
                 }
             }
             else
             {
-                charObj.Damage(damage * calc);
+                charObj.CmdDamage(damage * calc);
             }
         }
     }

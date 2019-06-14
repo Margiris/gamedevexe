@@ -22,7 +22,8 @@ abstract public class Character : NetworkBehaviour
         return Mathf.RoundToInt(healthCurrent);
     }
 
-    public virtual void Damage(float amount)
+    [Command]
+    public virtual void CmdDamage(float amount)
 	{
 		healthCurrent -= amount;
         if (healthCurrent <= 0)

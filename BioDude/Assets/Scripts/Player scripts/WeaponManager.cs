@@ -560,7 +560,7 @@ public class WeaponManager : NetworkBehaviour
                                 CmdShootShotgun(activeWeaponRTip.transform.position, activeWeaponRTip.transform.rotation.eulerAngles.z, player.transform.right);
                                 break;
                             case 4:
-                                CmdShootDualPistol(activeWeaponRTip.transform.position, activeWeaponRTip.transform.rotation.eulerAngles.z, player.transform.right);
+                                CmdShootDualPistol(activeWeaponRTip.transform.position, activeWeaponLTip.transform.position, activeWeaponRTip.transform.rotation.eulerAngles.z, player.transform.right);
                                 break;
                         }
 
@@ -653,7 +653,7 @@ public class WeaponManager : NetworkBehaviour
     }
 
     [Command]
-    private void CmdShootDualPistol(Vector2 position, float rotation, Vector2 direction)
+    private void CmdShootDualPistol(Vector2 position, Vector2 position2, float rotation, Vector2 direction)
     {
         Weapon weaponScript = weaponArray[4].GetComponent<Weapon>();
         //EjectWeaponCartridgeCasing(weaponScript);
@@ -665,9 +665,9 @@ public class WeaponManager : NetworkBehaviour
         NetworkServer.Spawn(newBullet);
         if (weaponScript.currentClipAmmo > 1) // if only one bullet left in clip so two guns can't fire
         {
-            GameObject newBullet2 = Instantiate(weaponScript.projectile, position, Quaternion.Euler(0f, 0f, rotation + bulletAngle), projectiles);
+            GameObject newBullet2 = Instantiate(weaponScript.projectile, position2, Quaternion.Euler(0f, 0f, rotation + bulletAngle), projectiles);
             //newBullet2.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
-            BulletSettings(newBullet2, weaponScript, position);
+            BulletSettings(newBullet2, weaponScript, position2);
             NetworkServer.Spawn(newBullet);
             weaponScript.currentClipAmmo--;
         }
@@ -723,7 +723,7 @@ public class WeaponManager : NetworkBehaviour
             //mainCameraScript.AddOffset(knifeScript.cameraRecoil);
             if (charObj != null && collision.tag != "Player")
             {
-                charObj.Damage(knifeScript.damage);
+                charObj.CmdDamage(knifeScript.damage);
                 if (charObj.tag == "Enemy")
                 {
                     ParticleSystem emitter = Instantiate(impactMetal, contactPos, rot);

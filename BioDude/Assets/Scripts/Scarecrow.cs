@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class Scarecrow : Character {
 
@@ -23,11 +24,13 @@ public class Scarecrow : Character {
 	void Update () {
 		
 	}
-    public override void Damage(float amount)
+
+    [Command]
+    public override void CmdDamage(float amount)
     {
         if (isServer)
         {
-            base.Damage(amount);
+            base.CmdDamage(amount);
             HpBar.RpcSetHealth(GetHealth());
         }
     }

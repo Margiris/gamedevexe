@@ -129,12 +129,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Target: {fileID: 8932391316027698929}
   m_ChildIndex: 0
-  m_SendInterval: 0.09090909
+  m_SendInterval: 0.0625
   m_SyncRotationAxis: 3
   m_RotationSyncCompression: 0
   m_MovementThreshold: 0.001
   m_InterpolateRotation: 0.5
-  m_InterpolateMovement: 1
+  m_InterpolateMovement: 0.7
 --- !u!114 &936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -384,6 +384,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthMax: 100
+  healthCurrent: 0
   painSounds:
   - {fileID: 8300000, guid: 34de72b22d0f6914aa53505c5df2cd82, type: 3}
   - {fileID: 8300000, guid: ec8badc8f44c8434e8d290cb0771e979, type: 3}

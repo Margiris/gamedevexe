@@ -5,7 +5,9 @@ using UnityEngine.Networking;
 
 public class Gamer : NetworkBehaviour
 {
+    [SyncVar]
     int MyID = -1;
+    //[SyncVar]
     LevelManager levelManager;
     public GameObject player;
     public Transform PLKP;
@@ -15,10 +17,17 @@ public class Gamer : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("starting player isserver: " + isServer);
         if (this.isLocalPlayer)
         {
             Debug.Log("Local player setting up stuff " );
+            pausemenu = transform.Find("Pausemenu Canvas").GetComponent<PauseMenu>();
+            player = transform.Find("player").gameObject;
+            PLKP = transform.Find("PlayerLastKnownPosition");
+            playerAllerting = player.GetComponent<Allerting>();
+            levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+        }
+        if (isServer)
+        {
             pausemenu = transform.Find("Pausemenu Canvas").GetComponent<PauseMenu>();
             player = transform.Find("player").gameObject;
             PLKP = transform.Find("PlayerLastKnownPosition");
@@ -39,6 +48,7 @@ public class Gamer : NetworkBehaviour
         if (this.isLocalPlayer)
         {
             levelManager.CmdDisconnectPlayer(MyID);
+            NetworkServer.Destroy(gameObject);
         }
     }
 

@@ -160,7 +160,7 @@ public class HazardTiles : MonoBehaviour
 
     private void Damage()
     {
-        playerCharacter.Damage(damage * damageMultiplier);
+        playerCharacter.CmdDamage(damage * damageMultiplier);
     }
     
     private void Slow()

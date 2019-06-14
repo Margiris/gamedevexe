@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class Allerting : MonoBehaviour {
+public class Allerting : NetworkBehaviour {
 
     //[SyncVar]
     public uint howManySeeMe = 0;
@@ -39,6 +39,7 @@ public class Allerting : MonoBehaviour {
                     plkpSet = true;
                     PLKP.position = transform.position;
                 }
+                Debug.Log("my d is " + transform.parent.GetComponent<Gamer>().getPlayerID());
                 obj.transform.GetComponent<Tank>().CmdPursuePlayer(transform.parent.GetComponent<Gamer>().getPlayerID());
             }
         }

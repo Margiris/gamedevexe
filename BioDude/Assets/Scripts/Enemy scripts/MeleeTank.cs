@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Pathfinding;
 using UnityEngine.UI;
-
+using UnityEngine.Networking;
 
 // NOTE: Children order is important fro this script to work
 
@@ -27,28 +27,37 @@ public class MeleeTank : Tank
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Player")
+        if (isServer)
         {
-            targetInAttackRange = true;
-            animator.SetBool("TargetInRange", true);
-            target = collision.GetComponent<player>();
+            if (collision.tag == "Player")
+            {
+                targetInAttackRange = true;
+                animator.SetBool("TargetInRange", true);
+                target = collision.GetComponent<player>();
+            }
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.tag == "Player")
+        if (isServer)
         {
-            targetInAttackRange = false;
-            animator.SetBool("TargetInRange", false);
+            if (collision.tag == "Player")
+            {
+                targetInAttackRange = false;
+                animator.SetBool("TargetInRange", false);
+            }
         }
     }
 
     private void PerformAttack() // a smarter way of inflicting damage is required - this is nether secure nor efficient 
     {
-        if (targetInAttackRange)
+        if (isServer)
         {
-            target.Damage(Meleedamage);
+            if (targetInAttackRange)
+            {
+                target.CmdDamage(Meleedamage);
+            }
         }
     }
 
@@ -56,7 +65,7 @@ public class MeleeTank : Tank
     {
         base.Die();
         // enemy death: smokes and stoped movement
-        Destroy(gameObject);    //changed to gameobject because "this" destroys only MeleeTank script and the tank still chases player
+        NetworkServer.Destroy(gameObject);    //changed to gameobject because "this" destroys only MeleeTank script and the tank still chases player
     }
     
     

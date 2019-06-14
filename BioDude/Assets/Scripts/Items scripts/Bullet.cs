@@ -47,7 +47,7 @@ public class Bullet : MonoBehaviour
             {
                 if (charObj.tag == "Player")
                 {
-                    charObj.Damage(damage);
+                    charObj.CmdDamage(damage);
                     ParticleSystem emitter = Instantiate(impactFlesh, contactPos, rot);
                     // This splits the particle off so it doesn't get deleted with the parent
                     emitter.transform.parent = null;
@@ -65,12 +65,12 @@ public class Bullet : MonoBehaviour
                         }
                         else
                         {
-                            charObj.Damage(damage);
+                            charObj.CmdDamage(damage);
                         }
                     }
                     else
                     {
-                        charObj.Damage(damage);
+                        charObj.CmdDamage(damage);
                     }
                     ParticleSystem emitter = Instantiate(impactMetal, contactPos, rot);
                     // This splits the particle off so it doesn't get deleted with the parent

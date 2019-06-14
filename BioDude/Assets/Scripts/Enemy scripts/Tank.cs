@@ -41,9 +41,6 @@ public abstract class Tank : Character
     protected Animator animator;
 
     protected Animator alertionIndicatorAnimator;
-    protected SpriteRenderer alertionIndicatorSpriteRenderer;
-    protected Sprite targetInVisionSprite;
-    protected Sprite isAlertedSprite;
 
 
     [SyncVar]
@@ -86,17 +83,13 @@ public abstract class Tank : Character
         HpBar.Initiate();
         if (isServer)
         {
-            List<Gamer> playersData = GameObject.Find("LevelManager").GetComponent<LevelManager>().GetPlayersData();
-            UpdatePLayerList(playersData);
+            CmdUpdatePLayerList();
 
             head = transform.Find("body");
             headScript = head.GetComponent<Head>();
             animator = GetComponent<Animator>();
 
-            alertionIndicatorAnimator = transform.Find("EnemyCanvas/AlertionIndicator").GetComponent<Animator>();
-            alertionIndicatorSpriteRenderer = transform.Find("EnemyCanvas/AlertionIndicator").GetComponent<SpriteRenderer>();
-            targetInVisionSprite = Resources.Load<Sprite>("e");
-            isAlertedSprite = Resources.Load<Sprite>("q");
+            alertionIndicatorAnimator = transform.GetComponent<Animator>();
 
             aiDestinationSetter = GetComponent<AIDestinationSetter>();
             aiPatrol = GetComponent<Patrol>();
@@ -112,28 +105,36 @@ public abstract class Tank : Character
             ai.canMove = false;
             gameObject.GetComponent<AIPath>().enabled = false;
             gameObject.GetComponent<Patrol>().enabled = false;
+            gameObject.GetComponent<SimpleSmoothModifier>().enabled = false;
         }
     }
 
     //PUBLIC METHODS:
-
-    public void UpdatePLayerList(List<Gamer> gamers)
+    [Command]
+    public void CmdUpdatePLayerList()
     {
-        List<int> prevPlayersInVision = prevTargetsInVision;
-
-        prevTargetsInVision = new List<int>();
-        PLKPs = new Dictionary<int, Transform>();
-        players = new Dictionary<int, GameObject>();
-        playerAlertings = new Dictionary<int, Allerting>();
-        for (int i = 0; i < gamers.Count; i++)
+        if (isServer)
         {
-            int ID = gamers[i].getPlayerID();
-            playerAlertings.Add(ID, gamers[i].playerAllerting);
-            players.Add(ID, gamers[i].player);
-            PLKPs.Add(ID, gamers[i].PLKP);
-            if (prevPlayersInVision.Contains(ID))
+            List<GameObject> gamers = GameObject.Find("LevelManager").GetComponent<LevelManager>().GetPlayersData();
+            Debug.Log("updating LIST OF PLAYERS: " + gamers.Count);
+            List<int> prevPlayersInVision = prevTargetsInVision;
+
+            prevTargetsInVision = new List<int>();
+            PLKPs = new Dictionary<int, Transform>();
+            players = new Dictionary<int, GameObject>();
+            playerAlertings = new Dictionary<int, Allerting>();
+
+
+            for (int i = 0; i < gamers.Count; i++)
             {
-                prevTargetsInVision.Add(ID);
+                int ID = gamers[i].GetComponent<Gamer>().getPlayerID();
+                playerAlertings.Add(ID, gamers[i].GetComponent<Gamer>().playerAllerting);
+                players.Add(ID, gamers[i].GetComponent<Gamer>().player);
+                PLKPs.Add(ID, gamers[i].GetComponent<Gamer>().PLKP);
+                if (prevPlayersInVision.Contains(ID))
+                {
+                    prevTargetsInVision.Add(ID);
+                }
             }
         }
     }
@@ -291,6 +292,9 @@ public abstract class Tank : Character
         issensitive = true;
         foreach (var player in players)
         {
+            //Debug.Log(player);
+            //Debug.Log(player.Value);
+            //Debug.Log(player.Value.transform);
             float _distanceToPlayer = Vector2.Distance(player.Value.transform.position, transform.position);
             Vector2 _directionToPlayer = (player.Value.transform.position - transform.position).normalized;
             if (_distanceToPlayer < visionRange) // if in range
@@ -489,21 +493,22 @@ public abstract class Tank : Character
             PLKPs[PlayerID].position = position;
             CmdPursuePlayer(PlayerID);
         }
-        Damage(amount);
+        CmdDamage(amount);
     }
     // OVERRIDES:
-    public override void Damage(float amount)
+    [Command]
+    public override void CmdDamage(float amount)
     {
         if (isServer)
         {
-            base.Damage(amount);
+            base.CmdDamage(amount);
             HpBar.RpcSetHealth(GetHealth());
         }
     }
 
     protected override void Die()
     {
-        GameObject.Find("LevelManager").GetComponent<LevelManager>().EnemyDefeated();
+        GameObject.Find("LevelManager").GetComponent<LevelManager>().CmdEnemyDefeated(gameObject);
     }
     
     protected void SetAlertionIndicator()
@@ -513,20 +518,17 @@ public abstract class Tank : Character
             ai.maxSpeed = alertedSpeed;
             if (targetInVision)
             {
-                alertionIndicatorSpriteRenderer.sprite = targetInVisionSprite;
-                alertionIndicatorAnimator.SetFloat("Speed", 2);
+                alertionIndicatorAnimator.SetInteger("Alertion", 2);
             }
             else
             {
-                alertionIndicatorSpriteRenderer.sprite = isAlertedSprite;
-                alertionIndicatorAnimator.SetFloat("Speed", 1);
+                alertionIndicatorAnimator.SetInteger("Alertion", 1);
             }
         }
         else
         {
             ai.maxSpeed = normalSpeed;
-            alertionIndicatorSpriteRenderer.sprite = null;
-            alertionIndicatorAnimator.SetFloat("Speed", 0);
+            alertionIndicatorAnimator.SetInteger("Alertion", 0);
         }
     }
 }
