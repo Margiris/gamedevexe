@@ -47,13 +47,13 @@ MonoBehaviour:
   m_NetworkPort: 7777
   m_ServerBindToIP: 0
   m_ServerBindAddress: 
-  m_NetworkAddress: localhost
+  m_NetworkAddress: 158.129.26.45
   m_DontDestroyOnLoad: 1
   m_RunInBackground: 1
   m_ScriptCRCCheck: 1
   m_MaxDelay: 0.01
   m_LogLevel: 2
-  m_PlayerPrefab: {fileID: 224, guid: 398e9bf05becfa94c8a2933ce9ccedd6, type: 3}
+  m_PlayerPrefab: {fileID: 187, guid: 398e9bf05becfa94c8a2933ce9ccedd6, type: 3}
   m_AutoCreatePlayer: 1
   m_PlayerSpawnMethod: 1
   m_OfflineScene: 

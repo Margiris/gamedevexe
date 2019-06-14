@@ -83,7 +83,7 @@ namespace Prototype.NetworkLobby
 
         private void ConnectToServer()
         {
-            webSocket = new WebSocket(new Uri("ws://localhost:" + StaticsConfig.SERVER_PORT));
+            webSocket = new WebSocket(new Uri("ws://" + StaticsConfig.SERVER_IP + ":" + StaticsConfig.SERVER_PORT));
             webSocket.Connect();
         }
 

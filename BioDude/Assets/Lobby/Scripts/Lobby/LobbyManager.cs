@@ -56,7 +56,6 @@ namespace Prototype.NetworkLobby
 
         void Start()
         {
-            useWebSockets = !StaticsConfig.IsServer;
             s_Singleton = this;
             _lobbyHooks = GetComponent<Prototype.NetworkLobby.LobbyHook>();
             currentPanel = mainMenuPanel;
