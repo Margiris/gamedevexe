@@ -16,6 +16,8 @@ GameObject:
   - component: {fileID: 936}
   - component: {fileID: 447}
   - component: {fileID: 930}
+  - component: {fileID: 4437365490683601859}
+  - component: {fileID: 8545675627247748148}
   m_Layer: 0
   m_Name: Gamer
   m_TagString: Untagged
@@ -210,6 +212,40 @@ MonoBehaviour:
   param3: 
   param4: 
   param5: 
+--- !u!114 &4437365490683601859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41fc7c6e2e89b194e91fb5687113e02d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthMax: 100
+  healthCurrent: 0
+  painSounds:
+  - {fileID: 8300000, guid: 34de72b22d0f6914aa53505c5df2cd82, type: 3}
+  - {fileID: 8300000, guid: ec8badc8f44c8434e8d290cb0771e979, type: 3}
+  - {fileID: 8300000, guid: e486987c142b3294db1d20d3b0a5bda9, type: 3}
+  - {fileID: 8300000, guid: 09c90b8e639eac24da147acb1a6ff2a5, type: 3}
+  deathSound: {fileID: 8300000, guid: 23c8c88f528737a4c86425e6529cc325, type: 3}
+  cam: {fileID: 8913078901574014466}
+--- !u!114 &8545675627247748148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3da4be2e75d16694eb93ed2b0c19c318, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  howManySeeMe: 0
 --- !u!1 &8933454081564661631
 GameObject:
   m_ObjectHideFlags: 0
@@ -306,8 +342,6 @@ GameObject:
   - component: {fileID: 8932391316027698929}
   - component: {fileID: 8878354402641170657}
   - component: {fileID: 8884455358014356683}
-  - component: {fileID: 8821438462187160533}
-  - component: {fileID: 8822389755108685969}
   - component: {fileID: 8853503472825693585}
   - component: {fileID: 8853962312486348951}
   - component: {fileID: 8852402902738270055}
@@ -371,40 +405,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &8821438462187160533
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8934034429858834643}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41fc7c6e2e89b194e91fb5687113e02d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healthMax: 100
-  healthCurrent: 0
-  painSounds:
-  - {fileID: 8300000, guid: 34de72b22d0f6914aa53505c5df2cd82, type: 3}
-  - {fileID: 8300000, guid: ec8badc8f44c8434e8d290cb0771e979, type: 3}
-  - {fileID: 8300000, guid: e486987c142b3294db1d20d3b0a5bda9, type: 3}
-  - {fileID: 8300000, guid: 09c90b8e639eac24da147acb1a6ff2a5, type: 3}
-  deathSound: {fileID: 8300000, guid: 23c8c88f528737a4c86425e6529cc325, type: 3}
-  cam: {fileID: 8913078901574014466}
---- !u!114 &8822389755108685969
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8934034429858834643}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3da4be2e75d16694eb93ed2b0c19c318, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  howManySeeMe: 0
 --- !u!82 &8853503472825693585
 AudioSource:
   m_ObjectHideFlags: 0

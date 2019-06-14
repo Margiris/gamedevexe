@@ -33,6 +33,10 @@ public class Bullet : MonoBehaviour
     {
         //checking if collided with a character
         Character charObj = collision.gameObject.GetComponent<Character>();
+        if(charObj == null)
+        {
+            charObj = collision.transform.parent.gameObject.GetComponent<Character>();
+        }
         
         //getting contact points and setting rotation to the contact normal
         ContactPoint2D[] contacts = new ContactPoint2D[2];
@@ -47,7 +51,7 @@ public class Bullet : MonoBehaviour
             {
                 if (charObj.tag == "Player")
                 {
-                    charObj.CmdDamage(damage);
+                    charObj.Damage(damage);
                     ParticleSystem emitter = Instantiate(impactFlesh, contactPos, rot);
                     // This splits the particle off so it doesn't get deleted with the parent
                     emitter.transform.parent = null;
@@ -61,16 +65,16 @@ public class Bullet : MonoBehaviour
                         Tank tankObj = charObj.gameObject.GetComponent<Tank>();
                         if(tankObj != null)
                         {
-                            tankObj.CmdDamageAlerting(damage, OwnerID, creationLocation);
+                            tankObj.DamageAlerting(damage, OwnerID, creationLocation);
                         }
                         else
                         {
-                            charObj.CmdDamage(damage);
+                            charObj.Damage(damage);
                         }
                     }
                     else
                     {
-                        charObj.CmdDamage(damage);
+                        charObj.Damage(damage);
                     }
                     ParticleSystem emitter = Instantiate(impactMetal, contactPos, rot);
                     // This splits the particle off so it doesn't get deleted with the parent

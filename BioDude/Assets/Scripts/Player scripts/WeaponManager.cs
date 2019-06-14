@@ -140,11 +140,11 @@ public class WeaponManager : NetworkBehaviour
 
             //notifications = GameObject.Find("AchievementManager").GetComponent<AchievementManager>();
             knifeScript = knife.GetComponent<Knife>();
-            player = transform.Find("player").GetComponent<player>();
+            player = transform.GetComponent<player>();
             mainCameraScript = player.cam.GetComponent<CameraScript>();// GameObject.Find("Main Camera").GetComponent<CameraScript>();
                                                                                                   //guiManager = GameObject.Find("GUI").GetComponent<GUIManager>();
             playerAnimator = transform.GetComponent<NetworkAnimator>();
-            playerAlerting = transform.Find("player").GetComponent<Allerting>();
+            playerAlerting = transform.GetComponent<Allerting>();
             weaponAudioSource = transform.Find("player").GetComponent<AudioSource>();
             reloadAudioSource = transform.Find("player").GetComponents<AudioSource>()[2];
             emptyAudioSource = transform.Find("player").GetComponents<AudioSource>()[3];
@@ -723,7 +723,7 @@ public class WeaponManager : NetworkBehaviour
             //mainCameraScript.AddOffset(knifeScript.cameraRecoil);
             if (charObj != null && collision.tag != "Player")
             {
-                charObj.CmdDamage(knifeScript.damage);
+                charObj.Damage(knifeScript.damage);
                 if (charObj.tag == "Enemy")
                 {
                     ParticleSystem emitter = Instantiate(impactMetal, contactPos, rot);
@@ -942,27 +942,30 @@ public class WeaponManager : NetworkBehaviour
     /// <returns>return amount added or -1 if such ammo type doesn't exist</returns>
     public int AddAmmoByName(string name, int amount)
     {
-        for (int i = 0; i < fireArmAmmo.Length; i++)
+        if (isLocalPlayer)
         {
-            if (fireArmAmmo[i].name == name)
+            for (int i = 0; i < fireArmAmmo.Length; i++)
             {
-                int added = fireArmAmmo[i].AddAmmo(amount);
-                ReloadOnPickup(fireArmAmmo[i].name);
-                UpdateWeaponGUI();
-                UpdateBulletGUI();
-                //notifications.Notify(added.ToString() + " " + fireArmAmmo[i].name.ToString() + " ammo added");
-                return added;
+                if (fireArmAmmo[i].name == name)
+                {
+                    int added = fireArmAmmo[i].AddAmmo(amount);
+                    ReloadOnPickup(fireArmAmmo[i].name);
+                    UpdateWeaponGUI();
+                    UpdateBulletGUI();
+                    //notifications.Notify(added.ToString() + " " + fireArmAmmo[i].name.ToString() + " ammo added");
+                    return added;
+                }
             }
+            for (int i = 0; i < explosiveAmmo.Length; i++)
+                if (explosiveAmmo[i].name == name)
+                {
+                    int added = explosiveAmmo[i].AddAmmo(amount);
+                    UpdateWeaponGUI();
+                    UpdateExplosiveGUI();
+                    //notifications.Notify(added.ToString() + " " + explosiveAmmo[i].name.ToString() + " added");
+                    return added;
+                }
         }
-        for (int i = 0; i < explosiveAmmo.Length; i++)
-            if (explosiveAmmo[i].name == name)
-            {
-                int added = explosiveAmmo[i].AddAmmo(amount);
-                UpdateWeaponGUI();
-                UpdateExplosiveGUI();
-                //notifications.Notify(added.ToString() + " " + explosiveAmmo[i].name.ToString() + " added");
-                return added;
-            }
         return -1;
     }
 

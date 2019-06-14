@@ -33,7 +33,7 @@ public class MeleeTank : Tank
             {
                 targetInAttackRange = true;
                 animator.SetBool("TargetInRange", true);
-                target = collision.GetComponent<player>();
+                target = collision.transform.parent.GetComponent<player>();
             }
         }
     }
@@ -56,7 +56,7 @@ public class MeleeTank : Tank
         {
             if (targetInAttackRange)
             {
-                target.CmdDamage(Meleedamage);
+                target.Damage(Meleedamage);
             }
         }
     }

@@ -28,7 +28,7 @@ public class HazardTiles : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        playerCharacter = player.GetComponent<player>();
+        playerCharacter = player.transform.parent.GetComponent<player>();
         InvokeRepeating("AddSecond", 1f, 1f);  //1s delay, repeat every 1s
         switch (hazardId)
         {
@@ -160,7 +160,7 @@ public class HazardTiles : MonoBehaviour
 
     private void Damage()
     {
-        playerCharacter.CmdDamage(damage * damageMultiplier);
+        playerCharacter.Damage(damage * damageMultiplier);
     }
     
     private void Slow()

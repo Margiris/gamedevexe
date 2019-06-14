@@ -83,7 +83,7 @@ public abstract class Tank : Character
         HpBar.Initiate();
         if (isServer)
         {
-            CmdUpdatePLayerList();
+            UpdatePLayerList();
 
             head = transform.Find("body");
             headScript = head.GetComponent<Head>();
@@ -110,8 +110,7 @@ public abstract class Tank : Character
     }
 
     //PUBLIC METHODS:
-    [Command]
-    public void CmdUpdatePLayerList()
+    public void UpdatePLayerList()
     {
         if (isServer)
         {
@@ -210,6 +209,24 @@ public abstract class Tank : Character
     //call this method to make enemy go to last known player position
     [Command]
     public void CmdPursuePlayer(int playerID)
+    {
+        Debug.Log("Atejo alertinimas " + isServer + " / " + isLocalPlayer);
+        if (isServer)
+        {
+            if (!isAlerted) // if idle
+            {
+                targetedPlayerID = playerID;
+                BecomeAllerted();
+            }
+            else if (issensitive) // allerted but sensitive (my target lost)
+            {
+                targetedPlayerID = playerID;
+                BecomeAllerted();
+            }
+        }
+    }
+    
+    public void PursuePlayer(int playerID)
     {
         if (isServer)
         {
@@ -417,7 +434,7 @@ public abstract class Tank : Character
                 if(localSearchLocationsTried == 0 && otherID != -1) // went to PLKP and others can see other player
                 {
                     // change target if anyone can see anyone
-                    CmdPursuePlayer(otherID);
+                    PursuePlayer(otherID);
                 }
                 else
                 {
@@ -484,31 +501,29 @@ public abstract class Tank : Character
     {
         return Mathf.Atan2(vect.y, vect.x) * Mathf.Rad2Deg - 90;
     }
-
-    [Command]
-    public void CmdDamageAlerting(float amount, int PlayerID, Vector3 position)
+    
+    public void DamageAlerting(float amount, int PlayerID, Vector3 position)
     {
         if(PlayerID != -1 && isServer)
         {
             PLKPs[PlayerID].position = position;
-            CmdPursuePlayer(PlayerID);
+            PursuePlayer(PlayerID);
         }
-        CmdDamage(amount);
+        Damage(amount);
     }
     // OVERRIDES:
-    [Command]
-    public override void CmdDamage(float amount)
+    public override void Damage(float amount)
     {
         if (isServer)
         {
-            base.CmdDamage(amount);
+            base.Damage(amount);
             HpBar.RpcSetHealth(GetHealth());
         }
     }
 
     protected override void Die()
     {
-        GameObject.Find("LevelManager").GetComponent<LevelManager>().CmdEnemyDefeated(gameObject);
+        GameObject.Find("LevelManager").GetComponent<LevelManager>().EnemyDefeated(gameObject);
     }
     
     protected void SetAlertionIndicator()

@@ -24,13 +24,12 @@ public class Scarecrow : Character {
 	void Update () {
 		
 	}
-
-    [Command]
-    public override void CmdDamage(float amount)
+    
+    public override void Damage(float amount)
     {
         if (isServer)
         {
-            base.CmdDamage(amount);
+            base.Damage(amount);
             HpBar.RpcSetHealth(GetHealth());
         }
     }

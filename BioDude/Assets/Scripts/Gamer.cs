@@ -23,7 +23,7 @@ public class Gamer : NetworkBehaviour
             pausemenu = transform.Find("Pausemenu Canvas").GetComponent<PauseMenu>();
             player = transform.Find("player").gameObject;
             PLKP = transform.Find("PlayerLastKnownPosition");
-            playerAllerting = player.GetComponent<Allerting>();
+            playerAllerting = GetComponent<Allerting>();
             levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
         }
         if (isServer)
@@ -31,9 +31,9 @@ public class Gamer : NetworkBehaviour
             pausemenu = transform.Find("Pausemenu Canvas").GetComponent<PauseMenu>();
             player = transform.Find("player").gameObject;
             PLKP = transform.Find("PlayerLastKnownPosition");
-            playerAllerting = player.GetComponent<Allerting>();
+            playerAllerting = GetComponent<Allerting>();
             levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
-            levelManager.CmdRegisterNewPlayer(gameObject);
+            levelManager.RegisterNewPlayer(gameObject);
         }
     }
 

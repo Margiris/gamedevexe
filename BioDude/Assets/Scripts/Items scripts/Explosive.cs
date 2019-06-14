@@ -32,16 +32,16 @@ public class Explosive : NetworkBehaviour {
                 Tank tankObj = charObj.gameObject.GetComponent<Tank>();
                 if (tankObj != null)
                 {
-                    tankObj.CmdDamageAlerting(damage * calc, ownerId, creationLocation);
+                    tankObj.DamageAlerting(damage * calc, ownerId, creationLocation);
                 }
                 else
                 {
-                    charObj.CmdDamage(damage * calc);
+                    charObj.Damage(damage * calc);
                 }
             }
             else
             {
-                charObj.CmdDamage(damage * calc);
+                charObj.Damage(damage * calc);
             }
         }
     }

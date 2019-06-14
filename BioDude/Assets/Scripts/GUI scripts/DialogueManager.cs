@@ -24,7 +24,7 @@ public class DialogueManager : NetworkBehaviour {
     void Start () {
         if (transform.parent.GetComponent<Gamer>().isLocalPlayer)
         {
-            _player = transform.parent.Find("player").GetComponent<player>();
+            _player = transform.parent.GetComponent<player>();
             //DialogueCanvas = GameObject.Find("Dialogue canvas");
             GameObject pannel = DialogueCanvas.transform.Find("DialoguePanel").gameObject;
             DialogueText = pannel.transform.Find("DialogueText").GetComponent<Text>();

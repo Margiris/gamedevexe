@@ -53,7 +53,7 @@ public class LevelManagerTrigger : NetworkBehaviour {
     {
         if(other.tag == "Player")
         {
-            player Player = other.GetComponent<player>();
+            player Player = other.transform.parent.GetComponent<player>();
             if(Player != null)
             {
                 if (lvlManager.clear)

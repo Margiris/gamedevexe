@@ -109,9 +109,8 @@ public class LevelManager : NetworkBehaviour {
     {
         return PlayerPrefs.HasKey(LastLevelKeyName);
     }
-
-    [Command]
-    public void CmdEnemyDefeated(GameObject deadEnemy)
+    
+    public void EnemyDefeated(GameObject deadEnemy)
     {
         enemies.Remove(deadEnemy.GetComponent<Tank>());
         EnemiesOnMapLeft--;
@@ -131,27 +130,28 @@ public class LevelManager : NetworkBehaviour {
     }
 
     //Player management
-    [Command]
-    public void CmdRegisterNewPlayer(GameObject player)
+    public void RegisterNewPlayer(GameObject player)
     {
         playersOnMap++;
         players.Add(player);
         Debug.Log("Connecting new player"+ IDxgen);
         player.GetComponent<Gamer>().setPLayerID(IDxgen++);
-        CmdUpdateEnemies();
+        UpdateEnemies();
         //return players.Count - 1;
-    }
-    
-    [Command]
-    public void CmdDisconnectPlayer(int playerID)
-    {
-        players.Remove(players.Find(e => e.GetComponent<Gamer>().getPlayerID() == playerID));
-        playersOnMap--;
-        CmdUpdateEnemies();
     }
 
     [Command]
-    void CmdUpdateEnemies()
+    public void CmdDisconnectPlayer(int playerID)
+    {
+        if (isServer)
+        {
+            players.Remove(players.Find(e => e.GetComponent<Gamer>().getPlayerID() == playerID));
+            playersOnMap--;
+            UpdateEnemies();
+        }
+    }
+    
+    void UpdateEnemies()
     {
         if (isServer)
         {
@@ -159,7 +159,7 @@ public class LevelManager : NetworkBehaviour {
             Debug.Log(players);
             for (int i = 0; i < enemies.Count; i++)
             {
-                enemies[i].CmdUpdatePLayerList();
+                enemies[i].UpdatePLayerList();
             }
         }
     }
