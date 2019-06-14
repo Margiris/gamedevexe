@@ -38,9 +38,6 @@ namespace Prototype.NetworkLobby
         private bool IsServerRunning;
 
         private WebSocket webSocket;
-        Queue<byte[]> socketMessages = new Queue<byte[]>();
-        bool socketIsConnected;
-        string socketError;
 
         private bool initialized;
 
@@ -130,7 +127,7 @@ namespace Prototype.NetworkLobby
 
             lobbyManager.backDelegate = lobbyManager.StopServerClbk;
 
-            lobbyManager.SetServerInfo("Dedicated Server", lobbyManager.networkPort.ToString());
+            lobbyManager.SetServerInfo("Dedicated Server", ipInput.text);
         }
 
         public void OnClickCreateMatchmakingGame()
@@ -233,8 +230,8 @@ namespace Prototype.NetworkLobby
             }
 
 
-            if (socketError != null)
-                Debug.LogError("Error: " + socketError);
+            if (webSocket.error != null)
+                Debug.LogError("Error: " + webSocket.error);
 
             joinButton.interactable = available;
         }

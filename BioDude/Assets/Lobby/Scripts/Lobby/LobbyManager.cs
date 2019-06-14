@@ -56,6 +56,7 @@ namespace Prototype.NetworkLobby
 
         void Start()
         {
+            useWebSockets = !StaticsConfig.IsServer;
             s_Singleton = this;
             _lobbyHooks = GetComponent<Prototype.NetworkLobby.LobbyHook>();
             currentPanel = mainMenuPanel;
@@ -248,7 +249,7 @@ namespace Prototype.NetworkLobby
 
             ChangeTo(lobbyPanel);
             backDelegate = StopHostClbk;
-            SetServerInfo("Hosting", networkPort.ToString());
+            SetServerInfo("Hosting", (networkPort - StaticsConfig.PORT_OFFSET).ToString());
         }
 
 		public override void OnMatchCreate(bool success, string extendedInfo, MatchInfo matchInfo)
@@ -411,7 +412,7 @@ namespace Prototype.NetworkLobby
             {//only to do on pure client (not self hosting client)
                 ChangeTo(lobbyPanel);
                 backDelegate = StopClientClbk;
-                SetServerInfo("Client", networkPort.ToString());
+                SetServerInfo("Client", (networkPort - StaticsConfig.PORT_OFFSET).ToString());
             }
         }
 
