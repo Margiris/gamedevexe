@@ -56,6 +56,7 @@ namespace Prototype.NetworkLobby
 
         void Start()
         {
+            useWebSockets = !StaticsConfig.IsServer;
             s_Singleton = this;
             _lobbyHooks = GetComponent<Prototype.NetworkLobby.LobbyHook>();
             currentPanel = mainMenuPanel;
@@ -248,7 +249,7 @@ namespace Prototype.NetworkLobby
 
             ChangeTo(lobbyPanel);
             backDelegate = StopHostClbk;
-            SetServerInfo("Hosting", networkAddress);
+            SetServerInfo("Hosting", (networkPort - StaticsConfig.PORT_OFFSET).ToString());
         }
 
 		public override void OnMatchCreate(bool success, string extendedInfo, MatchInfo matchInfo)
@@ -365,7 +366,7 @@ namespace Prototype.NetworkLobby
             float remainingTime = prematchCountdown;
             int floorTime = Mathf.FloorToInt(remainingTime);
 
-            while (remainingTime > 0)
+            while (remainingTime >= 0)
             {
                 yield return null;
 
@@ -411,7 +412,7 @@ namespace Prototype.NetworkLobby
             {//only to do on pure client (not self hosting client)
                 ChangeTo(lobbyPanel);
                 backDelegate = StopClientClbk;
-                SetServerInfo("Client", networkAddress);
+                SetServerInfo("Client", (networkPort - StaticsConfig.PORT_OFFSET).ToString());
             }
         }
 

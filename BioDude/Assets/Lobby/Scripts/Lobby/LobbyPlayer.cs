@@ -37,11 +37,16 @@ namespace Prototype.NetworkLobby
         static Color NotReadyColor = new Color(34.0f / 255.0f, 44 / 255.0f, 55.0f / 255.0f, 1.0f);
         static Color ReadyColor = new Color(0.0f, 204.0f / 255.0f, 204.0f / 255.0f, 1.0f);
         static Color TransparentColor = new Color(0, 0, 0, 0);
-
+        
         //static Color OddRowColor = new Color(250.0f / 255.0f, 250.0f / 255.0f, 250.0f / 255.0f, 1.0f);
         //static Color EvenRowColor = new Color(180.0f / 255.0f, 180.0f / 255.0f, 180.0f / 255.0f, 1.0f);
 
 
+        static Color normalColor = new Color(255, 255, 255, 255);
+        static Color highlightedColor = new Color(231, 0, 0, 255);
+        static Color pressedColor = new Color(168, 0, 0, 255);
+        static Color disabledColor = new Color(200, 200, 200, 128);
+        
         public override void OnClientEnterLobby()
         {
             base.OnClientEnterLobby();
@@ -79,10 +84,10 @@ namespace Prototype.NetworkLobby
         void ChangeReadyButtonColor(Color c)
         {
             ColorBlock b = readyButton.colors;
-            b.normalColor = c;
-            b.pressedColor = c;
-            b.highlightedColor = c;
-            b.disabledColor = c;
+            b.normalColor = normalColor;
+            b.pressedColor = pressedColor;
+            b.highlightedColor = highlightedColor;
+            b.disabledColor = disabledColor;
             readyButton.colors = b;
         }
 
@@ -112,7 +117,7 @@ namespace Prototype.NetworkLobby
 
             ChangeReadyButtonColor(JoinColor);
 
-            readyButton.transform.GetChild(0).GetComponent<Text>().text = "JOIN";
+            readyButton.transform.GetChild(0).GetComponent<Text>().text = "Join";
             readyButton.interactable = true;
 
             //have to use child count of player prefab already setup as "this.slot" is not set yet
@@ -158,7 +163,7 @@ namespace Prototype.NetworkLobby
 
                 Text textComponent = readyButton.transform.GetChild(0).GetComponent<Text>();
                 textComponent.text = "READY";
-                textComponent.color = ReadyColor;
+                textComponent.color = disabledColor;
                 readyButton.interactable = false;
                 colorButton.interactable = false;
                 nameInput.interactable = false;
@@ -169,7 +174,7 @@ namespace Prototype.NetworkLobby
 
                 Text textComponent = readyButton.transform.GetChild(0).GetComponent<Text>();
                 textComponent.text = isLocalPlayer ? "JOIN" : "...";
-                textComponent.color = Color.white;
+                textComponent.color = normalColor;
                 readyButton.interactable = isLocalPlayer;
                 colorButton.interactable = isLocalPlayer;
                 nameInput.interactable = isLocalPlayer;

@@ -45699,6 +45699,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 201, guid: cd8f73bc627c165408f94a8af6acdaf8, type: 3}
+      propertyPath: m_Name
+      value: tankM01
+      objectReference: {fileID: 0}
     - target: {fileID: 845, guid: cd8f73bc627c165408f94a8af6acdaf8, type: 3}
       propertyPath: m_AssetId.i0
       value: 205
@@ -45806,10 +45810,6 @@ PrefabInstance:
     - target: {fileID: 393, guid: cd8f73bc627c165408f94a8af6acdaf8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 201, guid: cd8f73bc627c165408f94a8af6acdaf8, type: 3}
-      propertyPath: m_Name
-      value: tankM01
       objectReference: {fileID: 0}
     - target: {fileID: 676, guid: cd8f73bc627c165408f94a8af6acdaf8, type: 3}
       propertyPath: m_AnchorMax.x
@@ -96723,7 +96723,7 @@ PrefabInstance:
     - target: {fileID: 3917054982125135866, guid: 00750d642e045ec4fa4a832ec3844c93,
         type: 3}
       propertyPath: m_UseWebSockets
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3917054982125135866, guid: 00750d642e045ec4fa4a832ec3844c93,
         type: 3}
