@@ -4679,6 +4679,7 @@ MonoBehaviour:
   started: 0
   throwForce: 100
   AmmoType: 0
+  ownerId: -1
   speed: 5
   rotSpeed: 200
   radius: 3

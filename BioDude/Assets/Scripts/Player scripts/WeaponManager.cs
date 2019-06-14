@@ -99,7 +99,7 @@ public class WeaponManager : NetworkBehaviour
     //private SpriteRenderer spriteRenderer;
     private player player;
     private Allerting playerAlerting;
-    private Animator playerAnimator;
+    private NetworkAnimator playerAnimator;
     private int selectedFireArm = -1;
     private int selectedExplosive = -1;
     private Transform projectiles;
@@ -140,11 +140,11 @@ public class WeaponManager : NetworkBehaviour
 
             //notifications = GameObject.Find("AchievementManager").GetComponent<AchievementManager>();
             knifeScript = knife.GetComponent<Knife>();
-            player = transform.Find("player").GetComponent<player>();
+            player = transform.GetComponent<player>();
             mainCameraScript = player.cam.GetComponent<CameraScript>();// GameObject.Find("Main Camera").GetComponent<CameraScript>();
                                                                                                   //guiManager = GameObject.Find("GUI").GetComponent<GUIManager>();
-            playerAnimator = transform.GetComponent<Animator>();
-            playerAlerting = transform.Find("player").GetComponent<Allerting>();
+            playerAnimator = transform.GetComponent<NetworkAnimator>();
+            playerAlerting = transform.GetComponent<Allerting>();
             weaponAudioSource = transform.Find("player").GetComponent<AudioSource>();
             reloadAudioSource = transform.Find("player").GetComponents<AudioSource>()[2];
             emptyAudioSource = transform.Find("player").GetComponents<AudioSource>()[3];
@@ -375,7 +375,7 @@ public class WeaponManager : NetworkBehaviour
     
     private void UpdateWeapon()
     {
-        playerAnimator.SetInteger("Weapon", selectedFireArm);
+        playerAnimator.animator.SetInteger("Weapon", selectedFireArm);
         if (selectedFireArm == -1) // selected knife
         {
             knifeScript.Equip(leftHandSlot);
@@ -493,7 +493,7 @@ public class WeaponManager : NetworkBehaviour
         reloadAudioSource.Play();
 
         isReloading = true;
-        playerAnimator.SetFloat("reloadSpeed", 1 / aWeaponScript.reloadTime);
+        playerAnimator.animator.SetFloat("reloadSpeed", 1 / aWeaponScript.reloadTime);
         playerAnimator.SetTrigger("playerReload");
         
         yield return new WaitForSeconds(aWeaponScript.reloadTime);
@@ -560,7 +560,7 @@ public class WeaponManager : NetworkBehaviour
                                 CmdShootShotgun(activeWeaponRTip.transform.position, activeWeaponRTip.transform.rotation.eulerAngles.z, player.transform.right);
                                 break;
                             case 4:
-                                CmdShootDualPistol(activeWeaponRTip.transform.position, activeWeaponRTip.transform.rotation.eulerAngles.z, player.transform.right);
+                                CmdShootDualPistol(activeWeaponRTip.transform.position, activeWeaponLTip.transform.position, activeWeaponRTip.transform.rotation.eulerAngles.z, player.transform.right);
                                 break;
                         }
 
@@ -610,10 +610,16 @@ public class WeaponManager : NetworkBehaviour
     private void CmdShootRocket(Vector2 position, float rotation, Vector2 direction)
     {
         Weapon weaponScript = weaponArray[1].GetComponent<Weapon>();
-        GameObject newRocket = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position, rightHandSlot.transform.rotation);
-        RocketLauncher rocketLauncher = weaponArray[selectedFireArm].GetComponent<RocketLauncher>();
-        newRocket.GetComponent<GuidedMisile>().Instantiate(rocketLauncher.projectileSpeed, rocketLauncher.rotationSpeed, rocketLauncher.radius, rocketLauncher.force, playerID);
-        NetworkServer.Spawn(newRocket);
+        GameObject newRocket = Instantiate(weaponScript.projectile, position, Quaternion.Euler(0f, 0f, rotation));
+        RocketLauncher rocketLauncher = weaponArray[1].GetComponent<RocketLauncher>();
+        //newRocket.GetComponent<GuidedMisile>().Instantiate(rocketLauncher.projectileSpeed, rocketLauncher.rotationSpeed, rocketLauncher.radius, rocketLauncher.force, playerID);
+        newRocket.GetComponent<Explosive>().ownerId = playerID;
+        newRocket.GetComponent<GuidedMisile>().rotSpeed = rocketLauncher.rotationSpeed;
+        newRocket.GetComponent<GuidedMisile>().speed = rocketLauncher.projectileSpeed;
+        newRocket.GetComponent<GuidedMisile>().radius = rocketLauncher.radius;
+        newRocket.GetComponent<GuidedMisile>().force = rocketLauncher.force;
+
+        NetworkServer.SpawnWithClientAuthority(newRocket, gameObject.GetComponent<NetworkIdentity>().connectionToClient);
     }
 
     [Command]
@@ -622,8 +628,8 @@ public class WeaponManager : NetworkBehaviour
         Weapon weaponScript = weaponArray[2].GetComponent<Weapon>();
         //EjectWeaponCartridgeCasing(weaponScript);
         float bulletAngle = Random.Range(-weaponScript.accuracy, weaponScript.accuracy);
-        GameObject newBullet = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position , Quaternion.Euler(0f, 0f, activeWeaponRTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
-        newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
+        GameObject newBullet = Instantiate(weaponScript.projectile, position , Quaternion.Euler(0f, 0f, rotation + bulletAngle), projectiles);
+        //newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
         BulletSettings(newBullet, weaponScript, position);
         NetworkServer.Spawn(newBullet);
     }
@@ -632,38 +638,38 @@ public class WeaponManager : NetworkBehaviour
     private void CmdShootShotgun(Vector2 position, float rotation, Vector2 direction)
     {
         Weapon weaponScript = weaponArray[3].GetComponent<Weapon>();
-        Shotgun shotgunscript = weaponArray[selectedFireArm].GetComponent<Shotgun>();
+        Shotgun shotgunscript = weaponArray[3].GetComponent<Shotgun>();
         //EjectWeaponCartridgeCasing(shotgunscript);
         float bulletAngle;
         GameObject newBullet;
         for (int i = 0; i < shotgunscript.bulletCount; i++)
         {
             bulletAngle = Random.Range(-shotgunscript.accuracy, shotgunscript.accuracy);
-            newBullet = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position, Quaternion.Euler(0f, 0f, activeWeaponRTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
-            newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
+            newBullet = Instantiate(weaponScript.projectile, position, Quaternion.Euler(0f, 0f, rotation + bulletAngle), projectiles);
+            //newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
             BulletSettings(newBullet, weaponScript, position);
             NetworkServer.Spawn(newBullet);
         }
     }
 
     [Command]
-    private void CmdShootDualPistol(Vector2 position, float rotation, Vector2 direction)
+    private void CmdShootDualPistol(Vector2 position, Vector2 position2, float rotation, Vector2 direction)
     {
         Weapon weaponScript = weaponArray[4].GetComponent<Weapon>();
         //EjectWeaponCartridgeCasing(weaponScript);
         //EjectWeaponCartridgeCasing(weaponScript, "l");
         float bulletAngle = Random.Range(-weaponScript.accuracy, weaponScript.accuracy);
-        GameObject newBullet = Instantiate(aWeaponScript.projectile, activeWeaponRTip.transform.position, Quaternion.Euler(0f, 0f, activeWeaponRTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
-        newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
+        GameObject newBullet = Instantiate(weaponScript.projectile, position, Quaternion.Euler(0f, 0f, rotation + bulletAngle), projectiles);
+        //newBullet.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
         BulletSettings(newBullet, weaponScript, position);
         NetworkServer.Spawn(newBullet);
-        if (aWeaponScript.currentClipAmmo > 1) // if only one bullet left in clip so two guns can't fire
+        if (weaponScript.currentClipAmmo > 1) // if only one bullet left in clip so two guns can't fire
         {
-            GameObject newBullet2 = Instantiate(aWeaponScript.projectile, activeWeaponLTip.transform.position, Quaternion.Euler(0f, 0f, activeWeaponLTip.transform.rotation.eulerAngles.z + bulletAngle), projectiles);
-            newBullet2.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
-            BulletSettings(newBullet, weaponScript, position);
+            GameObject newBullet2 = Instantiate(weaponScript.projectile, position2, Quaternion.Euler(0f, 0f, rotation + bulletAngle), projectiles);
+            //newBullet2.GetComponent<Bullet>().Instantiate(aWeaponScript.timeUntilSelfDestrucion, aWeaponScript.projectileSpeed, aWeaponScript.damage, playerID);
+            BulletSettings(newBullet2, weaponScript, position2);
             NetworkServer.Spawn(newBullet);
-            aWeaponScript.currentClipAmmo--;
+            weaponScript.currentClipAmmo--;
         }
     }
 
@@ -936,27 +942,30 @@ public class WeaponManager : NetworkBehaviour
     /// <returns>return amount added or -1 if such ammo type doesn't exist</returns>
     public int AddAmmoByName(string name, int amount)
     {
-        for (int i = 0; i < fireArmAmmo.Length; i++)
+        if (isLocalPlayer)
         {
-            if (fireArmAmmo[i].name == name)
+            for (int i = 0; i < fireArmAmmo.Length; i++)
             {
-                int added = fireArmAmmo[i].AddAmmo(amount);
-                ReloadOnPickup(fireArmAmmo[i].name);
-                UpdateWeaponGUI();
-                UpdateBulletGUI();
-                //notifications.Notify(added.ToString() + " " + fireArmAmmo[i].name.ToString() + " ammo added");
-                return added;
+                if (fireArmAmmo[i].name == name)
+                {
+                    int added = fireArmAmmo[i].AddAmmo(amount);
+                    ReloadOnPickup(fireArmAmmo[i].name);
+                    UpdateWeaponGUI();
+                    UpdateBulletGUI();
+                    //notifications.Notify(added.ToString() + " " + fireArmAmmo[i].name.ToString() + " ammo added");
+                    return added;
+                }
             }
+            for (int i = 0; i < explosiveAmmo.Length; i++)
+                if (explosiveAmmo[i].name == name)
+                {
+                    int added = explosiveAmmo[i].AddAmmo(amount);
+                    UpdateWeaponGUI();
+                    UpdateExplosiveGUI();
+                    //notifications.Notify(added.ToString() + " " + explosiveAmmo[i].name.ToString() + " added");
+                    return added;
+                }
         }
-        for (int i = 0; i < explosiveAmmo.Length; i++)
-            if (explosiveAmmo[i].name == name)
-            {
-                int added = explosiveAmmo[i].AddAmmo(amount);
-                UpdateWeaponGUI();
-                UpdateExplosiveGUI();
-                //notifications.Notify(added.ToString() + " " + explosiveAmmo[i].name.ToString() + " added");
-                return added;
-            }
         return -1;
     }
 

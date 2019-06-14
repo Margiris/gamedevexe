@@ -33,6 +33,10 @@ public class Bullet : MonoBehaviour
     {
         //checking if collided with a character
         Character charObj = collision.gameObject.GetComponent<Character>();
+        if(charObj == null)
+        {
+            charObj = collision.transform.parent.gameObject.GetComponent<Character>();
+        }
         
         //getting contact points and setting rotation to the contact normal
         ContactPoint2D[] contacts = new ContactPoint2D[2];

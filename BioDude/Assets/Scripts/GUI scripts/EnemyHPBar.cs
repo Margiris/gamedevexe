@@ -2,35 +2,40 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
-public class EnemyHPBar : MonoBehaviour {
+public class EnemyHPBar : NetworkBehaviour {
 
     public Slider HpSlider;
     float height;
     Character EnemyCharacter;
     GameObject EnemyObject;
+    Transform canvas;
 
     Vector3 EnemyWorldPos;
     Quaternion rotation;
     void Start()
     {
-        EnemyObject = gameObject.transform.parent.gameObject;
-        height = gameObject.transform.position.y - EnemyObject.transform.position.y;
-        rotation = transform.rotation;
+        canvas = transform.Find("EnemyCanvas");
+        EnemyObject = gameObject;
+        height = canvas.position.y - transform.position.y;
+        rotation = canvas.rotation;
     }
     public void Initiate()
     {
-        EnemyCharacter = gameObject.transform.parent.gameObject.GetComponent<Character>(); //somewhy nullreference when using EnemyObject
+        EnemyCharacter = gameObject.GetComponent<Character>(); //somewhy nullreference when using EnemyObject
         HpSlider.maxValue = EnemyCharacter.healthMax;
         HpSlider.value = EnemyCharacter.healthCurrent;
         HpSlider.gameObject.SetActive(false);
     }
     void LateUpdate()
     {
-        transform.position = new Vector3(EnemyObject.transform.position.x, EnemyObject.transform.position.y + height, 0);
-        transform.rotation = rotation;
+        canvas.transform.position = new Vector3(EnemyObject.transform.position.x, EnemyObject.transform.position.y + height, 0);
+        canvas.transform.rotation = rotation;
     }
-    public void SetHealth(float value)
+
+    [ClientRpc]
+    public void RpcSetHealth(float value)
     {
         if (!HpSlider.gameObject.activeInHierarchy && HpSlider.maxValue > value)
         {

@@ -129,7 +129,7 @@ public class CameraScript : NetworkBehaviour {
         {
             if (direction == Vector2.zero)
             {
-                float dirAngle = Player.GetComponent<player>().GetDirectionAngle() * Mathf.Deg2Rad;
+                float dirAngle = Player.transform.parent.GetComponent<player>().GetDirectionAngle() * Mathf.Deg2Rad;
                 direction = new Vector2(-Mathf.Cos(dirAngle), -Mathf.Sin(dirAngle));
             }
             Offset = transform.position - Player.transform.position;

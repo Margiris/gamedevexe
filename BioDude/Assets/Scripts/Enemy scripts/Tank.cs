@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Pathfinding;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 
 public abstract class Tank : Character
 {
@@ -20,6 +21,7 @@ public abstract class Tank : Character
     protected Transform head;
     public float widthOfFirePathChecker = 0.1f;
 
+    [SyncVar]
     public bool isAlerted = false;
 
     //private variables:
@@ -39,12 +41,11 @@ public abstract class Tank : Character
     protected Animator animator;
 
     protected Animator alertionIndicatorAnimator;
-    protected SpriteRenderer alertionIndicatorSpriteRenderer;
-    protected Sprite targetInVisionSprite;
-    protected Sprite isAlertedSprite;
 
 
+    [SyncVar]
     protected float distanceToPlayer;
+    [SyncVar]
     protected Vector2 directionToPlayer;
 
     //from single player stuff
@@ -62,10 +63,14 @@ public abstract class Tank : Character
     protected Dictionary<int, Transform> PLKPs;
     protected Dictionary<int, GameObject> players;
     protected Dictionary<int, Allerting> playerAlertings;
+    [SyncVar]
     protected int targetedPlayerID = -1;
     protected bool noOneSeen = true;
+    [SyncVar]
     protected int otherID = -1;
+    [SyncVar]
     Vector2 directionToOther;
+    [SyncVar]
     float distanceToOther;
     protected bool issensitive = true;
 
@@ -73,104 +78,120 @@ public abstract class Tank : Character
     protected virtual void Start () {
         //PLKP = GameObject.Find("PlayerLastKnownPosition").transform;
         //player = GameObject.Find("player");
-
-        List<Gamer> playersData = GameObject.Find("LevelManager").GetComponent<LevelManager>().GetPlayersData();
-        UpdatePLayerList(playersData);
-
-        head = transform.Find("body");
-        headScript = head.GetComponent<Head>();
-        animator = GetComponent<Animator>();
-        
-        alertionIndicatorAnimator = transform.Find("EnemyCanvas/AlertionIndicator").GetComponent<Animator>();
-        alertionIndicatorSpriteRenderer = transform.Find("EnemyCanvas/AlertionIndicator").GetComponent<SpriteRenderer>();
-        targetInVisionSprite = Resources.Load<Sprite>("e");
-        isAlertedSprite = Resources.Load<Sprite>("q");
-        
-        aiDestinationSetter = GetComponent<AIDestinationSetter>();
-        aiPatrol = GetComponent<Patrol>();
-        ai = GetComponent<IAstarAI>();
-        //playerAllerting = player.GetComponent<Allerting>();
-        HpBar = transform.Find("EnemyCanvas").GetComponent<EnemyHPBar>();
+        isAlerted = false;
+        HpBar = transform.GetComponent<EnemyHPBar>();
         HpBar.Initiate();
-        healthCurrent = healthMax;
-        normalSpeed = ai.maxSpeed;
-        alertedSpeed = normalSpeed;
+        if (isServer)
+        {
+            UpdatePLayerList();
+
+            head = transform.Find("body");
+            headScript = head.GetComponent<Head>();
+            animator = GetComponent<Animator>();
+
+            alertionIndicatorAnimator = transform.GetComponent<Animator>();
+
+            aiDestinationSetter = GetComponent<AIDestinationSetter>();
+            aiPatrol = GetComponent<Patrol>();
+            ai = GetComponent<IAstarAI>();
+            //playerAllerting = player.GetComponent<Allerting>();
+            healthCurrent = healthMax;
+            normalSpeed = ai.maxSpeed;
+            alertedSpeed = normalSpeed;
+        }
+        else
+        {
+            ai = GetComponent<IAstarAI>();
+            ai.canMove = false;
+            gameObject.GetComponent<AIPath>().enabled = false;
+            gameObject.GetComponent<Patrol>().enabled = false;
+            gameObject.GetComponent<SimpleSmoothModifier>().enabled = false;
+        }
     }
 
     //PUBLIC METHODS:
-
-    public void UpdatePLayerList(List<Gamer> gamers)
+    public void UpdatePLayerList()
     {
-        List<int> prevPlayersInVision = prevTargetsInVision;
-
-        prevTargetsInVision = new List<int>();
-        PLKPs = new Dictionary<int, Transform>();
-        players = new Dictionary<int, GameObject>();
-        playerAlertings = new Dictionary<int, Allerting>();
-        for (int i = 0; i < gamers.Count; i++)
+        if (isServer)
         {
-            int ID = gamers[i].getPlayerID();
-            playerAlertings.Add(ID, gamers[i].playerAllerting);
-            players.Add(ID, gamers[i].player);
-            PLKPs.Add(ID, gamers[i].PLKP);
-            if (prevPlayersInVision.Contains(ID))
+            List<GameObject> gamers = GameObject.Find("LevelManager").GetComponent<LevelManager>().GetPlayersData();
+            Debug.Log("updating LIST OF PLAYERS: " + gamers.Count);
+            List<int> prevPlayersInVision = prevTargetsInVision;
+
+            prevTargetsInVision = new List<int>();
+            PLKPs = new Dictionary<int, Transform>();
+            players = new Dictionary<int, GameObject>();
+            playerAlertings = new Dictionary<int, Allerting>();
+
+
+            for (int i = 0; i < gamers.Count; i++)
             {
-                prevTargetsInVision.Add(ID);
+                int ID = gamers[i].GetComponent<Gamer>().getPlayerID();
+                playerAlertings.Add(ID, gamers[i].GetComponent<Gamer>().playerAllerting);
+                players.Add(ID, gamers[i].GetComponent<Gamer>().player);
+                PLKPs.Add(ID, gamers[i].GetComponent<Gamer>().PLKP);
+                if (prevPlayersInVision.Contains(ID))
+                {
+                    prevTargetsInVision.Add(ID);
+                }
             }
         }
     }
 
     protected virtual void Update()
     {
-        int prevTargetID = targetedPlayerID;
-        bool prevTargetInVision = targetInVision;
-        //////////// checkoing surroundings and changing targets
-        CheckVision();
-        // if target appeared in vision
-        if(prevTargetID == -1 && targetedPlayerID != -1)
+        if (isServer)
         {
-            BecomeAllerted();
+            int prevTargetID = targetedPlayerID;
+            bool prevTargetInVision = targetInVision;
+            //////////// checkoing surroundings and changing targets
+            CheckVision();
+            // if target appeared in vision
+            if (prevTargetID == -1 && targetedPlayerID != -1)
+            {
+                BecomeAllerted();
+            }
+            /////////////////////////////////////////////////////////
+
+
+            if (isAlerted) // if alerted     ///if not then patrolling
+            {
+                if (targetInVision && !prevTargetInVision) // appeared in vision
+                {
+                    StartSpecialAttack();
+                    SetAlertionIndicator();
+                }
+                else if (targetInVision) // continually in vision /// following player
+                {
+                    //if (prevTargetID != targetedPlayerID) // changed target
+                    //{
+                    //}
+                    FollowTarget();
+                    SpecialAttack();
+                }
+                else if (prevTargetInVision) // disappeared from vision
+                {
+                    if (playerAlertings[targetedPlayerID].howManySeeMe > 0) // still can follow 
+                    {
+
+                    }
+                    else // can't follow anymore
+                    {
+                        GoToPLKP();
+                    }
+                    SetAlertionIndicator();
+                    StopSpecialAttack();
+                }
+                else if (!prevTargetInVision) // continually not in vision
+                {
+                    if (ai.reachedEndOfPath && !ai.pathPending) // went to last known location and player not seen
+                    {
+                        LookAround();
+                    }
+                }
+            }
+            SetHeadRotation();
         }
-        /////////////////////////////////////////////////////////
-
-
-        if (isAlerted) // if alerted     ///if not then patrolling
-        {
-            if (targetInVision && !prevTargetInVision) // appeared in vision
-            {
-                StartSpecialAttack();
-                SetAlertionIndicator();
-            }
-            else if (targetInVision) // continually in vision /// following player
-            {
-                //if (prevTargetID != targetedPlayerID) // changed target
-                //{
-                //}
-                FollowTarget();
-                SpecialAttack();
-            }
-            else if (prevTargetInVision) // disappeared from vision
-            {
-                if(playerAlertings[targetedPlayerID].howManySeeMe > 0) // still can follow 
-                {
-
-                }
-                else // can't follow anymore
-                {
-                    GoToPLKP();
-                }
-                SetAlertionIndicator();
-                StopSpecialAttack();
-            }
-            else if(!prevTargetInVision) // continually not in vision
-            {
-                if (ai.reachedEndOfPath && !ai.pathPending) // went to last known location and player not seen
-                {
-                    LookAround();
-                }
-            }
-        }
-        SetHeadRotation();
     }
 
     //Stop pursuing player
@@ -186,17 +207,39 @@ public abstract class Tank : Character
     }
 
     //call this method to make enemy go to last known player position
+    [Command]
+    public void CmdPursuePlayer(int playerID)
+    {
+        Debug.Log("Atejo alertinimas " + isServer + " / " + isLocalPlayer);
+        if (isServer)
+        {
+            if (!isAlerted) // if idle
+            {
+                targetedPlayerID = playerID;
+                BecomeAllerted();
+            }
+            else if (issensitive) // allerted but sensitive (my target lost)
+            {
+                targetedPlayerID = playerID;
+                BecomeAllerted();
+            }
+        }
+    }
+    
     public void PursuePlayer(int playerID)
     {
-        if (!isAlerted) // if idle
+        if (isServer)
         {
-            targetedPlayerID = playerID;
-            BecomeAllerted();
-        }
-        else if (issensitive) // allerted but sensitive (my target lost)
-        {
-            targetedPlayerID = playerID;
-            BecomeAllerted();
+            if (!isAlerted) // if idle
+            {
+                targetedPlayerID = playerID;
+                BecomeAllerted();
+            }
+            else if (issensitive) // allerted but sensitive (my target lost)
+            {
+                targetedPlayerID = playerID;
+                BecomeAllerted();
+            }
         }
     }
 
@@ -266,6 +309,9 @@ public abstract class Tank : Character
         issensitive = true;
         foreach (var player in players)
         {
+            //Debug.Log(player);
+            //Debug.Log(player.Value);
+            //Debug.Log(player.Value.transform);
             float _distanceToPlayer = Vector2.Distance(player.Value.transform.position, transform.position);
             Vector2 _directionToPlayer = (player.Value.transform.position - transform.position).normalized;
             if (_distanceToPlayer < visionRange) // if in range
@@ -342,13 +388,21 @@ public abstract class Tank : Character
         }
         prevTargetsInVision = targetsInVision;
     }
-
+    
     protected void SetHeadRotation()
     {
         //Set head target direction: to player in vision or PLKP going to or if in patrol mode straight if looking dont set
         if (!isLooking)
         {
-            if (isAlerted && localSearchLocationsTried == 0) // alerted but not searching area around PLKP
+            if(isAlerted && localSearchLocationsTried == 0 && targetedPlayerID == -1)
+            {
+                Debug.Log("Tank LOGIC ERROR player target not selected, but alerted");
+                if (headScript != null)
+                    headScript.SetTargetAngle(VectorToAngle(transform.up));
+                else
+                    Debug.Log("Failure HeadScript not set");
+            }
+            else if (isAlerted && localSearchLocationsTried == 0) // alerted but not searching area around PLKP
             {
                 if (playerAlertings[targetedPlayerID].howManySeeMe > 0) // me or others can see my target
                 {
@@ -360,7 +414,10 @@ public abstract class Tank : Character
                 }
             }
             else {
-                headScript.SetTargetAngle(VectorToAngle(transform.up));
+                if (headScript != null)
+                    headScript.SetTargetAngle(VectorToAngle(transform.up));
+                else
+                    Debug.Log("Failure HeadScript not set");
             }
         }
     }
@@ -444,10 +501,10 @@ public abstract class Tank : Character
     {
         return Mathf.Atan2(vect.y, vect.x) * Mathf.Rad2Deg - 90;
     }
-
-    public void DamageAlerting(float amount, int PlayerID = -1, Vector3 position = new Vector3())
+    
+    public void DamageAlerting(float amount, int PlayerID, Vector3 position)
     {
-        if(PlayerID != -1)
+        if(PlayerID != -1 && isServer)
         {
             PLKPs[PlayerID].position = position;
             PursuePlayer(PlayerID);
@@ -457,13 +514,16 @@ public abstract class Tank : Character
     // OVERRIDES:
     public override void Damage(float amount)
     {
-        base.Damage(amount);
-        HpBar.SetHealth(GetHealth());
+        if (isServer)
+        {
+            base.Damage(amount);
+            HpBar.RpcSetHealth(GetHealth());
+        }
     }
 
     protected override void Die()
     {
-        GameObject.Find("LevelManager").GetComponent<LevelManager>().EnemyDefeated();
+        GameObject.Find("LevelManager").GetComponent<LevelManager>().EnemyDefeated(gameObject);
     }
     
     protected void SetAlertionIndicator()
@@ -473,20 +533,17 @@ public abstract class Tank : Character
             ai.maxSpeed = alertedSpeed;
             if (targetInVision)
             {
-                alertionIndicatorSpriteRenderer.sprite = targetInVisionSprite;
-                alertionIndicatorAnimator.SetFloat("Speed", 2);
+                alertionIndicatorAnimator.SetInteger("Alertion", 2);
             }
             else
             {
-                alertionIndicatorSpriteRenderer.sprite = isAlertedSprite;
-                alertionIndicatorAnimator.SetFloat("Speed", 1);
+                alertionIndicatorAnimator.SetInteger("Alertion", 1);
             }
         }
         else
         {
             ai.maxSpeed = normalSpeed;
-            alertionIndicatorSpriteRenderer.sprite = null;
-            alertionIndicatorAnimator.SetFloat("Speed", 0);
+            alertionIndicatorAnimator.SetInteger("Alertion", 0);
         }
     }
 }

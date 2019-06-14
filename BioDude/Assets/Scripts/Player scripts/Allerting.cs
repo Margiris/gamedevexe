@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class Allerting : MonoBehaviour {
+public class Allerting : NetworkBehaviour {
 
+    //[SyncVar]
     public uint howManySeeMe = 0;
     private Transform PLKP; //PlayerLastknownPosition
 
@@ -16,7 +18,7 @@ public class Allerting : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        PLKP = transform.parent.Find("PlayerLastKnownPosition").transform;
+        PLKP = transform.Find("PlayerLastKnownPosition").transform;
 	}
 	
 	// Update is called once per frame
@@ -27,7 +29,7 @@ public class Allerting : MonoBehaviour {
     public void AllertSurroundings(float radius)
     {
         bool plkpSet = false;
-        RaycastHit2D[] objects = Physics2D.CircleCastAll(transform.position, radius, Vector2.right, radius, LayerMask.GetMask("Enemy"));
+        RaycastHit2D[] objects = Physics2D.CircleCastAll(transform.Find("player").position, radius, Vector2.right, radius, LayerMask.GetMask("Enemy"));
         foreach (RaycastHit2D obj in objects)
         {
             if (obj.transform.GetComponent<Tank>() != null)
@@ -35,9 +37,10 @@ public class Allerting : MonoBehaviour {
                 if(!plkpSet)
                 {
                     plkpSet = true;
-                    PLKP.position = transform.position;
+                    PLKP.position = transform.Find("player").position;
                 }
-                obj.transform.GetComponent<Tank>().PursuePlayer(transform.parent.GetComponent<Gamer>().getPlayerID());
+                Debug.Log("my id is: " + transform.GetComponent<Gamer>().getPlayerID());
+                obj.transform.GetComponent<Tank>().CmdPursuePlayer(transform.GetComponent<Gamer>().getPlayerID());
             }
         }
     }

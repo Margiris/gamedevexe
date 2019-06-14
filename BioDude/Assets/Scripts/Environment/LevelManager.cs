@@ -6,47 +6,45 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 
 public class LevelManager : NetworkBehaviour {
-
-    [SerializeField]
+    
+    [SyncVar]
     int EnemiesOnMapLeft = 0;
+    [SyncVar]
     int playersOnMap = 0;
+    [SyncVar]
     public bool clear = false;
     [SerializeField]
     public bool LastLevel = false;
     PauseMenu Pausemenu;
     string LastLevelKeyName = "LastLevelCheckpoint";
     int IDxgen = 0;
-
-    List<Gamer> players;
+    List<GameObject> players;
     List<Tank> enemies;
 
 	// Use this for initialization
     void Start()
     {
-        
+        Debug.Log("levelmanager start :" + isServer);
         GameObject obj = GameObject.Find("Pausemenu Canvas");
-        Transform enemyparent = null;
-        try
-        {
-            enemyparent = GameObject.Find("Enemies").transform;
-        }
-        catch (NullReferenceException e){}
+        //Transform enemyparent = null;
+        // try
+        //{
+        //    enemyparent = GameObject.Find("Enemies").transform;
+        //}
+        //catch (NullReferenceException e){}
 
+       
         if (obj != null)
             Pausemenu = obj.GetComponent<PauseMenu>();
-        if (GameObject.Find("Enemies") != null)
-            EnemiesOnMapLeft = enemyparent.childCount;
+
+        ScanForEnemies();
         if (SceneManager.GetActiveScene().buildIndex > 0 &&
             SceneManager.GetActiveScene().name != "Menu")
             SaveCurrentLevelIndex();
         if (SceneManager.GetActiveScene().buildIndex >= 4)
             LastLevel = true;
-        enemies = new List<Tank>();
-        players = new List<Gamer>();
-        for (int i = 0; i < EnemiesOnMapLeft; i++)
-        {
-            enemies.Add(enemyparent.GetChild(i).GetComponent<Tank>());
-        }
+        players = new List<GameObject>();
+        
         if (EnemiesOnMapLeft <= 0)
         {
             clear = true;
@@ -59,11 +57,32 @@ public class LevelManager : NetworkBehaviour {
         }
     }
 
+    public void ScanForEnemies()
+    {
+        enemies = new List<Tank>();
+        if (GameObject.FindGameObjectsWithTag("Enemy") != null)
+        {
+            GameObject[] _enemies = GameObject.FindGameObjectsWithTag("Enemy");
+            foreach (GameObject enem in _enemies)
+            {
+                Tank tank;
+                if ((tank = enem.GetComponent<Tank>()) != null)
+                {
+                    enemies.Add(tank);
+                }
+            }
+            EnemiesOnMapLeft = enemies.Count;
+        }
+    }
+
     public void LevelCleared(player player)
     {
-        //play level finished screen with option to load next level
-        player.transform.parent.GetComponent<Gamer>().pausemenu.ShowNextLevelScreen();
-        Debug.Log("Stage cleared");
+        if (isLocalPlayer)
+        {
+            //play level finished screen with option to load next level
+            player.transform.parent.GetComponent<Gamer>().pausemenu.ShowNextLevelScreen();
+            Debug.Log("Stage cleared");
+        }
     }
 
     public void LoadNextLevel()
@@ -90,47 +109,66 @@ public class LevelManager : NetworkBehaviour {
     {
         return PlayerPrefs.HasKey(LastLevelKeyName);
     }
-
-    public void EnemyDefeated()
+    
+    public void EnemyDefeated(GameObject deadEnemy)
     {
+        enemies.Remove(deadEnemy.GetComponent<Tank>());
         EnemiesOnMapLeft--;
+        Debug.Log("before scan " + EnemiesOnMapLeft + " : " + enemies.Count);
         if (EnemiesOnMapLeft <= 0)
         {
             clear = true;
-            GameObject.Find("Exit").GetComponent<LevelManagerTrigger>().OpenExit();
+            RpcOpenExit();
         }
+    }
+
+    [ClientRpc]
+    public void RpcOpenExit()
+    {
+        Debug.Log("iskviestas open exit ar servas: " + isServer);
+        GameObject.Find("Exit").GetComponent<LevelManagerTrigger>().OpenExit();
     }
 
     //Player management
-    public int RegisterNewPlayer(Gamer player)
+    public void RegisterNewPlayer(GameObject player)
     {
         playersOnMap++;
         players.Add(player);
-        player.setPLayerID(IDxgen++);
+        Debug.Log("Connecting new player"+ IDxgen);
+        player.GetComponent<Gamer>().setPLayerID(IDxgen++);
         UpdateEnemies();
-        return players.Count - 1;
-    }
-    
-    public void DisconnectPlayer(int playerID)
-    {
-        players.Remove(players.Find(e => e.getPlayerID() == playerID));
-        playersOnMap--;
-        UpdateEnemies();
+        //return players.Count - 1;
     }
 
+    [Command]
+    public void CmdDisconnectPlayer(int playerID)
+    {
+        if (isServer)
+        {
+            players.Remove(players.Find(e => e.GetComponent<Gamer>().getPlayerID() == playerID));
+            playersOnMap--;
+            UpdateEnemies();
+        }
+    }
+    
     void UpdateEnemies()
     {
-        for(int i = 0; i < enemies.Count; i++)
+        if (isServer)
         {
-            enemies[i].UpdatePLayerList(players);
+            Debug.Log("updating player for " + enemies.Count + " enemies");
+            Debug.Log(players);
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                enemies[i].UpdatePLayerList();
+            }
         }
     }
 
-    public List<Gamer> GetPlayersData()
+    public List<GameObject> GetPlayersData()
     {
         if(players == null)
         {
-            return new List<Gamer>();
+            return new List<GameObject>();
         }
         return players;
     }

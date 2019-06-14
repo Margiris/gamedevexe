@@ -18,25 +18,32 @@ public class player : Character
     private float rot_z;
     private WeaponManager weaponManager;
     private bool initiated = false;
+    GameObject playero;
 
     void Start()
     {
-        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
+        if (isLocalPlayer)
         {
             Initiate();
             // Set up references.
-            audioSource = gameObject.GetComponents<AudioSource>()[1];
-            transform.parent.Find("GUI").gameObject.SetActive(true);
-            PausemenuCanvas = transform.parent.Find("Pausemenu Canvas").GetComponent<PauseMenu>();
-            transform.parent.Find("Pausemenu Canvas").gameObject.SetActive(true);
-            transform.parent.Find("Dialogue Manager").gameObject.SetActive(true);
-            anim = transform.parent.GetComponent<Animator>();
-            playerRigidbody = GetComponent<Rigidbody2D>();
-            weaponManager = transform.parent.GetComponent<WeaponManager>();
+            playero = transform.Find("player").gameObject;
+            audioSource = playero.GetComponents<AudioSource>()[1];
+            transform.Find("GUI").gameObject.SetActive(true);
+            PausemenuCanvas = transform.Find("Pausemenu Canvas").GetComponent<PauseMenu>();
+            transform.Find("Pausemenu Canvas").gameObject.SetActive(true);
+            transform.Find("Dialogue Manager").gameObject.SetActive(true);
+            anim = transform.GetComponent<Animator>();
+            playerRigidbody = playero.GetComponent<Rigidbody2D>();
+            weaponManager = transform.GetComponent<WeaponManager>();
             speed = 150;
             cam.gameObject.SetActive(true);
-            cam.GetComponent<CameraScript>().Player = this.gameObject;
+            cam.GetComponent<CameraScript>().Player = playero;
 
+        }
+        if (isServer)
+        {
+            if(healthCurrent <= 0)
+                healthCurrent = healthMax;
         }
     }
 
@@ -56,7 +63,7 @@ public class player : Character
 
     private void Update()
     {
-        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
+        if (GetComponent<Gamer>().isLocalPlayer)
         {
             if (ableToMove)
             {
@@ -68,7 +75,7 @@ public class player : Character
 
     void FixedUpdate()
     {
-        if (this.transform.parent.GetComponent<Gamer>().isLocalPlayer)
+        if (GetComponent<Gamer>().isLocalPlayer)
         {
             //Debug.Log("this is local and it is doing something");
             if (ableToMove)
@@ -114,13 +121,13 @@ public class player : Character
 
     void Turning()
     {
-        Vector3 diff = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+        Vector3 diff = Camera.main.ScreenToWorldPoint(Input.mousePosition) - playero.transform.position;
         diff.Normalize();
 
-        Vector2 playerPos = Camera.main.ScreenToWorldPoint(transform.position);
+        Vector2 playerPos = Camera.main.ScreenToWorldPoint(playero.transform.position);
 
         rot_z = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0f, 0f, rot_z - 90);
+        playero.transform.rotation = Quaternion.Euler(0f, 0f, rot_z - 90);
     }
 
     void Animating(float h, float v)
@@ -131,7 +138,7 @@ public class player : Character
         // Tell the animator whether or not the player is walking.
         anim.SetBool("IsMoving", walking);
         //Vector2 rot = transform.rotation;
-        Vector3 relative = transform.InverseTransformVector(movement);
+        Vector3 relative = playero.transform.InverseTransformVector(movement);
         anim.SetFloat("XSpeed", relative.x);
         anim.SetFloat("YSpeed", relative.y);
     }
@@ -140,17 +147,17 @@ public class player : Character
 
     protected override void Die()
     {
-        ableToMove = false;
-        Destroy(gameObject.GetComponent<Rigidbody2D>());
-        Destroy(gameObject.GetComponent<CircleCollider2D>());
-        Debug.Log(deathSound);
-        Debug.Log(audioSource);
-        Debug.Log(audioSource.clip);
-        audioSource.clip = deathSound;
-        audioSource.Play();
-        //^^^ pakeist i player death animation
+        if (GetComponent<Gamer>().isLocalPlayer)
+        {
+            ableToMove = false;
+            Destroy(playero.GetComponent<Rigidbody2D>());
+            Destroy(playero.GetComponent<CircleCollider2D>());
+            audioSource.clip = deathSound;
+            audioSource.Play();
+            //^^^ pakeist i player death animation
 
-        StartCoroutine(PausemenuCanvas.PlayerDeath());
+            StartCoroutine(PausemenuCanvas.PlayerDeath());
+        }
     }
 
     public override void Damage(float amount)
@@ -163,9 +170,12 @@ public class player : Character
         }
         else
         {
-            int indexSound = Random.Range(0, painSounds.Length);
-            audioSource.clip = painSounds[indexSound];
-            audioSource.Play();
+            if (isLocalPlayer)
+            {
+                int indexSound = Random.Range(0, painSounds.Length);
+                audioSource.clip = painSounds[indexSound];
+                audioSource.Play();
+            }
         }
 
     }

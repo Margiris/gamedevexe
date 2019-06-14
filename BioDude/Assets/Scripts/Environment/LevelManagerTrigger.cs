@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class LevelManagerTrigger : MonoBehaviour {
+public class LevelManagerTrigger : NetworkBehaviour {
 
     //public float rotationSpeed = 10;
     public Dialogue[] dialoguetext;
     DialogueColliderTrigger dialogue;
-    LevelManager lvlManager;
+    public LevelManager lvlManager;
     Transform door_one;
     Transform door_two;
     float open = 0.825f;
@@ -18,7 +19,7 @@ public class LevelManagerTrigger : MonoBehaviour {
     {
         dialogue = new DialogueColliderTrigger();
         dialogue.dialogue = dialoguetext;
-        lvlManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+        //lvlManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
         door_one = transform.Find("Doors_one");
         door_two = transform.Find("Doors_two");
     }
@@ -52,7 +53,7 @@ public class LevelManagerTrigger : MonoBehaviour {
     {
         if(other.tag == "Player")
         {
-            player Player = other.GetComponent<player>();
+            player Player = other.transform.parent.GetComponent<player>();
             if(Player != null)
             {
                 if (lvlManager.clear)
