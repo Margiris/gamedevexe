@@ -57,13 +57,6 @@ public class LevelManager : NetworkBehaviour {
         }
     }
 
-    void Update()
-    {
-        Debug.Log(playersOnMap);
-        if (playersOnMap <= 0)
-            Application.Quit();
-    }
-
     public void ScanForEnemies()
     {
         enemies = new List<Tank>();

@@ -56,6 +56,7 @@ namespace Prototype.NetworkLobby
 
         void Start()
         {
+            AudioListener.volume = 0;
             s_Singleton = this;
             _lobbyHooks = GetComponent<Prototype.NetworkLobby.LobbyHook>();
             currentPanel = mainMenuPanel;
@@ -332,6 +333,11 @@ namespace Prototype.NetworkLobby
                 }
             }
 
+            if (StaticsConfig.IsServer && GameObject.FindGameObjectsWithTag("Player").Length <= 1)
+            {
+                Debug.Log("Exiting");
+                Application.Quit();
+            }
         }
 
         public override bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
