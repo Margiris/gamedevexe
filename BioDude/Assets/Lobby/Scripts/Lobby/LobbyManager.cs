@@ -56,7 +56,8 @@ namespace Prototype.NetworkLobby
 
         void Start()
         {
-            AudioListener.volume = 0;
+            if (StaticsConfig.IsServer)
+                AudioListener.volume = 0;
             s_Singleton = this;
             _lobbyHooks = GetComponent<Prototype.NetworkLobby.LobbyHook>();
             currentPanel = mainMenuPanel;
